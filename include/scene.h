@@ -1,13 +1,14 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <constants.h>
+#include <image.h>
+#include <matrix44.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <constants.h>
-#include <matrix44.h>
-#include <vectors.h>
-#include <image.h>
 #include <texture.h>
+#include <vectors.h>
+
 
 typedef struct {
     float albedo;
@@ -81,13 +82,13 @@ typedef struct {
 typedef struct {
     Vec3 color;
     Vec3 direction;
-    float intensity; 
+    float intensity;
 } DirectionalLight;
 
 typedef struct {
     Vec3 position;
     Vec3 color;
-    float intensity; 
+    float intensity;
 } PointLight;
 
 typedef union {
@@ -133,14 +134,10 @@ typedef struct {
     float t;
 } Ray;
 
-typedef enum {
-    RENDER_BASIC = 0,
-    RENDER_ADVANCED = 1,
-    RENDER_SHADOW = 2
-} RenderingType;
+typedef enum { RENDER_BASIC = 0, RENDER_ADVANCED = 1, RENDER_SHADOW = 2 } RenderingType;
 
 typedef struct {
-    RenderingType rendering_type; 
+    RenderingType rendering_type;
 } RenderingOptions;
 
 ObjectList *object_list_create(void);
@@ -158,8 +155,8 @@ Vec3 light_direction(Object *object, ObjectType type, Vec3 point);
 float light_intensity(Object *object, ObjectType type);
 
 Triangle *triangle_create(Vec3 a, Vec3 b, Vec3 c, Material *material);
-Triangle *triangle_create_with_normals(Vec3 a, Vec3 b, Vec3 c, Material *material, 
-        Vec3 normal1, Vec3 normal2, Vec3 normal3);
+Triangle *triangle_create_with_normals(Vec3 a, Vec3 b, Vec3 c, Material *material, Vec3 normal1, Vec3 normal2,
+                                       Vec3 normal3);
 Vec3 triangle_normal_at(Triangle *triangle);
 float triangle_intersection(Triangle *triangle, Ray *ray);
 

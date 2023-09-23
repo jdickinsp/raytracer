@@ -1,10 +1,11 @@
 #ifndef VECTORS_H
 #define VECTORS_H
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <utils.h>
+
 
 typedef struct {
     float x, y;

@@ -31,9 +31,9 @@ Image *image_create(int width, int height) {
     image->width = width;
     image->height = height;
     image->data = malloc(image->width * image->height * sizeof(Pixel));
-    // initialize colors to zero
-    for (int j=0; j < image->height; j++) {
-        for (int i=0; i < image->width; i++) {
+    // initialize to zero
+    for (int j = 0; j < image->height; j++) {
+        for (int i = 0; i < image->width; i++) {
             unsigned char c = 0;
             image_set_pixel(image, i, j, c, c, c);
         }
@@ -53,8 +53,8 @@ void image_set_pixel(Image *image, int i, int j, unsigned char r, unsigned char 
 }
 
 void image_from_buffer(Image *image, Vec3 *frame_buffer, int buffer_size, int samples_per_pixel) {
-    for (int j=0; j < image->height; j++) {
-        for (int i=0; i < image->width; i++) {
+    for (int j = 0; j < image->height; j++) {
+        for (int i = 0; i < image->width; i++) {
             Vec3 p = frame_buffer[j * image->width + i];
             unsigned char red = clamp_range(sqrt(p.x / samples_per_pixel), 0.000, .999) * 256;
             unsigned char green = clamp_range(sqrt(p.y / samples_per_pixel), 0.000, .999) * 256;
@@ -69,7 +69,7 @@ TextureImage *texture_load(const char *filename) {
     int bytes_per_pixel = 3;
     int n = bytes_per_pixel;
     stbi_uc *data = stbi_load(filename, &width, &height, &n, bytes_per_pixel);
-    TextureImage *texture = malloc(sizeof(TextureImage*));
+    TextureImage *texture = malloc(sizeof(TextureImage *));
     texture->width = width;
     texture->height = height;
     texture->bytes_per_pixel = bytes_per_pixel;
@@ -92,6 +92,6 @@ Vec3 texture_pixel_data(TextureImage *texture, int i, int j) {
     int x = (int)data[0];
     int y = (int)data[1];
     int z = (int)data[2];
-    Vec3 pixel = { x / 255.f, y / 255.f, z / 255.f };
+    Vec3 pixel = {x / 255.f, y / 255.f, z / 255.f};
     return pixel;
 }

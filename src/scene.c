@@ -28,13 +28,13 @@ void object_list_add(ObjectList *object_list, Object *object, ObjectType type) {
 float object_intersection(Object *object, ObjectType type, Ray *ray, HitInfo *hit_info) {
     switch (type) {
         case SphereType:
-            return sphere_intersection((Sphere*)object, ray, hit_info);
+            return sphere_intersection((Sphere *)object, ray, hit_info);
         case PlaneType:
-            return plane_intersection((Plane*)object, ray);
+            return plane_intersection((Plane *)object, ray);
         case TriangleType:
-            return triangle_intersection((Triangle*)object, ray);
+            return triangle_intersection((Triangle *)object, ray);
         case ObjectMeshType:
-            return object_mesh_intersection((ObjectMesh*)object, ray, hit_info);
+            return object_mesh_intersection((ObjectMesh *)object, ray, hit_info);
         default:
             return -1;
     }
@@ -43,16 +43,15 @@ float object_intersection(Object *object, ObjectType type, Ray *ray, HitInfo *hi
 Vec3 object_normal_at(Object *object, ObjectType type, Vec3 p) {
     switch (type) {
         case SphereType:
-          return sphere_normal_at((Sphere*)object, p);
+            return sphere_normal_at((Sphere *)object, p);
         case PlaneType:
-            return plane_normal_at((Plane*)object);
+            return plane_normal_at((Plane *)object);
         case TriangleType:
-            return triangle_normal_at((Triangle*)object);
+            return triangle_normal_at((Triangle *)object);
         default:
             return vec3_empty();
     }
 }
-
 
 Vec3 object_color(Object *object, ObjectType type) {
     switch (type) {
@@ -63,7 +62,7 @@ Vec3 object_color(Object *object, ObjectType type) {
         case TriangleType:
             return object->triangle.material->color;
         case ObjectMeshType:
-            Vec3 color = { 1, 0, 0 };
+            Vec3 color = {1, 0, 0};
             return color;
         default:
             return vec3_empty();
@@ -85,25 +84,21 @@ Material *object_material(Object *object, ObjectType type) {
     }
 }
 
-Vec3 ray_normal_at(Ray *ray, float t) {
-    return vec3_add(ray->origin, vec3_mul(ray->direction, t));
-}
+Vec3 ray_normal_at(Ray *ray, float t) { return vec3_add(ray->origin, vec3_mul(ray->direction, t)); }
 
-Vec3 sphere_normal_at(Sphere *s, Vec3 p) {
-    return vec3_mul(vec3_sub(p, s->position), 1.f/s->radius);
-}
+Vec3 sphere_normal_at(Sphere *s, Vec3 p) { return vec3_mul(vec3_sub(p, s->position), 1.f / s->radius); }
 
 Vec2 sphere_uv_texture_coord(Vec3 p) {
     float theta = acos(-p.y);
     float phi = atan2(-p.z, p.x) + M_PI;
-    float u = phi / (2*M_PI);
+    float u = phi / (2 * M_PI);
     float v = theta / M_PI;
-    Vec2 uv = { u, v };
+    Vec2 uv = {u, v};
     return uv;
 }
 
 float sphere_intersection(Sphere *s, Ray *ray, HitInfo *hit_info) {
-    Vec3 sphere_pos = { 0, 0, 0};
+    Vec3 sphere_pos = {0, 0, 0};
     Vec3 oc = vec3_sub(ray->origin, s->position);
     float a = dot_product(ray->direction, ray->direction);
     float b = 2 * dot_product(oc, ray->direction);
@@ -123,9 +118,7 @@ float sphere_intersection(Sphere *s, Ray *ray, HitInfo *hit_info) {
     }
 }
 
-Vec3 plane_normal_at(Plane *plane) {
-    return plane->normal;
-}
+Vec3 plane_normal_at(Plane *plane) { return plane->normal; }
 
 float plane_intersection(Plane *plane, Ray *ray) {
     float denom = dot_product(ray->direction, plane->normal);
@@ -142,7 +135,7 @@ Vec3 triangle_normal_at(Triangle *t) {
     Vec3 B = vec3_sub(t->c, t->a);
     Vec3 Cnorm = cross_product(A, B);
     float mag = vec3_mag(Cnorm);
-    Cnorm = vec3_mul(Cnorm, 1/mag);
+    Cnorm = vec3_mul(Cnorm, 1 / mag);
     float d = -dot_product(Cnorm, t->a);
     if (isnan(d) == 1) {
         fprintf(stderr, "Failed to load triangle");
@@ -239,8 +232,8 @@ Triangle *triangle_create(Vec3 a, Vec3 b, Vec3 c, Material *material) {
     return triangle;
 }
 
-Triangle *triangle_create_with_normals(Vec3 a, Vec3 b, Vec3 c, Material *material, 
-        Vec3 normal1, Vec3 normal2, Vec3 normal3) {
+Triangle *triangle_create_with_normals(Vec3 a, Vec3 b, Vec3 c, Material *material, Vec3 normal1, Vec3 normal2,
+                                       Vec3 normal3) {
     Triangle *triangle = malloc(sizeof(Triangle));
     triangle->a = a;
     triangle->b = b;
@@ -277,8 +270,8 @@ BoundingSphere *bounding_sphere_create(Vec3 max_bounds, Vec3 min_bounds, Vec3 ce
     printf("radius: %f\n", radius);
     BoundingSphere *bs = malloc(sizeof(BoundingSphere));
     // TODO remove color and material
-    Vec3 color = { 0, 0, 0 };
-    Material material = { 0, 0, 0, false, color };
+    Vec3 color = {0, 0, 0};
+    Material material = {0, 0, 0, false, color};
     Sphere *sphere = sphere_create(center, radius, &material);
     bs->max_bounds = max_bounds;
     bs->min_bounds = min_bounds;
@@ -289,10 +282,10 @@ BoundingSphere *bounding_sphere_create(Vec3 max_bounds, Vec3 min_bounds, Vec3 ce
 void mesh_boundaries(Mesh *mesh, Vec3 *min_b, Vec3 *max_b, Vec3 *center_b) {
     // finds max and min boundaries
     // and create a sphere that fits that shape
-    Vec3 min_bounds = { INFINITY, INFINITY, INFINITY };
-    Vec3 max_bounds = { -INFINITY, -INFINITY, -INFINITY };
-    Vec3 center = { 0, 0, 0 };
-    for (int i=0; i < mesh->vertex_count; i++) {
+    Vec3 min_bounds = {INFINITY, INFINITY, INFINITY};
+    Vec3 max_bounds = {-INFINITY, -INFINITY, -INFINITY};
+    Vec3 center = {0, 0, 0};
+    for (int i = 0; i < mesh->vertex_count; i++) {
         float x = mesh->vertices[i].x;
         float y = mesh->vertices[i].y;
         float z = mesh->vertices[i].z;
@@ -343,7 +336,7 @@ void mesh_set_face_normals(Mesh *mesh) {
     Vec3 *face_normals = malloc(sizeof(Vec3) * mesh->vertex_count / 3);
     float *directions = malloc(sizeof(float) * mesh->vertex_count / 3);
     int s = 0;
-     for (int n=0; n < mesh->vertex_count / 3; n++) {
+    for (int n = 0; n < mesh->vertex_count / 3; n++) {
         int i = n + s;
         int j = n + s + 1;
         int k = n + s + 2;
@@ -413,15 +406,17 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     Vec3 barycentric;
     Vec3 closest_barycentric;
     // // check if in boundary sphere
-    // float sphere_hit = sphere_intersection(&object_mesh->bounding_sphere->sphere, ray);
-    // if (sphere_hit < 0) {
+    // float sphere_hit =
+    // sphere_intersection(&object_mesh->bounding_sphere->sphere, ray); if
+    // (sphere_hit < 0) {
     //     return -1;
     // }
-    for (int n=0; n < mesh->vertex_count / 3; n++) {
-        int i = n*3;
-        int j = n*3 + 1;
-        int k = n*3 + 2;
-        float hit = mesh_triangle_intersection(ray, mesh->vertices[i], mesh->vertices[j], mesh->vertices[k], &barycentric);
+    for (int n = 0; n < mesh->vertex_count / 3; n++) {
+        int i = n * 3;
+        int j = n * 3 + 1;
+        int k = n * 3 + 2;
+        float hit =
+            mesh_triangle_intersection(ray, mesh->vertices[i], mesh->vertices[j], mesh->vertices[k], &barycentric);
         if (hit > 0 && hit < closet_hit) {
             closet_hit = hit;
             hit_index = n;
@@ -429,29 +424,33 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
         }
     }
     if (closet_hit != INFINITY) {
-        Vec3 hit_normal = vec3_add(
-            vec3_add(
-                vec3_mul(mesh->vertex_normals[hit_index*3], closest_barycentric.x),
-                vec3_mul(mesh->vertex_normals[hit_index*3+1], closest_barycentric.y)
-            ),
-            vec3_mul(mesh->vertex_normals[hit_index*3+2], closest_barycentric.z)
-        );
+        Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
+                                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 1], closest_barycentric.y)),
+                                   vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
         // hit_normal = vec3_norm(hit_normal);
         // Vec3 hit_normal =  mesh->face_normals[hit_index];
-        // hit_info->color = vec3_component_mul(closest_barycentric, (Vec3) { 1.f, 1.f, 1.f });
+        // hit_info->color = vec3_component_mul(closest_barycentric, (Vec3)
+        // { 1.f, 1.f, 1.f });
         hit_info->position = ray_normal_at(ray, closet_hit);
         hit_info->hit = closet_hit;
         bool front_face = dot_product(vec3_neg(ray->direction), hit_normal) < 0.0;
         hit_info->front_face = front_face;
         hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
         hit_info->material = object_mesh->material;
-        float u = (mesh->texture_uv[hit_index*3].x * closest_barycentric.x + mesh->texture_uv[hit_index*3+1].x * closest_barycentric.x + mesh->texture_uv[hit_index*3+2].x * closest_barycentric.x) / 3.f;
-        float v = (mesh->texture_uv[hit_index*3].y * closest_barycentric.y + mesh->texture_uv[hit_index*3+1].y * closest_barycentric.y + mesh->texture_uv[hit_index*3+2].y * closest_barycentric.y) / 3.f;
+        float u = (mesh->texture_uv[hit_index * 3].x * closest_barycentric.x +
+                   mesh->texture_uv[hit_index * 3 + 1].x * closest_barycentric.x +
+                   mesh->texture_uv[hit_index * 3 + 2].x * closest_barycentric.x) /
+                  3.f;
+        float v = (mesh->texture_uv[hit_index * 3].y * closest_barycentric.y +
+                   mesh->texture_uv[hit_index * 3 + 1].y * closest_barycentric.y +
+                   mesh->texture_uv[hit_index * 3 + 2].y * closest_barycentric.y) /
+                  3.f;
         hit_info->u = u;
         hit_info->v = v;
         int i = u * object_mesh->material->texture->width;
         int j = v * object_mesh->material->texture->height;
-        // hit_info->color = texture_pixel_data(object_mesh->material->texture, i, j);
+        // hit_info->color = texture_pixel_data(object_mesh->material->texture, i,
+        // j);
         hit_info->color = texture_checkboard(u, v, 0.08f);
     }
     return closet_hit;

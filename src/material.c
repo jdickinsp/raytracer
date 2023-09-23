@@ -15,7 +15,7 @@ bool lambertian_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenu
         scatter_dir = hit_info->normal;
         printf("vec3_near_zero\n");
     }
-    *scattered = (Ray){ hit_info->position, scatter_dir };
+    *scattered = (Ray){hit_info->position, scatter_dir};
     *attenuation = vec3_mul(hit_info->color, mat->albedo);
     return true;
 }
@@ -24,14 +24,14 @@ bool metal_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation
     Vec3 reflected = reflect(vec3_norm(ray->direction), hit_info->normal);
     float fuzz = 0.3;
     reflected = vec3_add(reflected, vec3_mul(random_unit_vector(), fuzz));
-    *scattered = (Ray){ hit_info->position, reflected };
+    *scattered = (Ray){hit_info->position, reflected};
     *attenuation = vec3_mul(hit_info->color, mat->albedo);
     return true;
 }
 
 bool dielectric_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered) {
-    *attenuation = (Vec3) { 1, 1, 1 };
-    float refraction_ratio = hit_info->front_face ? (1.0f/mat->index_of_refraction) : mat->index_of_refraction;
+    *attenuation = (Vec3){1, 1, 1};
+    float refraction_ratio = hit_info->front_face ? (1.0f / mat->index_of_refraction) : mat->index_of_refraction;
     Vec3 unit_direction = vec3_norm(ray->direction);
     float cos_theta = fmin(dot_product(vec3_neg(unit_direction), hit_info->normal), 1.0f);
     float sin_theta = sqrt(1.0f - cos_theta * cos_theta);
@@ -43,12 +43,12 @@ bool dielectric_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenu
     } else {
         direction = refract(unit_direction, hit_info->normal, refraction_ratio);
     }
-    *scattered = (Ray) { hit_info->position, direction };
+    *scattered = (Ray){hit_info->position, direction};
     return true;
 }
 
 float reflectance(float cosine, float ref_index) {
-    float r0 = (1-ref_index) / (1+ref_index);
+    float r0 = (1 - ref_index) / (1 + ref_index);
     r0 = r0 * r0;
-    return r0 + (1-r0)*pow((1 - cosine), 5);
+    return r0 + (1 - r0) * pow((1 - cosine), 5);
 }

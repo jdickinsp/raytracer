@@ -23,28 +23,32 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     // first pass: count total vertex and faces
     while (!feof(fp)) {
         c = getc(fp);
-        if (c == '#') { // ignore comment
-            while (c != '\n') { c = getc(fp); }
+        if (c == '#') {  // ignore comment
+            while (c != '\n') {
+                c = getc(fp);
+            }
         }
-        if (c == 'u') { // ignore usemtl
-            while (c != '\n') { c = getc(fp); }
+        if (c == 'u') {  // ignore usemtl
+            while (c != '\n') {
+                c = getc(fp);
+            }
         }
         if (c == 'v') {
             c2 = getc(fp);
-            if (c == 'v' && c2 == ' ') { // vertices
+            if (c == 'v' && c2 == ' ') {  // vertices
                 fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
                 idx_v++;
             }
-            if (c == 'v' && c2 == 'n') { // normals
+            if (c == 'v' && c2 == 'n') {  // normals
                 fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
                 idx_n++;
             }
-             if (c == 'v' && c2 == 't') { // texture coordinates
+            if (c == 'v' && c2 == 't') {  // texture coordinates
                 fscanf_s(fp, "%f %f", &fx, &fy);
                 idx_t++;
             }
         }
-        if (c == 'f') { // face indexes
+        if (c == 'f') {  // face indexes
             while (c != '\n') {
                 fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
                 c = getc(fp);
@@ -82,36 +86,40 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     // second pass: collect object data
     while (!feof(fp)) {
         c = getc(fp);
-        if (c == '#') { // ignore comment
-            while (c != '\n') { c = getc(fp); }
+        if (c == '#') {  // ignore comment
+            while (c != '\n') {
+                c = getc(fp);
+            }
         }
-        if (c == 'u') { // ignore usemtl
-            while (c != '\n') { c = getc(fp); }
+        if (c == 'u') {  // ignore usemtl
+            while (c != '\n') {
+                c = getc(fp);
+            }
         }
         if (c == 'v') {
             c2 = getc(fp);
-            if (c == 'v' && c2 == ' ') { // vertices
+            if (c == 'v' && c2 == ' ') {  // vertices
                 fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
-                fvertices[idx_v] = (Vec3) {fx, fy, fz};
+                fvertices[idx_v] = (Vec3){fx, fy, fz};
                 idx_v++;
             }
-            if (c == 'v' && c2 == 'n') { // normals
+            if (c == 'v' && c2 == 'n') {  // normals
                 fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
-                fnormals[idx_n] = (Vec3) {fx, fy, fz};
+                fnormals[idx_n] = (Vec3){fx, fy, fz};
                 idx_n++;
             }
-             if (c == 'v' && c2 == 't') { // texture coordinates
+            if (c == 'v' && c2 == 't') {  // texture coordinates
                 fscanf_s(fp, "%f %f", &fx, &fy);
-                ftextures[idx_t] = (Vec2) {fx, fy};
+                ftextures[idx_t] = (Vec2){fx, fy};
                 idx_t++;
             }
         }
-        if (c == 'f') { // face indexes
+        if (c == 'f') {  // face indexes
             int fi, fj, fk;
             int face_vertex_count = 0;
             while (c != '\n') {
                 // vertex_index / texture_index / normal_index
-                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk); 
+                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
                 c = getc(fp);
                 if (feof(fp)) {
                     break;
@@ -136,7 +144,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
 
     const int face_count = idx_fv;
     int max_vertices = 0;
-    for (int n=0; n < face_count; n++) {
+    for (int n = 0; n < face_count; n++) {
         max_vertices += (face_index[n] - 2) * 3;
     }
     printf("face_count: %d\n", face_count);
@@ -150,8 +158,8 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     // transfer data to model
     int t = 0;
     int p = 0;
-    for (int n=0; n < face_count; n++) {
-        for (int m=0; m < face_index[n] - 2; m++) {
+    for (int n = 0; n < face_count; n++) {
+        for (int m = 0; m < face_index[n] - 2; m++) {
             int total = face_index[n];
             int i = p;
             int j = p + m + 1;
@@ -161,22 +169,22 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             int vj = vertex_index[j];
             int vk = vertex_index[k];
             vertices[t] = fvertices[vi];
-            vertices[t+1] = fvertices[vj];
-            vertices[t+2] = fvertices[vk];
+            vertices[t + 1] = fvertices[vj];
+            vertices[t + 2] = fvertices[vk];
 
             int ni = normal_index[i];
             int nj = normal_index[j];
             int nk = normal_index[k];
             vertex_normals[t] = fnormals[ni];
-            vertex_normals[t+1] = fnormals[nj];
-            vertex_normals[t+2] = fnormals[nk];
+            vertex_normals[t + 1] = fnormals[nj];
+            vertex_normals[t + 2] = fnormals[nk];
 
             int ti = texture_index[i];
             int tj = texture_index[j];
             int tk = texture_index[k];
             textures[t] = ftextures[ti];
-            textures[t+1] = ftextures[tj];
-            textures[t+2] = ftextures[tk];
+            textures[t + 1] = ftextures[tj];
+            textures[t + 2] = ftextures[tk];
             t += 3;
         }
         p += face_index[n];
