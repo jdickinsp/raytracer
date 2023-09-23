@@ -1,15 +1,13 @@
 #include <camera.h>
 
 void camera_init(Camera *camera, int width, int height) {
-    camera->samples_per_pixel = 20;
-    camera->rendering_depth = 20;
+    camera->samples_per_pixel = 50;
+    camera->rendering_depth = 50;
     camera->width = width;
     camera->height = height;
     camera->aspect_ratio = (float)width / (float)height;
     camera->vfov = 50.f;
-    // camera->lookfrom = vec3_create(-0.4, -0.4, 2);
-    // camera->lookfrom = vec3_create(-1.6, -.4, 2);
-    camera->lookfrom = vec3_create(-1.6, -.4, 2);
+    camera->lookfrom = vec3_create(-1.6, -0.4, 2);
     camera->lookat = vec3_create(0, 0, -1);
     camera->up = vec3_create(0, 1, 0);
     camera->position = camera->lookfrom;

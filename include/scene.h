@@ -143,7 +143,7 @@ typedef struct {
     RenderingType rendering_type; 
 } RenderingOptions;
 
-ObjectList *object_list_create();
+ObjectList *object_list_create(void);
 void object_list_add(ObjectList *object_list, Object *object, ObjectType type);
 float object_intersection(Object *object, ObjectType type, Ray *ray, HitInfo *hit_info);
 Vec3 object_normal_at(Object *object, ObjectType type, Vec3 p);
@@ -177,6 +177,7 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
 Vec3 mesh_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c);
 void mesh_boundaries(Mesh *mesh, Vec3 *min_b, Vec3 *max_b, Vec3 *center_b);
 float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw);
+void mesh_set_face_normals(Mesh *mesh);
 
 Material *material_create(float albedo, float Kd, float Ks, bool reflective, Vec3 color, float index_of_refraction);
 

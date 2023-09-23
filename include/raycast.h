@@ -6,6 +6,7 @@
 #include <camera.h>
 #include <constants.h>
 #include <matrix44.h>
+#include <material.h>
 #include <vectors.h>
 #include <scene.h>
 #include <texture.h>

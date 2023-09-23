@@ -1,7 +1,8 @@
 #include <loaders.h>
 
 Mesh *load_wavefront_obj_model(const char *file_path) {
-    FILE *fp = fopen(file_path, "r");
+    FILE *fp;
+    fopen_s(&fp, file_path, "r");
     if (!fp) {
         fprintf(stderr, "Unable to open file\n");
         exit(1);
@@ -31,21 +32,21 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = getc(fp);
             if (c == 'v' && c2 == ' ') { // vertices
-                fscanf(fp, "%f %f %f", &fx, &fy, &fz);
+                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') { // normals
-                fscanf(fp, "%f %f %f", &fx, &fy, &fz);
+                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
                 idx_n++;
             }
              if (c == 'v' && c2 == 't') { // texture coordinates
-                fscanf(fp, "%f %f", &fx, &fy);
+                fscanf_s(fp, "%f %f", &fx, &fy);
                 idx_t++;
             }
         }
         if (c == 'f') { // face indexes
             while (c != '\n') {
-                fscanf(fp, "%i/%i/%i", &fi, &fj, &fk);
+                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
                 c = getc(fp);
                 if (feof(fp)) {
                     break;
@@ -90,17 +91,17 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = getc(fp);
             if (c == 'v' && c2 == ' ') { // vertices
-                fscanf(fp, "%f %f %f", &fx, &fy, &fz);
+                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
                 fvertices[idx_v] = (Vec3) {fx, fy, fz};
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') { // normals
-                fscanf(fp, "%f %f %f", &fx, &fy, &fz);
+                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
                 fnormals[idx_n] = (Vec3) {fx, fy, fz};
                 idx_n++;
             }
              if (c == 'v' && c2 == 't') { // texture coordinates
-                fscanf(fp, "%f %f", &fx, &fy);
+                fscanf_s(fp, "%f %f", &fx, &fy);
                 ftextures[idx_t] = (Vec2) {fx, fy};
                 idx_t++;
             }
@@ -110,7 +111,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             int face_vertex_count = 0;
             while (c != '\n') {
                 // vertex_index / texture_index / normal_index
-                fscanf(fp, "%i/%i/%i", &fi, &fj, &fk); 
+                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk); 
                 c = getc(fp);
                 if (feof(fp)) {
                     break;

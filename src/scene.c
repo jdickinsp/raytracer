@@ -192,6 +192,9 @@ Vec3 light_direction(Object *object, ObjectType type, Vec3 point) {
             return object->directional_light.direction;
         case PointLightType:
             return vec3_neg(vec3_norm(vec3_sub(point, object->point_light.position)));
+        default:
+            printf("error with light_direction");
+            abort();
     }
     return vec3_empty();
 }
@@ -202,6 +205,9 @@ float light_intensity(Object *object, ObjectType type) {
             return object->directional_light.intensity;
         case PointLightType:
             return object->point_light.intensity;
+        default:
+            printf("error with light_intensity");
+            abort();
     }
     return 0;
 }

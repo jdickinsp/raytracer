@@ -155,12 +155,12 @@ Vec3 raycast_color(Ray *ray, RenderingOptions *options, Scene *scene, int depth)
     if (hit) {
         Vec3 attenuation;
         Ray scattered;
-        if (material_scatter(hit_info.material, ray, hit_info, &attenuation, &scattered)) {
+        if (material_scatter(hit_info.material, ray, &hit_info, &attenuation, &scattered)) {
             Vec3 color = raycast_color(&scattered, options, scene, depth - 1);
             // vec3_debug_print(vec3_component_mul(color, attenuation));
             return vec3_component_mul(color, attenuation);
         }
-        return vec3_create(0, 0, 0);
+        return (Vec3){ 0, 0, 0 };
     }
     Vec3 unit_dir = vec3_norm(ray->direction);
     float a = 0.5 * (unit_dir.y + 1.0);

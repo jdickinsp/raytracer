@@ -37,7 +37,7 @@ Scene *scene_selector(int index) {
 }
 
 void raytrace_image(Image *image) {
-    Scene *scene = scene_selector(7);
+    Scene *scene = scene_selector(1);
     RenderingOptions options = {
         .rendering_type = RENDER_SHADOW
     };
@@ -70,8 +70,6 @@ void raytrace_image(Image *image) {
             //     .z = -d
             // };
             // ray_dir_object_space = vec3_norm(ray_dir_object_space);
-            \
-
             // Vec3 ray_direction = vec3_norm(matrix44_vec3_mul(&scene->world_matrix, ray_dir_object_space));
             // Ray ray = { ray_origin, ray_direction };
             Vec3 pixel_color = { 0, 0, 0 };
@@ -95,7 +93,6 @@ int main() {
     printf("raytracer\n");
     // Image *image = image_create(1366, 768);
     Image *image = image_create(768, 512);
-    // Image *image = image_create(512, 512);
     raytrace_image(image);
     // image_save_ppm(image);
     image_save_png(image);

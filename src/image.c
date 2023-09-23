@@ -11,7 +11,8 @@ int image_save_png(Image *image) {
 
 int image_save_ppm(Image *image) {
     printf("save file (%ix%i)\n", image->width, image->height);
-    FILE *fp = fopen("./outputs/image.ppm", "wb");
+    FILE *fp;
+    fopen_s(&fp, "./outputs/image.ppm", "wb");
     if (!fp) {
         fprintf(stderr, "Unable to open file\n");
         exit(1);
