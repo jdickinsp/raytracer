@@ -1,14 +1,16 @@
 #ifndef RAYCAST_H
 #define RAYCAST_H
 
-#include <stdbool.h>
-#include <math.h>
 #include <camera.h>
 #include <constants.h>
+#include <material.h>
+#include <math.h>
 #include <matrix44.h>
-#include <vectors.h>
 #include <scene.h>
+#include <stdbool.h>
 #include <texture.h>
+#include <vectors.h>
+
 
 bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
 Vec3 cast_ray(Ray *ray, RenderingOptions *options, Scene *scene);
