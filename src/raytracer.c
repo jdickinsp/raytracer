@@ -6,6 +6,9 @@
 #include <scene.h>
 #include <vectors.h>
 
+Scene *scene_selector(int index);
+void raytrace_image(Image *image);
+
 Scene *scene_selector(int index) {
     Scene *scene;
     switch (index) {
@@ -42,8 +45,8 @@ void raytrace_image(Image *image) {
     Camera camera;
     camera_init(&camera, image->width, image->height);
 
-    int buffer_size = image->width * image->height;
-    Vec3 *frame_buffer = malloc(buffer_size * sizeof(Vec3));
+    int buffer_size = (image->width * image->height);
+    Vec3 *frame_buffer = malloc((size_t)buffer_size * sizeof(Vec3));
     // find all the rays that intersect the camera plane
     int total_progress = (image->height * image->width) / 25;
     int k = 0;

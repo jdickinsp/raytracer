@@ -1,8 +1,11 @@
 #include <image.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#pragma clang diagnostic pop
 
 int image_save_png(Image *image) {
     stbi_write_png("./outputs/image.png", image->width, image->height, 3, image->data, sizeof(Pixel) * image->width);

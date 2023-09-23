@@ -5,5 +5,5 @@
 @set LIBS=
 
 
-clang-cl %INCLUDES% %SOURCES% -O2 -o ./bin/raytracer.exe %LIBS%
+clang-cl -Wall %INCLUDES% %SOURCES% -O2 -o ./bin/raytracer.exe %LIBS%
 .\bin\raytracer.exe

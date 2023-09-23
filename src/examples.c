@@ -10,7 +10,7 @@ Scene* create_scene_basic() {
     PointLight* light = point_light_create(l_position, l_color, 20);
     object_list_add(lights, (Object*)light, PointLightType);
 
-    Material* s_material = material_create(0.1, 0.3, 0.6, true, (Vec3){1, 0, 0}, 0);
+    Material* s_material = material_create(0.1f, 0.3f, 0.6f, true, (Vec3){1, 0, 0}, 0.f);
     Vec3 s_center = {.x = 0, .y = -.1, .z = -1};
     Sphere* sphere = sphere_create(s_center, 0.5, s_material);
     object_list_add(objects, (Object*)sphere, SphereType);
