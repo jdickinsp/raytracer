@@ -464,5 +464,7 @@ Material *material_create(float albedo, float Kd, float Ks, bool reflective, Vec
     material->reflective = reflective;
     material->color = color;
     material->index_of_refraction = index_of_refraction;
+    material->checkerboard = false;
+    material->texture = NULL;
     return material;
 }
