@@ -1,8 +1,8 @@
 #include <camera.h>
 
 void camera_init(Camera *camera, int width, int height) {
-    camera->samples_per_pixel = 50;
-    camera->rendering_depth = 50;
+    camera->samples_per_pixel = 100;
+    camera->rendering_depth = 25;
     camera->width = width;
     camera->height = height;
     camera->aspect_ratio = (float)width / (float)height;
