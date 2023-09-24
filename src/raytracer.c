@@ -2,6 +2,7 @@
 #include <image.h>
 #include <math.h>
 #include <matrix44.h>
+#include <omp.h>
 #include <raycast.h>
 #include <scene.h>
 #include <vectors.h>
@@ -48,12 +49,14 @@ void raytrace_image(Image *image) {
     int buffer_size = (image->width * image->height);
     Vec3 *frame_buffer = malloc((size_t)buffer_size * sizeof(Vec3));
     // find all the rays that intersect the camera plane
-    int total_progress = (image->height * image->width) / 25;
+    int total_progress = (image->height) / 25;
     int k = 0;
     printf("progress: ");
-    Ray ray;
+#pragma omp parallel
+#pragma omp for
     for (int j = 0; j < image->height; j++) {
         for (int i = 0; i < image->width; i++) {
+            Ray ray;
             Vec3 pixel_color = {0, 0, 0};
             for (int sample = 0; sample < camera.samples_per_pixel; ++sample) {
                 camera_ray_from_pixel(&camera, i, j, &ray);
@@ -61,11 +64,11 @@ void raytrace_image(Image *image) {
                 pixel_color = vec3_add(pixel_color, p);
             }
             frame_buffer[j * image->width + i] = pixel_color;
-            if (k % total_progress == 0) {
-                printf("#");
-            }
-            ++k;
         }
+        if (k % total_progress == 0) {
+            printf("#");
+        }
+        ++k;
     }
     printf("\n");
     image_from_buffer(image, frame_buffer, buffer_size, camera.samples_per_pixel);
