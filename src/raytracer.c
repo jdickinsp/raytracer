@@ -52,8 +52,7 @@ void raytrace_image(Image *image) {
     int total_progress = (image->height) / 25;
     int k = 0;
     printf("progress: ");
-#pragma omp parallel
-#pragma omp for
+#pragma omp parallel for schedule(dynamic, 1)
     for (int j = 0; j < image->height; j++) {
         for (int i = 0; i < image->width; i++) {
             Ray ray;
