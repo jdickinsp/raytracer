@@ -5,5 +5,4 @@
 @set LIBS=-openmp
 @set XARGS=/Zi /EHsc
 
-clang-cl %INCLUDES% %SOURCES% -O2 -o ./bin/raytracer.exe %LIBS% %XARGS%
-@REM .\bin\raytracer.exe
+clang-cl %INCLUDES% %SOURCES% -fuse-ld=lld -o ./bin/raytracer-debug.exe %LIBS% %XARGS%

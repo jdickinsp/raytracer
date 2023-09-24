@@ -57,11 +57,12 @@ void raytrace_image(Image *image) {
         for (int i = 0; i < image->width; i++) {
             Ray ray;
             Vec3 pixel_color = {0, 0, 0};
-            for (int sample = 0; sample < camera.samples_per_pixel; ++sample) {
+            for (int sample = 0; sample < camera.samples_per_pixel; sample++) {
                 camera_ray_from_pixel(&camera, i, j, &ray);
                 Vec3 p = raycast_color(&ray, &options, scene, camera.rendering_depth);
                 pixel_color = vec3_add(pixel_color, p);
             }
+#pragma omp critical
             frame_buffer[j * image->width + i] = pixel_color;
         }
 #pragma omp atomic
