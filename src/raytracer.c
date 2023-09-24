@@ -65,10 +65,11 @@ void raytrace_image(Image *image) {
             }
             frame_buffer[j * image->width + i] = pixel_color;
         }
+#pragma omp atomic
+        ++k;
         if (k % total_progress == 0) {
             printf("#");
         }
-        ++k;
     }
     printf("\n");
     image_from_buffer(image, frame_buffer, buffer_size, camera.samples_per_pixel);
