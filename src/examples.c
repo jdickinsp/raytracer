@@ -32,13 +32,6 @@ Scene* create_scene_basic() {
     Plane* plane = plane_create(p_center, p_normal, p_material);
     object_list_add(objects, (Object*)plane, PlaneType);
 
-    Vec3 eye = {0, 0, 0.1};
-    Vec3 center = {0, 0, 0};
-    Vec3 up = {0, 1, 0};
-    Matrix44 camera_matrix;
-    camera_lookat(eye, center, up, &camera_matrix);
-
-    scene->world_matrix = camera_matrix;
     scene->lights = lights;
     scene->objects = objects;
     return scene;
