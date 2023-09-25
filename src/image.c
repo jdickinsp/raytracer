@@ -77,7 +77,7 @@ TextureImage *texture_load(const char *filename) {
         exit(1);
     }
     size_t size = (size_t)width * height * bytes_per_pixel;
-    TextureImage *texture = malloc(sizeof(TextureImage *) + size);
+    TextureImage *texture = malloc(sizeof(TextureImage));
     texture->width = width;
     texture->height = height;
     texture->bytes_per_pixel = bytes_per_pixel;
