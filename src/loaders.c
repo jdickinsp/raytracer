@@ -4,7 +4,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     FILE *fp;
     fopen_s(&fp, file_path, "r");
     if (!fp) {
-        fprintf(stderr, "Unable to open file\n");
+        fprintf(stderr, "Unable to open obj model %s\n", file_path);
         exit(1);
     }
     Mesh *mesh = malloc(sizeof(Mesh));

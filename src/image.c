@@ -69,15 +69,20 @@ void image_from_buffer(Image *image, Vec3 *frame_buffer, int buffer_size, int sa
 
 TextureImage *texture_load(const char *filename) {
     int width, height;
-    int bytes_per_pixel = 3;
-    int n = bytes_per_pixel;
-    stbi_uc *data = stbi_load(filename, &width, &height, &n, bytes_per_pixel);
-    TextureImage *texture = malloc(sizeof(TextureImage *));
+    int bytes_per_pixel;
+    int req_comp = 3;
+    stbi_uc *data = stbi_load(filename, &width, &height, &bytes_per_pixel, req_comp);
+    if (data == NULL) {
+        fprintf(stderr, "failed to load texture %s\n", filename);
+        exit(1);
+    }
+    size_t size = (size_t)width * height * bytes_per_pixel;
+    TextureImage *texture = malloc(sizeof(TextureImage *) + size);
     texture->width = width;
     texture->height = height;
     texture->bytes_per_pixel = bytes_per_pixel;
+    texture->size = size;
     texture->data = data;
-
     return texture;
 }
 
