@@ -78,13 +78,6 @@ Scene* create_scene_rand_spheres() {
     Plane* plane = plane_create(p_center, p_normal, p_material);
     object_list_add(objects, (Object*)plane, PlaneType);
 
-    Vec3 eye = {0, 0, 0.1};
-    Vec3 center = {0, 0, 0};
-    Vec3 up = {0, 1, 0};
-    Matrix44 camera_matrix;
-    camera_lookat(eye, center, up, &camera_matrix);
-
-    scene->world_matrix = camera_matrix;
     scene->objects = objects;
     scene->lights = lights;
     return scene;
@@ -106,14 +99,6 @@ Scene* create_scene_triangle() {
     Vec3 c = {0, 0, -0.7};
     Triangle* triangle = triangle_create(a, b, c, t_material);
     object_list_add(objects, (Object*)triangle, TriangleType);
-
-    Vec3 eye = {0, 0, 0.1};
-    Vec3 center = {0, 0, 0};
-    Vec3 up = {0, 1, 0};
-    Matrix44 camera_matrix;
-    camera_lookat(eye, center, up, &camera_matrix);
-
-    scene->world_matrix = camera_matrix;
 
     scene->lights = lights;
     scene->objects = objects;
@@ -153,19 +138,12 @@ Scene* create_scene_box() {
         p += face_index[n];
     }
 
-    Vec3 eye = {2, -2, 4};
-    Vec3 center = {0, 0, 0};
-    Vec3 up = {0, 1, 0};
-    Matrix44 camera_matrix;
-    camera_lookat(eye, center, up, &camera_matrix);
-
     Material* p_material = material_create(0.1, 0.3, 0.6, false, (Vec3){1, 1, 0}, 1.3);
     Vec3 p_center = {.x = 0, .y = 1, .z = -1};
     Vec3 p_normal = {.x = 0, .y = 1, .z = 0};
     Plane* plane = plane_create(p_center, p_normal, p_material);
     object_list_add(objects, (Object*)plane, PlaneType);
 
-    scene->world_matrix = camera_matrix;
     scene->lights = lights;
     scene->objects = objects;
     return scene;
@@ -188,20 +166,20 @@ Scene* create_scene_with_obj_file() {
         int j = n * 3 + 1;
         int k = n * 3 + 2;
         Vec3 t_color1 = {1, n % 2 == 0 ? 0 : 1, 0};
-        Material* t_material1 = material_create(0.22, 0.3, 0.2, false, t_color1, 0);
+        Material* t_material1 = material_create(0.5, 0.3, 0.5, true, t_color1, 0);
         Triangle* triangle1 =
             triangle_create_with_normals(mesh->vertices[i], mesh->vertices[j], mesh->vertices[k], t_material1,
                                          mesh->vertex_normals[i], mesh->vertex_normals[j], mesh->vertex_normals[k]);
         object_list_add(objects, (Object*)triangle1, TriangleType);
     }
 
-    Vec3 eye = {2, -2, 4};
-    Vec3 center = {0, 0, 0};
-    Vec3 up = {0, 1, 0};
-    Matrix44 camera_matrix;
-    camera_lookat(eye, center, up, &camera_matrix);
+    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
+    p_material->checkerboard = true;
+    Vec3 p_center = {.x = 0, .y = 1, .z = -1};
+    Vec3 p_normal = {.x = 0, .y = 1, .z = 0};
+    Plane* plane = plane_create(p_center, p_normal, p_material);
+    object_list_add(objects, (Object*)plane, PlaneType);
 
-    scene->world_matrix = camera_matrix;
     scene->lights = lights;
     scene->objects = objects;
     return scene;
@@ -273,13 +251,6 @@ Scene* create_scene_with_texture() {
     Plane* plane = plane_create(p_center, p_normal, p_material);
     object_list_add(objects, (Object*)plane, PlaneType);
 
-    Vec3 eye = {0, 0, 0.1};
-    Vec3 center = {0, 0, 0};
-    Vec3 up = {0, 1, 0};
-    Matrix44 camera_matrix;
-    camera_lookat(eye, center, up, &camera_matrix);
-
-    scene->world_matrix = camera_matrix;
     scene->lights = lights;
     scene->objects = objects;
     return scene;
