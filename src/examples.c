@@ -249,9 +249,9 @@ Scene* create_scene_with_texture() {
     object_list_add(lights, (Object*)light, PointLightType);
 
     Material* s_material = material_create(0.5, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
-    s_material->texture = texture_load("./assets/2k_earth_clouds.jpg");
+    s_material->texture = texture_load("./assets/2k_neptune.jpg");
     Vec3 s_center = {.x = 0, .y = -.1, .z = -1};
-    Sphere* sphere = sphere_create(s_center, 0.5, s_material);
+    Sphere* sphere = sphere_create(s_center, 0.9, s_material);
     object_list_add(objects, (Object*)sphere, SphereType);
 
     Material* s_material2 = material_create(0.6, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
@@ -262,8 +262,8 @@ Scene* create_scene_with_texture() {
 
     Material* s_material3 = material_create(0.5, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     s_material3->texture = texture_load("./assets/2k_mercury.jpg");
-    Vec3 s_center3 = {.x = 1.5, .y = -.1, .z = -3};
-    Sphere* sphere3 = sphere_create(s_center3, 0.6, s_material3);
+    Vec3 s_center3 = {.x = 3.0, .y = -.1, .z = -3};
+    Sphere* sphere3 = sphere_create(s_center3, 0.8, s_material3);
     object_list_add(objects, (Object*)sphere3, SphereType);
 
     Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);

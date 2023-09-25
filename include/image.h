@@ -17,6 +17,7 @@ typedef struct {
 typedef struct {
     int width, height;
     int bytes_per_pixel;
+    size_t size;
     unsigned char *data;
 } TextureImage;
 
