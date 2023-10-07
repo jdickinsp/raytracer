@@ -34,6 +34,9 @@ Scene *scene_selector(int index) {
         case 7:
             scene = create_scene_with_texture();
             break;
+        case 8:
+            scene = create_scene_with_bvh();
+            break;
         default:
             exit(1);
     }
@@ -41,7 +44,7 @@ Scene *scene_selector(int index) {
 }
 
 void raytrace_image(Image *image) {
-    Scene *scene = scene_selector(1);
+    Scene *scene = scene_selector(8);
     RenderingOptions options = {.rendering_type = RENDER_SHADOW};
     Camera camera;
     camera_init(&camera, image->width, image->height);

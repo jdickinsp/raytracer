@@ -1,25 +1,28 @@
 #ifndef BVH_H
 #define BVH_H
 
+#include <math.h>
 #include <vectors.h>
+
+static float EPSILON = 1e-4;
 
 typedef struct {
     Vec3 v1;
     Vec3 v2;
     Vec3 v3;
-} Triangle;
+} TriangleBVH;
 
 typedef struct AABoundingBox {
     Vec3 min;
     Vec3 max;
 } AABoundingBox;
 
-typedef struct BVHLeft {
+typedef struct BVHLeaf {
     int data;
     AABoundingBox *aabb;
 } BVHLeft;
 
-struct BVHNode {
+typedef struct BVHNode {
     AABoundingBox *aabb;
     struct BVHNode *left;
     struct BVHNode *right;
@@ -28,20 +31,20 @@ struct BVHNode {
 typedef struct {
     AABoundingBox *boxes;
     Vec3 *centroids;
-    int indexes;
-    int size;
+    int *indexes;
+    size_t size;
 } BVHPreparedData;
 
-void calculate_bounding_boxes(Triangle *triangle);
-void calculate_centroid(Triangle *triangle);
-void calculate_centroid_from_box(AABoundingBox *box);
-void calculate_bounding_box_range(AABoundingBox *boxes);
-void inv_ray_direction();
-void bounding_box_intersection();
+void calculate_bounding_box(TriangleBVH *triangle, AABoundingBox *box);
+void calculate_centroid(TriangleBVH *t, Vec3 *centroid);
+// void calculate_centroid_from_box(AABoundingBox *box);
+// void calculate_bounding_box_range(AABoundingBox *boxes);
+// void inv_ray_direction();
+// void bounding_box_intersection();
 
-void bvh_prepare_data();
-void bvh_build_tree();
-void bvh_traverse_tree();
-void bvh_raycast_bfs();
+BVHPreparedData *bvh_prepare_data(TriangleBVH *triangles, size_t size);
+// void bvh_build_tree();
+// void bvh_traverse_tree();
+// void bvh_raycast_bfs();
 
 #endif

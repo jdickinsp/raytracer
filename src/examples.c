@@ -248,3 +248,29 @@ Scene* create_scene_with_texture() {
     scene->objects = objects;
     return scene;
 }
+
+Scene* create_scene_with_bvh() {
+    Scene* scene = malloc(sizeof(Scene));
+
+    TriangleBVH triangles[4] = {(TriangleBVH){
+                                    (Vec3){-1, 1, -1},
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){1, 1, -1},
+                                },
+                                (TriangleBVH){
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){-1, -1, 1},
+                                    (Vec3){1, -1, 1},
+                                },
+                                (TriangleBVH){
+                                    (Vec3){-1, 1, 1},
+                                    (Vec3){-1, -1, -1},
+                                    (Vec3){-1, -1, 1},
+                                }};
+    BVHPreparedData* data = bvh_prepare_data(triangles, 4);
+    for (int i = 0; i < data->size; i++) {
+        vec3_debug_print(data->centroids[i]);
+    }
+
+    return scene;
+}
