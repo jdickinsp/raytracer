@@ -63,7 +63,7 @@ int main(void) {
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
 
     // Create the OpenCL kernel
-    cl_kernel kernel = clCreateKernel(program, "vector_add", &ret);
+    cl_kernel kernel = clCreateKernel(program, "raytrace_image", &ret);
 
     // Set the arguments of the kernel
     ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&a_mem_obj);
