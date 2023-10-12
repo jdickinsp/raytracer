@@ -21,10 +21,10 @@ typedef struct {
 } BinaryNodeQueueItem;
 
 static BinaryNodeQueueItem *binary_node_query_item_create(BinaryNode *node, int lo, int hi);
-static int array_partition(int *array, int lo, int hi, float pivot);
-static float array_range_sum(int *array, int lo, int hi);
-static BinaryNode *binary_tree_build_child(int *indexes, int lo, int hi);
-BinaryNode *binary_tree_build(int *indexes, size_t size);
+static int array_partition(float *array, int lo, int hi, float pivot);
+static float array_range_sum(float *array, int lo, int hi);
+static BinaryNode *binary_tree_build_child(float *array, int lo, int hi);
+BinaryNode *binary_tree_build(float *array, size_t size);
 void binary_tree_traversal(BinaryNode *root);
 
 #endif

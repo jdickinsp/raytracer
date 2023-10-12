@@ -6,10 +6,10 @@ static BinaryNodeQueueItem *binary_node_query_item_create(BinaryNode *node, int 
     return item;
 }
 
-static int array_partition(int *array, int lo, int hi, float pivot) {
+static int array_partition(float *array, int lo, int hi, float pivot) {
     for (int i = lo; i < hi; i++) {
-        if ((float)array[i] <= pivot) {
-            int temp = array[lo];
+        if (array[i] <= pivot) {
+            float temp = array[lo];
             array[lo] = array[i];
             array[i] = temp;
             ++lo;
@@ -18,7 +18,7 @@ static int array_partition(int *array, int lo, int hi, float pivot) {
     return lo;
 }
 
-static float array_range_sum(int *array, int lo, int hi) {
+static float array_range_sum(float *array, int lo, int hi) {
     float sum = 0;
     for (int i = lo; i < hi; i++) {
         sum += array[i];
@@ -26,22 +26,27 @@ static float array_range_sum(int *array, int lo, int hi) {
     return sum;
 }
 
-static BinaryNode *binary_tree_build_child(int *indexes, int lo, int hi) {
+static BinaryNode *binary_tree_build_child(float *array, int lo, int hi) {
     BinaryNode *node = malloc(sizeof(BinaryNode));
     if (hi - lo == 1) {
-        *node = (BinaryNode){(float)indexes[lo], true, NULL, NULL};
+        *node = (BinaryNode){array[lo], true, NULL, NULL};
     } else {
-        float median = array_range_sum(indexes, lo, hi) / (float)(hi - lo);
-        *node = (BinaryNode){median, false, NULL, NULL};
+        float median = array_range_sum(array, lo, hi) / (hi - lo);
+        if (median == array[lo]) {
+            // TODO handle duplicate data
+            *node = (BinaryNode){array[lo], true, NULL, NULL};
+        } else {
+            *node = (BinaryNode){median, false, NULL, NULL};
+        }
     }
     return node;
 }
 
-BinaryNode *binary_tree_build(int *indexes, size_t size) {
+BinaryNode *binary_tree_build(float *array, size_t size) {
     int lo = 0;
     int hi = size;
     Queue *queue = queue_init();
-    BinaryNode *root = binary_tree_build_child(indexes, lo, hi);
+    BinaryNode *root = binary_tree_build_child(array, lo, hi);
     BinaryNodeQueueItem item = {root, lo, hi};
     BinaryNode *node;
     queue_add(queue, &item, sizeof(BinaryNodeQueueItem));
@@ -53,14 +58,14 @@ BinaryNode *binary_tree_build(int *indexes, size_t size) {
         if (node->is_leaf == true || node == NULL) {
             continue;
         }
-        int left_pivot = array_partition(indexes, lo, hi, node->data);
+        int left_pivot = array_partition(array, lo, hi, node->data);
         if (left_pivot - lo > 0) {
-            node->left = binary_tree_build_child(indexes, lo, left_pivot);
+            node->left = binary_tree_build_child(array, lo, left_pivot);
             BinaryNodeQueueItem *item_left = binary_node_query_item_create(node->left, lo, left_pivot);
             queue_add(queue, item_left, sizeof(BinaryNodeQueueItem));
         }
         if (hi - left_pivot > 0) {
-            node->right = binary_tree_build_child(indexes, left_pivot, hi);
+            node->right = binary_tree_build_child(array, left_pivot, hi);
             BinaryNodeQueueItem *item_right = binary_node_query_item_create(node->right, left_pivot, hi);
             queue_add(queue, item_right, sizeof(BinaryNodeQueueItem));
         }
@@ -75,9 +80,8 @@ void binary_tree_traversal(BinaryNode *root) {
     while (visit->count > 0) {
         BinaryNode current;
         queue_pop(visit, &current);
-        // printf("current.data: %f, %i \n", current.data, current.is_leaf);
         if (current.is_leaf == true) {
-            printf("is_leaf %f\n", current.data);
+            printf("%f\n", current.data);
         } else {
             queue_add(visit, current.right, sizeof(BinaryNode));
             queue_add(visit, current.left, sizeof(BinaryNode));

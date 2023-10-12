@@ -249,6 +249,8 @@ Scene* create_scene_with_texture() {
     return scene;
 }
 
+#define ARRAY_SIZE 2000
+
 Scene* create_scene_with_bvh() {
     Scene* scene = malloc(sizeof(Scene));
 
@@ -296,8 +298,11 @@ Scene* create_scene_with_bvh() {
     // queue_free(queue);
 
     // test binary tree
-    int array[8] = {5, 3, 2, 6, 4543, 24, 543, 234};
-    BinaryNode* tree = binary_tree_build(array, 8);
+    float array[ARRAY_SIZE];
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        array[i] = rand_range(0, 10000);
+    }
+    BinaryNode* tree = binary_tree_build(array, ARRAY_SIZE);
     binary_tree_traversal(tree);
 
     return scene;
