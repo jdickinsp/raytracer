@@ -83,5 +83,7 @@ Vec3 random_unit_vector(void);
 bool vec3_near_zero(Vec3 v);
 Vec3 reflect(Vec3 v, Vec3 n);
 Vec3 refract(Vec3 uv, Vec3 n, float refraction_ratio);
+Vec3 vec3_distance(Vec3 a, Vec3 b);
+float vec3_index_value(Vec3 *v, int index);
 
 #endif

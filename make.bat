@@ -6,5 +6,5 @@
 @set XARGS=/fp:fast
 @REM @set DEBUG_ARGS=/Zi /EHsc
 
-clang-cl %INCLUDES% %SOURCES% -O2 -o ./bin/raytracer.exe %LIBS% %XARGS%
+clang-cl %INCLUDES% %SOURCES% -O1 -o ./bin/raytracer.exe %LIBS% %XARGS%
 @REM .\bin\raytracer.exe

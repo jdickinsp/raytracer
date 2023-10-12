@@ -37,13 +37,14 @@ typedef struct {
 
 void calculate_bounding_box(TriangleBVH *triangle, AABoundingBox *box);
 void calculate_centroid(TriangleBVH *t, Vec3 *centroid);
-// void calculate_centroid_from_box(AABoundingBox *box);
-// void calculate_bounding_box_range(AABoundingBox *boxes);
+void calculate_centroid_from_box(AABoundingBox *box, Vec3 *centroid);
+void calculate_bounding_box_range(AABoundingBox *boxes, size_t size, AABoundingBox *box_range);
+void calculate_centroid_range(Vec3 *centroids, size_t size, Vec3 *centroid);
+int argmax(int *array, size_t size);
+BVHPreparedData *bvh_prepare_data(TriangleBVH *triangles, size_t size);
+void bvh_build_tree(BVHPreparedData *prepared_data, BVHNode *node, int depth);
 // void inv_ray_direction();
 // void bounding_box_intersection();
-
-BVHPreparedData *bvh_prepare_data(TriangleBVH *triangles, size_t size);
-// void bvh_build_tree();
 // void bvh_traverse_tree();
 // void bvh_raycast_bfs();
 

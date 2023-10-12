@@ -49,3 +49,22 @@ Vec3 refract(Vec3 uv, Vec3 n, float refraction_ratio) {
     Vec3 r_out_parallel = vec3_mul(n, -sqrt(fabs(1.0 - vec3_length_squared(r_out_perpendicular))));
     return vec3_add(r_out_perpendicular, r_out_parallel);
 }
+
+Vec3 vec3_distance(Vec3 a, Vec3 b) {
+    Vec3 v;
+    v.x = sqrt(powf(a.x - b.x, 2));
+    v.y = sqrt(powf(a.y - b.y, 2));
+    v.z = sqrt(powf(a.z - b.z, 2));
+    return v;
+}
+
+float vec3_index_value(Vec3 *v, int index) {
+    if (index == 0) {
+        return v->x;
+    } else if (index == 1) {
+        return v->y;
+    } else if (index == 2) {
+        return v->z;
+    }
+    return -1;
+}

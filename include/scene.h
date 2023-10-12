@@ -9,7 +9,6 @@
 #include <texture.h>
 #include <vectors.h>
 
-
 typedef struct {
     float albedo;
     float Kd;
@@ -91,6 +90,7 @@ typedef struct {
     float intensity;
 } PointLight;
 
+// TODO: change to use void *data
 typedef union {
     Sphere sphere;
     Plane plane;

@@ -252,25 +252,53 @@ Scene* create_scene_with_texture() {
 Scene* create_scene_with_bvh() {
     Scene* scene = malloc(sizeof(Scene));
 
-    TriangleBVH triangles[4] = {(TriangleBVH){
-                                    (Vec3){-1, 1, -1},
-                                    (Vec3){1, 1, 1},
-                                    (Vec3){1, 1, -1},
-                                },
-                                (TriangleBVH){
-                                    (Vec3){1, 1, 1},
-                                    (Vec3){-1, -1, 1},
-                                    (Vec3){1, -1, 1},
-                                },
-                                (TriangleBVH){
-                                    (Vec3){-1, 1, 1},
-                                    (Vec3){-1, -1, -1},
-                                    (Vec3){-1, -1, 1},
-                                }};
-    BVHPreparedData* data = bvh_prepare_data(triangles, 4);
-    for (int i = 0; i < data->size; i++) {
-        vec3_debug_print(data->centroids[i]);
-    }
+    // TriangleBVH triangles[4] = {(TriangleBVH){
+    //                                 (Vec3){-1, 1, -1},
+    //                                 (Vec3){1, 1, 1},
+    //                                 (Vec3){1, 1, -1},
+    //                             },
+    //                             (TriangleBVH){
+    //                                 (Vec3){1, 1, 1},
+    //                                 (Vec3){-1, -1, 1},
+    //                                 (Vec3){1, -1, 1},
+    //                             },
+    //                             (TriangleBVH){
+    //                                 (Vec3){-1, 1, 1},
+    //                                 (Vec3){-1, -1, -1},
+    //                                 (Vec3){-1, -1, 1},
+    //                             }};
+    // BVHPreparedData* data = bvh_prepare_data(triangles, 4);
+    // for (int i = 0; i < data->size; i++) {
+    //     vec3_debug_print(data->centroids[i]);
+    // }
+
+    // Queue* queue = queue_init();
+    // printf("queue_init\n");
+    // Vec3 array[6] = {(Vec3){1, 2, 3}, (Vec3){2, 0, 0}, (Vec3){3, 0, 0},
+    //                  (Vec3){4, 0, 0}, (Vec3){2, 0, 0}, (Vec3){2, 0, 0}};
+    // queue_add(queue, &array, sizeof(Vec3) * 6);
+    // Vec3 array2[6] = {(Vec3){7, 7, 4}, (Vec3){2, 0, 1}, (Vec3){3, 0, 1},
+    //                   (Vec3){4, 0, 1}, (Vec3){2, 0, 1}, (Vec3){2, 0, 1}};
+    // queue_add(queue, &array2, sizeof(Vec3) * 6);
+    // printf("queue_add\n");
+    // Vec3 p_data[6];
+    // while (queue->count > 0) {
+    //     queue_popleft(queue, &p_data);
+    //     for (int i = 0; i < 6; i++) {
+    //         vec3_debug_print(p_data[i]);
+    //     }
+    // }
+    // // for (int i = 0; i < 10; i++) {
+    // //     Vec3 rand_vec = rand_in_unit_sphere();
+    // //     vec3_debug_print(rand_vec);
+    // //     queue_add(queue, &rand_vec, sizeof(Vec3));
+    // // }
+    // queue_free(queue);
+
+    // test binary tree
+    int array[8] = {5, 3, 2, 6, 4543, 24, 543, 234};
+    BinaryNode* tree = binary_tree_build(array, 8);
+    binary_tree_traversal(tree);
 
     return scene;
 }

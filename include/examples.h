@@ -1,8 +1,10 @@
 #ifndef EXAMPLES_H
 #define EXAMPLES_H
 
+#include <binary_tree.h>
 #include <bvh.h>
 #include <camera.h>
+#include <collections.h>
 #include <loaders.h>
 #include <material.h>
 #include <math.h>
