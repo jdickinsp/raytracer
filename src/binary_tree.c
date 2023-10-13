@@ -1,8 +1,8 @@
 #include <binary_tree.h>
 
-static BinaryNodeQueueItem *binary_node_query_item_create(BinaryNode *node, int lo, int hi) {
+static BinaryNodeQueueItem *binary_node_query_item_create(BinaryNode *node, int x, int y) {
     BinaryNodeQueueItem *item = malloc(sizeof(BinaryNodeQueueItem));
-    *item = (BinaryNodeQueueItem){node, lo, hi};
+    *item = (BinaryNodeQueueItem){node, x, y};
     return item;
 }
 
@@ -52,8 +52,8 @@ BinaryNode *binary_tree_build(float *array, size_t size) {
     while (queue->count > 0) {
         queue_pop(queue, &item);
         node = item.node;
-        lo = item.lo;
-        hi = item.hi;
+        lo = item.x;
+        hi = item.y;
         if (node->is_leaf == true || node == NULL) {
             continue;
         }
@@ -103,8 +103,8 @@ void binary_tree_pprint(BinaryNode *root) {
     queue_add(visit, item, sizeof(BinaryNodeQueueItem));
     while (visit->count > 0) {
         queue_pop(visit, &current);
-        indent = current.lo;
-        parens = current.hi;
+        indent = current.x;
+        parens = current.y;
         is_left = parens == 1;
         int space = indent * 2;
         printf("%*s", space, "");
@@ -117,7 +117,6 @@ void binary_tree_pprint(BinaryNode *root) {
             printf("=>(d=%f", current.node->data);
             printf("%.*s,\n", is_left ? 1 : parens, ")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))");
         } else {
-            // printf("->(m=%f,\n", current.node->data);
             printf("->(,\n");
             BinaryNodeQueueItem *item_r = binary_node_query_item_create(current.node->right, indent + 1, parens + 1);
             queue_add(visit, item_r, sizeof(BinaryNodeQueueItem));

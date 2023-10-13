@@ -249,7 +249,7 @@ Scene* create_scene_with_texture() {
     return scene;
 }
 
-#define ARRAY_SIZE 8000
+#define ARRAY_SIZE 2000
 
 Scene* create_scene_with_bvh() {
     Scene* scene = malloc(sizeof(Scene));

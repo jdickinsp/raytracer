@@ -16,8 +16,8 @@ typedef struct BinaryNode {
 
 typedef struct {
     BinaryNode *node;
-    int lo;
-    int hi;
+    int x;
+    int y;
 } BinaryNodeQueueItem;
 
 static BinaryNodeQueueItem *binary_node_query_item_create(BinaryNode *node, int lo, int hi);
