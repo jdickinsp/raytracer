@@ -31,9 +31,8 @@ static BinaryNode *binary_tree_build_child(float *array, int lo, int hi) {
     if (hi - lo == 1) {
         *node = (BinaryNode){array[lo], true, NULL, NULL};
     } else {
-        float median = array_range_sum(array, lo, hi) / (hi - lo);
+        float median = array_range_sum(array, lo, hi) / (float)(hi - lo);
         if (median == array[lo]) {
-            // TODO handle duplicate data
             *node = (BinaryNode){array[lo], true, NULL, NULL};
         } else {
             *node = (BinaryNode){median, false, NULL, NULL};
@@ -59,6 +58,10 @@ BinaryNode *binary_tree_build(float *array, size_t size) {
             continue;
         }
         int left_pivot = array_partition(array, lo, hi, node->data);
+        if (left_pivot == lo || left_pivot == hi) {
+            printf("warn: %f, %i, %i, %i\n", node->data, lo, hi, left_pivot);
+            left_pivot = hi - 1;
+        }
         if (left_pivot - lo > 0) {
             node->left = binary_tree_build_child(array, lo, left_pivot);
             BinaryNodeQueueItem *item_left = binary_node_query_item_create(node->left, lo, left_pivot);
@@ -87,4 +90,40 @@ void binary_tree_traversal(BinaryNode *root) {
             queue_add(visit, current.left, sizeof(BinaryNode));
         }
     }
+    queue_free(visit);
+}
+
+void binary_tree_pprint(BinaryNode *root) {
+    int indent = 0;
+    int parens = 0;
+    bool is_left = false;
+    Queue *visit = queue_init();
+    BinaryNodeQueueItem *item = binary_node_query_item_create(root, indent, parens);
+    BinaryNodeQueueItem current;
+    queue_add(visit, item, sizeof(BinaryNodeQueueItem));
+    while (visit->count > 0) {
+        queue_pop(visit, &current);
+        indent = current.lo;
+        parens = current.hi;
+        is_left = parens == 1;
+        int space = indent * 2;
+        printf("%*s", space, "");
+        if (is_left) {
+            printf("l:");
+        } else if (!is_left && indent != 0) {
+            printf("r:");
+        }
+        if (current.node->is_leaf == true) {
+            printf("=>(d=%f", current.node->data);
+            printf("%.*s,\n", is_left ? 1 : parens, ")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))");
+        } else {
+            // printf("->(m=%f,\n", current.node->data);
+            printf("->(,\n");
+            BinaryNodeQueueItem *item_r = binary_node_query_item_create(current.node->right, indent + 1, parens + 1);
+            queue_add(visit, item_r, sizeof(BinaryNodeQueueItem));
+            BinaryNodeQueueItem *item_l = binary_node_query_item_create(current.node->left, indent + 1, 1);
+            queue_add(visit, item_l, sizeof(BinaryNodeQueueItem));
+        }
+    }
+    queue_free(visit);
 }

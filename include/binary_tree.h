@@ -26,5 +26,6 @@ static float array_range_sum(float *array, int lo, int hi);
 static BinaryNode *binary_tree_build_child(float *array, int lo, int hi);
 BinaryNode *binary_tree_build(float *array, size_t size);
 void binary_tree_traversal(BinaryNode *root);
+void binary_tree_pprint(BinaryNode *root);
 
 #endif

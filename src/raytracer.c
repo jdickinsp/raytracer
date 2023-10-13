@@ -79,7 +79,7 @@ void raytrace_image(Image *image) {
 }
 
 int main() {
-    printf("raytracer\n");
+    // printf("raytracer\n");
     create_scene_with_bvh();
     // Image *image = image_create(1366, 768);
     // Image *image = image_create(768, 512);
