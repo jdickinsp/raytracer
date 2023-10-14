@@ -375,6 +375,10 @@ Scene* create_scene_with_bvh_from_obj() {
     }
 
     Primatives* primatives = bvh_prepare_data(triangles, n_size);
+    // for (int i = 0; i < primatives->size; i++) {
+    //     Vec3 centroid = primatives->array[i].centroid;
+    //     printf("(%f, %f, %f)\n", centroid.x, centroid.y, centroid.z);
+    // }
     BVHNode* bvh_tree = bvh_build_tree(primatives);
     bvh_pprint(bvh_tree);
 

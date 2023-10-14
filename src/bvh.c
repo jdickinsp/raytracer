@@ -139,15 +139,18 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
         float array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
         // choose biggest centroid range dimension
         int axis = argmax(array_index, 3);
-
         // find median on axis
         float offset = vec3_index_value(&centroid_range, axis) / 2.f;
         float median = vec3_index_value(&bb_range->min, axis) + offset;
         int pivot = bvh_partition(primatives, lo, hi, axis, median);
-        if (pivot - lo == 0) {  // flip split plane to other side if no partition is found
+        if (pivot == lo) {  // flip split plane to other side if no partition is found
             median = vec3_index_value(&bb_range->max, axis) - offset;
             pivot = bvh_partition(primatives, lo, hi, axis, median);
         }
+        if (pivot == hi) {
+            pivot = hi - 1;
+        }
+        // printf("pivot: (%i, %f, %f, %i, %i)\n", pivot, median, offset, lo, hi);
         if (pivot - lo > 0) {
             node->left = bvh_build_child(primatives, lo, pivot, depth);
             Tuple3Item *item_left = tuple3_item_create(node->left, sizeof(BVHNode), lo, pivot, depth);
