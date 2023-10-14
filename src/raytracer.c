@@ -40,6 +40,9 @@ Scene *scene_selector(int index) {
         case 9:
             scene = create_scene_with_bvh();
             break;
+        case 10:
+            scene = create_scene_with_bvh_from_obj();
+            break;
         default:
             exit(1);
     }
@@ -83,7 +86,7 @@ void raytrace_image(Image *image) {
 
 int main() {
     // printf("raytracer\n");
-    Scene *scene = scene_selector(9);
+    Scene *scene = scene_selector(10);
     // Image *image = image_create(1366, 768);
     // Image *image = image_create(768, 512);
     // raytrace_image(image);

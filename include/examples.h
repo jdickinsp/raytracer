@@ -25,5 +25,6 @@ Scene *create_scene_with_obj_to_mesh(void);
 Scene *create_scene_with_texture(void);
 Scene *create_scene_with_binary_tree(void);
 Scene *create_scene_with_bvh(void);
+Scene *create_scene_with_bvh_from_obj(void);
 
 #endif
