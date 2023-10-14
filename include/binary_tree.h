@@ -14,13 +14,6 @@ typedef struct BinaryNode {
     struct BinaryNode *right;
 } BinaryNode;
 
-typedef struct {
-    BinaryNode *node;
-    int x;
-    int y;
-} BinaryNodeQueueItem;
-
-static BinaryNodeQueueItem *binary_node_query_item_create(BinaryNode *node, int x, int y);
 static int array_partition(float *array, int lo, int hi, float pivot);
 static float array_range_sum(float *array, int lo, int hi);
 static BinaryNode *binary_tree_build_child(float *array, int lo, int hi);

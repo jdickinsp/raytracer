@@ -68,41 +68,58 @@ int argmax(int *array, size_t size) {
     return max_index;
 }
 
-BVHPreparedData *bvh_prepare_data(TriangleBVH *triangles, size_t size) {
-    BVHPreparedData *data = malloc(sizeof(BVHPreparedData));
-    data->boxes = malloc(sizeof(AABoundingBox) * size);
-    data->centroids = malloc(sizeof(Vec3) * size);
-    data->indexes = malloc(sizeof(int) * size);
-    data->size = size;
+Primatives *bvh_prepare_data(TriangleBVH *triangles, size_t size) {
+    Primatives *primatives = malloc(sizeof(Primatives));
+    primatives->array = malloc(sizeof(PrimativeInfo) * size);
+    primatives->size = size;
     for (int i = 0; i < size; i++) {
-        calculate_bounding_box(&triangles[i], &data->boxes[i]);
-        calculate_centroid(&triangles[i], &data->centroids[i]);
-        data->indexes[i] = i;
+        calculate_bounding_box(&triangles[i], &primatives->array[i].box);
+        calculate_centroid(&triangles[i], &primatives->array[i].centroid);
+        primatives->array[i].index = i;
     }
-    return data;
+    return primatives;
 }
 
-void bvh_build_tree(BVHPreparedData *p_data, BVHNode *node, int depth) {
-    if (depth > 8) {
+BVHNode *bvh_build_child(Primatives *primatives, int lo, int hi, int depth) {
+    BVHNode *node = malloc(sizeof(BVHNode));
+    int range_size = hi - lo;
+    if (depth > BVH_MAX_DEPTH) {
         printf("MAX DEPTH REACHED\n");
+    } else if (range_size == 0) {
+        node = NULL;
+    } else if (range_size == 1) {
+        // node = (BVHNode) { primatives[lo].aabb, }
     }
-    if (p_data->size == 0) {
-        return;
-    }
+    return node;
+};
 
-    if (node == NULL) {
-        node = malloc(sizeof(BVHNode));
-    }
-    AABoundingBox bb_range;
-    calculate_bounding_box_range(p_data->boxes, p_data->size, &bb_range);
-    node->aabb = &bb_range;
+void bvh_build_tree(Primatives *primatives) {
+    int depth = 0;
+    int lo = 0;
+    int hi = primatives->size;
+    BVHNode *root = bvh_build_child(primatives, lo, hi, depth);
+    // BHVNode *node;
+    Queue *queue = queue_init();
+    // QueueItem *item = queue_item_create(root, lo, hi, depth);
+    // queue_add(queue, item, sizeof(QueueItem));
+    // while (queue->count > 0) {
+    //     queue_pop(queue, &item);
+    //     // node = item.
+    //     // if () }
+    // }
+    // if (node == NULL) {
+    //     node = malloc(sizeof(BVHNode));
+    // }
+    // AABoundingBox bb_range;
+    // calculate_bounding_box_range(p_data->boxes, p_data->size, &bb_range);
+    // node->aabb = &bb_range;
 
-    Vec3 centroid_range;
-    calculate_centroid_range(p_data->centroids, p_data->size, &centroid_range);
+    // Vec3 centroid_range;
+    // calculate_centroid_range(p_data->centroids, p_data->size, &centroid_range);
 
-    int array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
-    int axis_index = argmax(array_index, 3);
-    // find median on axis
-    float offset = vec3_index_value(&centroid_range, axis_index) / 2.f;
-    float median_point_pos = vec3_index_value(&bb_range.min, axis_index) + offset;
+    // int array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
+    // int axis_index = argmax(array_index, 3);
+    // // find median on axis
+    // float offset = vec3_index_value(&centroid_range, axis_index) / 2.f;
+    // float median_point_pos = vec3_index_value(&bb_range.min, axis_index) + offset;
 }

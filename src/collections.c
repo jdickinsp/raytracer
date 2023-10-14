@@ -88,3 +88,9 @@ void queue_popleft(Queue *q, void *dest) {
         q->count--;
     }
 }
+
+static Tuple3Item *tuple3_item_create(void *data, size_t size, int x, int y, int z) {
+    Tuple3Item *tuple = malloc(sizeof(Tuple3Item));
+    *tuple = (Tuple3Item){data, size, x, y, z};
+    return tuple;
+}

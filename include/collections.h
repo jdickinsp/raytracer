@@ -14,6 +14,16 @@
  * queue_free(q);
  */
 
+typedef struct {
+    void *data;
+    size_t size;
+    int x;
+    int y;
+    int z;
+} Tuple3Item;
+
+Tuple3Item *tuple3_item_create(void *data, size_t size, int x, int y, int z);
+
 typedef struct QueueItem {
     void *data;
     size_t size;
