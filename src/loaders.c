@@ -2,11 +2,27 @@
 
 Mesh *load_wavefront_obj_model(const char *file_path) {
     FILE *fp;
-    fopen_s(&fp, file_path, "r");
+    fopen_s(&fp, file_path, "rb");
     if (!fp) {
         fprintf(stderr, "Unable to open obj model %s\n", file_path);
         exit(1);
     }
+    fseek(fp, 0L, SEEK_END);
+    int offset = 0;
+    int buffer_size = ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
+    printf("buffer_size: %i\n", buffer_size);
+    char *buffer = malloc(buffer_size + 1);
+    int bytesread = fread_s(buffer, buffer_size, 1, buffer_size, fp);
+    fclose(fp);
+    if (bytesread != buffer_size) {
+        fprintf(stderr, "Failed to copy file to buffer");
+        abort();
+    }
+    buffer[buffer_size - 1] = '\0';  // add EOF in case it's missing
+    // printf("buffer: %s\n", buffer);
+    char sub_buffer[32];
+
     Mesh *mesh = malloc(sizeof(Mesh));
 
     int c = 0;
@@ -21,51 +37,55 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     int fi, fj, fk;
 
     // first pass: count total vertex and faces
-    while (!feof(fp)) {
-        c = getc(fp);
+    while (offset < buffer_size) {
+        // printf("offset: %i\n", offset);
+        c = buffer[offset++];
         if (c == '#') {  // ignore comment
             while (c != '\n') {
-                c = getc(fp);
+                c = buffer[offset++];
             }
         }
         if (c == 'u') {  // ignore usemtl
             while (c != '\n') {
-                c = getc(fp);
+                c = buffer[offset++];
             }
         }
         if (c == 'v') {
-            c2 = getc(fp);
+            c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+                offset += 9;
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+                offset += 9;
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                fscanf_s(fp, "%f %f", &fx, &fy);
+                offset += 9;
                 idx_t++;
             }
         }
         if (c == 'f') {  // face indexes
+            // printf("f: %i\n", offset);
             while (c != '\n') {
-                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
-                c = getc(fp);
-                if (feof(fp)) {
+                c = buffer[offset++];
+                if (offset >= buffer_size) {
+                    printf("offset overflow\n");
+                    break;
+                }
+                char peek = buffer[offset + 1];
+                if (peek == '\n') {
                     break;
                 }
                 if (c == ' ') {
-                    c = getc(fp);
-                    if (c != '\n') {
-                        ungetc(c, fp);
-                    }
+                    offset += 5;
+                    idx_f++;
                 }
-                idx_f++;
             }
             idx_fv++;
         }
     }
+    printf("indexes: idx_fv:%i, %i, %i, %i, %i\n", idx_fv, idx_f, idx_v, idx_n, idx_t);
 
     int *face_index = malloc(sizeof(int) * idx_fv);
     int *vertex_index = malloc(sizeof(int) * idx_f);
@@ -81,61 +101,67 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     idx_fv = 0;
     idx_f = 0;
 
-    fseek(fp, 0, SEEK_SET);
+    // fseek(fp, 0, SEEK_SET);
+    offset = 0;
 
     // second pass: collect object data
-    while (!feof(fp)) {
-        c = getc(fp);
+    while (offset < buffer_size) {
+        c = buffer[offset++];
         if (c == '#') {  // ignore comment
             while (c != '\n') {
-                c = getc(fp);
+                c = buffer[offset++];
             }
         }
         if (c == 'u') {  // ignore usemtl
             while (c != '\n') {
-                c = getc(fp);
+                c = buffer[offset++];
             }
         }
         if (c == 'v') {
-            c2 = getc(fp);
+            c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+                memcpy(&sub_buffer, &buffer[offset], 32);
+                sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+                memcpy(&sub_buffer, &buffer[offset], 32);
+                sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                fscanf_s(fp, "%f %f", &fx, &fy);
+                memcpy(&sub_buffer, &buffer[offset], 32);
+                sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 ftextures[idx_t] = (Vec2){fx, fy};
                 idx_t++;
             }
         }
+
         if (c == 'f') {  // face indexes
             int fi, fj, fk;
             int face_vertex_count = 0;
             while (c != '\n') {
-                // vertex_index / texture_index / normal_index
-                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
-                c = getc(fp);
-                if (feof(fp)) {
+                c = buffer[offset++];
+                if (offset >= buffer_size) {
+                    printf("offset overflow\n");
+                    break;
+                }
+                char peek = buffer[offset + 1];
+                if (peek == '\n') {
                     break;
                 }
                 if (c == ' ') {
-                    c = getc(fp);
-                    if (c != '\n') {
-                        ungetc(c, fp);
-                    }
+                    memcpy(&sub_buffer, &buffer[offset], 32);
+                    sscanf_s(sub_buffer, "%i/%i/%i", &fi, &fj, &fk);
+                    vertex_index[idx_f] = fi - 1;
+                    texture_index[idx_f] = fj - 1;
+                    normal_index[idx_f] = fk - 1;
+                    offset += 5;
+                    idx_f++;
+                    face_vertex_count++;
                 }
-                vertex_index[idx_f] = fi - 1;
-                texture_index[idx_f] = fj - 1;
-                normal_index[idx_f] = fk - 1;
-
-                idx_f++;
-                face_vertex_count++;
             }
             face_index[idx_fv] = face_vertex_count;
             idx_fv++;
@@ -200,7 +226,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     mesh->texture_uv = textures;
     mesh_set_face_normals(mesh);
 
-    fclose(fp);
+    free(buffer);
     free(fvertices);
     free(fnormals);
     free(ftextures);

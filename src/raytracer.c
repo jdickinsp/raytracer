@@ -50,7 +50,7 @@ Scene *scene_selector(int index) {
 }
 
 void raytrace_image(Image *image) {
-    Scene *scene = scene_selector(8);
+    Scene *scene = scene_selector(6);
     RenderingOptions options = {.rendering_type = RENDER_SHADOW};
     Camera camera;
     camera_init(&camera, image->width, image->height);
@@ -90,7 +90,7 @@ int main() {
     // Image *image = image_create(1366, 768);
     // Image *image = image_create(768, 512);
     // raytrace_image(image);
-    // image_save_ppm(image);
+    // // image_save_ppm(image);
     // image_save_png(image);
     // image_close(image);
     return 0;

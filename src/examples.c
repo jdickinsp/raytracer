@@ -183,7 +183,7 @@ Scene* create_scene_with_obj_to_mesh() {
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     // material->texture = texture_load("./assets/12273_Lion_Diffuse.jpg");
     ObjectMesh* obj_mesh = object_mesh_create(mesh, material);
@@ -364,7 +364,8 @@ Scene* create_scene_with_bvh() {
 }
 
 Scene* create_scene_with_bvh_from_obj() {
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     int n_size = mesh->vertex_count / 3;
     TriangleBVH* triangles = malloc(sizeof(TriangleBVH) * n_size);
     for (int n = 0; n < mesh->vertex_count / 3; n++) {
