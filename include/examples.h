@@ -23,6 +23,7 @@ Scene *create_scene_box(void);
 Scene *create_scene_with_obj_file(void);
 Scene *create_scene_with_obj_to_mesh(void);
 Scene *create_scene_with_texture(void);
+Scene *create_scene_with_binary_tree(void);
 Scene *create_scene_with_bvh(void);
 
 #endif

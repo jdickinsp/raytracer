@@ -251,29 +251,7 @@ Scene* create_scene_with_texture() {
 
 #define ARRAY_SIZE 2000
 
-Scene* create_scene_with_bvh() {
-    Scene* scene = malloc(sizeof(Scene));
-
-    // TriangleBVH triangles[4] = {(TriangleBVH){
-    //                                 (Vec3){-1, 1, -1},
-    //                                 (Vec3){1, 1, 1},
-    //                                 (Vec3){1, 1, -1},
-    //                             },
-    //                             (TriangleBVH){
-    //                                 (Vec3){1, 1, 1},
-    //                                 (Vec3){-1, -1, 1},
-    //                                 (Vec3){1, -1, 1},
-    //                             },
-    //                             (TriangleBVH){
-    //                                 (Vec3){-1, 1, 1},
-    //                                 (Vec3){-1, -1, -1},
-    //                                 (Vec3){-1, -1, 1},
-    //                             }};
-    // BVHPreparedData* data = bvh_prepare_data(triangles, 4);
-    // for (int i = 0; i < data->size; i++) {
-    //     vec3_debug_print(data->centroids[i]);
-    // }
-
+Scene* create_scene_with_binary_tree() {
     // Queue* queue = queue_init();
     // printf("queue_init\n");
     // Vec3 array[6] = {(Vec3){1, 2, 3}, (Vec3){2, 0, 0}, (Vec3){3, 0, 0},
@@ -306,5 +284,81 @@ Scene* create_scene_with_bvh() {
     // binary_tree_traversal(tree);
     binary_tree_pprint(tree);
 
+    Scene* scene = malloc(sizeof(Scene));
+    return scene;
+}
+
+Scene* create_scene_with_bvh() {
+    TriangleBVH triangles[12] = {(TriangleBVH){
+                                     (Vec3){-1, 1, -1},
+                                     (Vec3){1, 1, 1},
+                                     (Vec3){1, 1, -1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){1, 1, 1},
+                                     (Vec3){-1, -1, 1},
+                                     (Vec3){1, -1, 1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){-1, 1, 1},
+                                     (Vec3){-1, -1, -1},
+                                     (Vec3){-1, -1, 1},
+                                 },
+
+                                 (TriangleBVH){
+                                     (Vec3){1, -1, -1},
+                                     (Vec3){-1, -1, 1},
+                                     (Vec3){-1, -1, -1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){1, 1, 1},
+                                     (Vec3){1, -1, 1},
+                                     (Vec3){1, -1, -1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){-1, 1, -1},
+                                     (Vec3){1, -1, -1},
+                                     (Vec3){-1, -1, -1},
+                                 },
+
+                                 (TriangleBVH){
+                                     (Vec3){-1, 1, -1},
+                                     (Vec3){-1, 1, 1},
+                                     (Vec3){1, 1, 1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){1, 1, 1},
+                                     (Vec3){-1, 1, 1},
+                                     (Vec3){-1, -1, 1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){-1, 1, 1},
+                                     (Vec3){-1, 1, -1},
+                                     (Vec3){-1, -1, -1},
+                                 },
+
+                                 (TriangleBVH){
+                                     (Vec3){1, -1, -1},
+                                     (Vec3){1, -1, 1},
+                                     (Vec3){-1, -1, 1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){1, 1, -1},
+                                     (Vec3){1, 1, 1},
+                                     (Vec3){1, -1, 1},
+                                 },
+                                 (TriangleBVH){
+                                     (Vec3){-1, 1, -1},
+                                     (Vec3){1, 1, -1},
+                                     (Vec3){1, -1, -1},
+                                 }
+
+    };
+
+    Primatives* primatives = bvh_prepare_data(triangles, 12);
+    BVHNode* bvh_tree = bvh_build_tree(primatives);
+    bvh_pprint(bvh_tree);
+
+    Scene* scene = malloc(sizeof(Scene));
     return scene;
 }

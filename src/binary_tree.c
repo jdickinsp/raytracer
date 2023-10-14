@@ -51,19 +51,19 @@ BinaryNode *binary_tree_build(float *array, size_t size) {
         if (node->is_leaf == true || node == NULL) {
             continue;
         }
-        int left_pivot = array_partition(array, lo, hi, node->data);
-        if (left_pivot == lo || left_pivot == hi) {
-            printf("warn: %f, %i, %i, %i\n", node->data, lo, hi, left_pivot);
-            left_pivot = hi - 1;
+        int pivot = array_partition(array, lo, hi, node->data);
+        if (pivot == lo || pivot == hi) {
+            printf("warn: %f, %i, %i, %i\n", node->data, lo, hi, pivot);
+            pivot = hi - 1;
         }
-        if (left_pivot - lo > 0) {
-            node->left = binary_tree_build_child(array, lo, left_pivot);
-            Tuple3Item *item_left = tuple3_item_create(node->left, sizeof(BinaryNode), lo, left_pivot, 0);
+        if (pivot - lo > 0) {
+            node->left = binary_tree_build_child(array, lo, pivot);
+            Tuple3Item *item_left = tuple3_item_create(node->left, sizeof(BinaryNode), lo, pivot, 0);
             queue_add(queue, item_left, sizeof(Tuple3Item));
         }
-        if (hi - left_pivot > 0) {
-            node->right = binary_tree_build_child(array, left_pivot, hi);
-            Tuple3Item *item_right = tuple3_item_create(node->right, sizeof(BinaryNode), left_pivot, hi, 0);
+        if (hi - pivot > 0) {
+            node->right = binary_tree_build_child(array, pivot, hi);
+            Tuple3Item *item_right = tuple3_item_create(node->right, sizeof(BinaryNode), pivot, hi, 0);
             queue_add(queue, item_right, sizeof(Tuple3Item));
         }
     }

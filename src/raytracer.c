@@ -35,6 +35,9 @@ Scene *scene_selector(int index) {
             scene = create_scene_with_texture();
             break;
         case 8:
+            scene = create_scene_with_binary_tree();
+            break;
+        case 9:
             scene = create_scene_with_bvh();
             break;
         default:
@@ -80,7 +83,7 @@ void raytrace_image(Image *image) {
 
 int main() {
     // printf("raytracer\n");
-    create_scene_with_bvh();
+    Scene *scene = scene_selector(9);
     // Image *image = image_create(1366, 768);
     // Image *image = image_create(768, 512);
     // raytrace_image(image);

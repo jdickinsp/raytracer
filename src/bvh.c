@@ -1,6 +1,6 @@
 #include <bvh.h>
 
-void calculate_bounding_box(TriangleBVH *t, AABoundingBox *box) {
+static void calculate_bounding_box(TriangleBVH *t, AABoundingBox *box) {
     float max_x = fmax(fmax(t->v1.x, t->v2.x), t->v3.x) + EPSILON;
     float max_y = fmax(fmax(t->v1.y, t->v2.y), t->v3.y) + EPSILON;
     float max_z = fmax(fmax(t->v1.z, t->v2.z), t->v3.z) + EPSILON;
@@ -13,42 +13,44 @@ void calculate_bounding_box(TriangleBVH *t, AABoundingBox *box) {
     box->min = (Vec3){min_x, min_y, min_z};
 }
 
-void calculate_centroid(TriangleBVH *t, Vec3 *centroid) {
+static void calculate_centroid(TriangleBVH *t, Vec3 *centroid) {
     centroid->x = (t->v1.x + t->v2.x + t->v3.x) / 3.f;
     centroid->y = (t->v1.y + t->v2.y + t->v3.y) / 3.f;
     centroid->z = (t->v1.z + t->v2.z + t->v3.z) / 3.f;
 }
 
-void calculate_centroid_from_box(AABoundingBox *box, Vec3 *centroid) {
+static void calculate_centroid_from_box(AABoundingBox *box, Vec3 *centroid) {
     Vec3 dist = vec3_mul(vec3_distance(box->max, box->min), 0.5f);
     *centroid = vec3_add(box->min, dist);
 }
 
-void calculate_bounding_box_range(AABoundingBox *boxes, size_t size, AABoundingBox *box_range) {
+static void calculate_bounding_box_range(Primatives *primatives, int lo, int hi, AABoundingBox *box_range) {
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
-    for (int i = 0; i < size; i++) {
-        max_.x = fmax(max_.x, boxes[i].max.x);
-        min_.x = fmin(min_.x, boxes[i].min.x);
-        max_.y = fmax(max_.y, boxes[i].max.y);
-        min_.y = fmin(min_.y, boxes[i].min.y);
-        max_.z = fmax(max_.z, boxes[i].max.z);
-        min_.z = fmin(min_.z, boxes[i].min.z);
+    for (int i = lo; i < hi; i++) {
+        AABoundingBox box = primatives->array[i].aabb;
+        max_.x = fmax(max_.x, box.max.x);
+        min_.x = fmin(min_.x, box.min.x);
+        max_.y = fmax(max_.y, box.max.y);
+        min_.y = fmin(min_.y, box.min.y);
+        max_.z = fmax(max_.z, box.max.z);
+        min_.z = fmin(min_.z, box.min.z);
     }
     box_range->max = max_;
     box_range->min = min_;
 }
 
-void calculate_centroid_range(Vec3 *centroids, size_t size, Vec3 *centroid) {
+static void calculate_centroid_range(Primatives *primatives, int lo, int hi, Vec3 *centroid) {
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
-    for (int i = 0; i < size; i++) {
-        max_.x = fmax(max_.x, centroids[i].x);
-        min_.x = fmin(min_.x, centroids[i].x);
-        max_.y = fmax(max_.y, centroids[i].y);
-        min_.y = fmin(min_.y, centroids[i].y);
-        max_.z = fmax(max_.z, centroids[i].z);
-        min_.z = fmin(min_.z, centroids[i].z);
+    for (int i = lo; i < hi; i++) {
+        Vec3 centroid = primatives->array[i].centroid;
+        max_.x = fmax(max_.x, centroid.x);
+        min_.x = fmin(min_.x, centroid.x);
+        max_.y = fmax(max_.y, centroid.y);
+        min_.y = fmin(min_.y, centroid.y);
+        max_.z = fmax(max_.z, centroid.z);
+        min_.z = fmin(min_.z, centroid.z);
     }
     float dist_x = fabs(max_.x - min_.x);
     float dist_y = fabs(max_.y - min_.y);
@@ -56,7 +58,7 @@ void calculate_centroid_range(Vec3 *centroids, size_t size, Vec3 *centroid) {
     *centroid = (Vec3){dist_x, dist_y, dist_z};
 }
 
-int argmax(int *array, size_t size) {
+static int argmax(float *array, size_t size) {
     float max_ = -INFINITY;
     int max_index = 0;
     for (int i = 0; i < size; i++) {
@@ -68,12 +70,22 @@ int argmax(int *array, size_t size) {
     return max_index;
 }
 
+static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot) {
+    for (int i = lo; i < hi; i++) {
+        float point = vec3_index_value(&primatives->array[i].centroid, axis);
+        if (point <= pivot) {
+            lo += 1;
+        }
+    }
+    return lo;
+}
+
 Primatives *bvh_prepare_data(TriangleBVH *triangles, size_t size) {
     Primatives *primatives = malloc(sizeof(Primatives));
     primatives->array = malloc(sizeof(PrimativeInfo) * size);
     primatives->size = size;
     for (int i = 0; i < size; i++) {
-        calculate_bounding_box(&triangles[i], &primatives->array[i].box);
+        calculate_bounding_box(&triangles[i], &primatives->array[i].aabb);
         calculate_centroid(&triangles[i], &primatives->array[i].centroid);
         primatives->array[i].index = i;
     }
@@ -85,41 +97,103 @@ BVHNode *bvh_build_child(Primatives *primatives, int lo, int hi, int depth) {
     int range_size = hi - lo;
     if (depth > BVH_MAX_DEPTH) {
         printf("MAX DEPTH REACHED\n");
+        AABoundingBox bb_range;
+        calculate_bounding_box_range(primatives, lo, hi, &bb_range);
+        int index = primatives->array[lo].index;
+        *node = (BVHNode){&bb_range, index, true, NULL, NULL};
     } else if (range_size == 0) {
         node = NULL;
     } else if (range_size == 1) {
-        // node = (BVHNode) { primatives[lo].aabb, }
+        *node = (BVHNode){&primatives->array[lo].aabb, primatives->array[lo].index, true, NULL, NULL};
+    } else {
+        *node = (BVHNode){NULL, -1, false, NULL, NULL};
     }
     return node;
 };
 
-void bvh_build_tree(Primatives *primatives) {
+BVHNode *bvh_build_tree(Primatives *primatives) {
+    printf("bvh_build_tree\n");
     int depth = 0;
     int lo = 0;
     int hi = primatives->size;
+    Queue *visit = queue_init();
     BVHNode *root = bvh_build_child(primatives, lo, hi, depth);
-    // BHVNode *node;
-    Queue *queue = queue_init();
-    // QueueItem *item = queue_item_create(root, lo, hi, depth);
-    // queue_add(queue, item, sizeof(QueueItem));
-    // while (queue->count > 0) {
-    //     queue_pop(queue, &item);
-    //     // node = item.
-    //     // if () }
-    // }
-    // if (node == NULL) {
-    //     node = malloc(sizeof(BVHNode));
-    // }
-    // AABoundingBox bb_range;
-    // calculate_bounding_box_range(p_data->boxes, p_data->size, &bb_range);
-    // node->aabb = &bb_range;
+    Tuple3Item item = {root, sizeof(BVHNode), lo, hi, depth};
+    BVHNode *node;
+    queue_add(visit, &item, sizeof(Tuple3Item));
+    while (visit->count > 0) {
+        queue_pop(visit, &item);
+        node = item.data;
+        lo = item.x;
+        hi = item.y;
+        depth = item.z;
+        if (node->is_leaf == true || node == NULL) {
+            continue;
+        }
+        // calculate subdivided bounding boxes
+        AABoundingBox *bb_range = malloc(sizeof(AABoundingBox));
+        calculate_bounding_box_range(primatives, lo, hi, bb_range);
+        node->aabb = bb_range;
+        Vec3 centroid_range;
+        calculate_centroid_range(primatives, lo, hi, &centroid_range);
+        float array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
+        // choose biggest centroid range dimension
+        int axis = argmax(array_index, 3);
 
-    // Vec3 centroid_range;
-    // calculate_centroid_range(p_data->centroids, p_data->size, &centroid_range);
+        // find median on axis
+        float offset = vec3_index_value(&centroid_range, axis) / 2.f;
+        float median = vec3_index_value(&bb_range->min, axis) + offset;
+        int pivot = bvh_partition(primatives, lo, hi, axis, median);
+        if (pivot - lo == 0) {  // flip split plane to other side if no partition is found
+            median = vec3_index_value(&bb_range->max, axis) - offset;
+            pivot = bvh_partition(primatives, lo, hi, axis, median);
+        }
+        if (pivot - lo > 0) {
+            node->left = bvh_build_child(primatives, lo, pivot, depth);
+            Tuple3Item *item_left = tuple3_item_create(node->left, sizeof(BVHNode), lo, pivot, depth);
+            queue_add(visit, item_left, sizeof(Tuple3Item));
+        }
+        if (hi - pivot > 0) {
+            node->right = bvh_build_child(primatives, pivot, hi, depth);
+            Tuple3Item *item_right = tuple3_item_create(node->right, sizeof(BVHNode), pivot, hi, depth);
+            queue_add(visit, item_right, sizeof(Tuple3Item));
+        }
+    }
+    return root;
+}
 
-    // int array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
-    // int axis_index = argmax(array_index, 3);
-    // // find median on axis
-    // float offset = vec3_index_value(&centroid_range, axis_index) / 2.f;
-    // float median_point_pos = vec3_index_value(&bb_range.min, axis_index) + offset;
+void bvh_pprint(BVHNode *root) {
+    int indent = 0;
+    int parens = 0;
+    bool is_left = false;
+    Queue *visit = queue_init();
+    Tuple3Item *item = tuple3_item_create(root, sizeof(BVHNode), indent, parens, 0);
+    Tuple3Item current;
+    BVHNode *node;
+    queue_add(visit, item, sizeof(Tuple3Item));
+    while (visit->count > 0) {
+        queue_pop(visit, &current);
+        node = current.data;
+        indent = current.x;
+        parens = current.y;
+        is_left = parens == 1;
+        int space = indent * 2;
+        printf("%*s", space, "");
+        if (is_left) {
+            printf("l:");
+        } else if (!is_left && indent != 0) {
+            printf("r:");
+        }
+        if (node->is_leaf == true) {
+            printf("=>(d=%i", node->data);
+            printf("%.*s,\n", is_left ? 1 : parens, ")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))");
+        } else {
+            printf("->(,\n");
+            Tuple3Item *item_r = tuple3_item_create(node->right, sizeof(BVHNode), indent + 1, parens + 1, 0);
+            queue_add(visit, item_r, sizeof(Tuple3Item));
+            Tuple3Item *item_l = tuple3_item_create(node->left, sizeof(BVHNode), indent + 1, 1, 0);
+            queue_add(visit, item_l, sizeof(Tuple3Item));
+        }
+    }
+    queue_free(visit);
 }

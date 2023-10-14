@@ -59,12 +59,14 @@ Vec3 vec3_distance(Vec3 a, Vec3 b) {
 }
 
 float vec3_index_value(Vec3 *v, int index) {
-    if (index == 0) {
-        return v->x;
-    } else if (index == 1) {
-        return v->y;
-    } else if (index == 2) {
-        return v->z;
+    switch (index) {
+        case 0:
+            return v->x;
+        case 1:
+            return v->y;
+        case 2:
+            return v->z;
+        default:
+            return -1;
     }
-    return -1;
 }
