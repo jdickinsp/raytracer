@@ -118,48 +118,29 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                // memcpy(&sub_buffer, &buffer[offset], 32);
-                // sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 char *next = &buffer[offset];
-                fx = atof(next);
-                next = strchr(next, ' ') + 1;
-                fy = atof(next);
-                next = strchr(next, ' ') + 1;
-                fz = atof(next);
+                fx = strtof(++next, &next);
+                fy = strtof(++next, &next);
+                fz = strtof(++next, &next);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
-                // printf("off: %i\n", off);
-                // printf("fx: %f, %f, %f\n", fx, fy, fz);
-                offset += 20;
+                offset += next - &buffer[offset];
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
-                // memcpy(&sub_buffer, &buffer[offset], 32);
-                // sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 char *next = &buffer[offset] + 1;
-                fx = atof(next);
-                next = strchr(next, ' ') + 1;
-                fy = atof(next);
-                next = strchr(next, ' ') + 1;
-                fz = atof(next);
+                fx = strtof(++next, &next);
+                fy = strtof(++next, &next);
+                fz = strtof(++next, &next);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
-                // next = strchr(next, '\n');
-                // int off = next - &buffer[offset];
-                // printf("fx: %f, %f, %f\n", fx, fy, fz);
-                offset += 20;
+                offset += next - &buffer[offset];
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                // memcpy(&sub_buffer, &buffer[offset], 32);
-                // sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 char *next = &buffer[offset] + 1;
-                fx = atof(next);
-                next = strchr(next, ' ') + 1;
-                fy = atof(next);
+                fx = strtof(++next, &next);
+                fy = strtof(++next, &next);
                 ftextures[idx_t] = (Vec2){fx, fy};
-                // next = strchr(next, '\n');
-                // int off = next - &buffer[offset];
-                // printf("fx: %f, %f\n", fx, fy);
-                offset += 20;
+                offset += next - &buffer[offset];
                 idx_t++;
             }
         }
@@ -178,22 +159,14 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                     break;
                 }
                 if (c == ' ') {
-                    // memcpy(&sub_buffer, &buffer[offset], 32);
-                    // sscanf_s(sub_buffer, "%i/%i/%i", &fi, &fj, &fk);
                     char *next = &buffer[offset];
-                    fi = atoi(next);
-                    next = strchr(next, '/') + 1;
-                    fj = atoi(next);
-                    next = strchr(next, '/') + 1;
-                    fk = atoi(next);
-                    // next = strchr(next, '\n');
-                    // int off = next - &buffer[offset];
-                    // printf("off: %i\n", off);
-                    // printf("fx: %i, %i, %i\n", fi, fj, fk);
+                    fi = strtol(next, &next, 10);
+                    fj = strtol(++next, &next, 10);
+                    fk = strtol(++next, &next, 10);
                     vertex_index[idx_f] = fi - 1;
                     texture_index[idx_f] = fj - 1;
                     normal_index[idx_f] = fk - 1;
-                    offset += 5;
+                    offset += next - &buffer[offset];
                     idx_f++;
                     face_vertex_count++;
                 }
