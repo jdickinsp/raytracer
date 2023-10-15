@@ -379,7 +379,7 @@ Scene* create_scene_with_bvh_from_obj() {
 
     Vec3 origin = {0, 0, 2};
     BVRay ray;
-    BVHitInfo hit_info;
+    BVHitInfo hit_info = {0, 0};
     for (int n = 0; n < mesh->vertex_count / 3; n++) {
         find_ray_from_triangle(origin, &triangles[n], &ray);
         // vec3_debug_print(ray.direction);
