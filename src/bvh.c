@@ -1,6 +1,6 @@
 #include <bvh.h>
 
-static void calculate_bounding_box(BVTriangle *t, AABoundingBox *box) {
+static void calculate_bounding_box(const BVTriangle *t, AABoundingBox *box) {
     float max_x = fmax(fmax(t->v1.x, t->v2.x), t->v3.x) + EPSILON;
     float max_y = fmax(fmax(t->v1.y, t->v2.y), t->v3.y) + EPSILON;
     float max_z = fmax(fmax(t->v1.z, t->v2.z), t->v3.z) + EPSILON;
@@ -13,18 +13,18 @@ static void calculate_bounding_box(BVTriangle *t, AABoundingBox *box) {
     box->min = (Vec3){min_x, min_y, min_z};
 }
 
-static void calculate_centroid(BVTriangle *t, Vec3 *centroid) {
+static void calculate_centroid(const BVTriangle *t, Vec3 *centroid) {
     centroid->x = (t->v1.x + t->v2.x + t->v3.x) / 3.f;
     centroid->y = (t->v1.y + t->v2.y + t->v3.y) / 3.f;
     centroid->z = (t->v1.z + t->v2.z + t->v3.z) / 3.f;
 }
 
-static void calculate_centroid_from_box(AABoundingBox *box, Vec3 *centroid) {
+static void calculate_centroid_from_box(const AABoundingBox *box, Vec3 *centroid) {
     Vec3 dist = vec3_mul(vec3_distance(box->max, box->min), 0.5f);
     *centroid = vec3_add(box->min, dist);
 }
 
-static void calculate_bounding_box_range(Primatives *primatives, int lo, int hi, AABoundingBox *box_range) {
+static void calculate_bounding_box_range(const Primatives *primatives, int lo, int hi, AABoundingBox *box_range) {
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
     for (int i = lo; i < hi; i++) {
@@ -40,7 +40,7 @@ static void calculate_bounding_box_range(Primatives *primatives, int lo, int hi,
     box_range->min = min_;
 }
 
-static void calculate_centroid_range(Primatives *primatives, int lo, int hi, Vec3 *centroid) {
+static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid) {
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
     for (int i = lo; i < hi; i++) {
@@ -58,7 +58,7 @@ static void calculate_centroid_range(Primatives *primatives, int lo, int hi, Vec
     *centroid = (Vec3){dist_x, dist_y, dist_z};
 }
 
-static int argmax(float *array, size_t size) {
+static int argmax(const float *array, size_t size) {
     float max_ = -INFINITY;
     int max_index = 0;
     for (int i = 0; i < size; i++) {
@@ -87,7 +87,7 @@ static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float
     return lo;
 }
 
-Primatives *bvh_prepare_data(BVTriangle *triangles, size_t size) {
+Primatives *bvh_prepare_data(const BVTriangle *triangles, size_t size) {
     Primatives *primatives = malloc(sizeof(Primatives));
     primatives->array = malloc(sizeof(PrimativeInfo) * size);
     primatives->size = size;
@@ -99,7 +99,7 @@ Primatives *bvh_prepare_data(BVTriangle *triangles, size_t size) {
     return primatives;
 }
 
-BVHNode *bvh_build_child(Primatives *primatives, int lo, int hi, int depth) {
+BVHNode *bvh_build_child(const Primatives *primatives, int lo, int hi, int depth) {
     BVHNode *node = malloc(sizeof(BVHNode));
     int range_size = hi - lo;
     if (depth > BVH_MAX_DEPTH) {
@@ -238,7 +238,7 @@ float inv_ray_direction(float v) {
     return 1.0 / v;
 }
 
-bool bounding_box_intersection(AABoundingBox *box, BVRay *ray, float *t) {
+bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray, float *t) {
     float inv_ray_dir_x = inv_ray_direction(ray->direction.x);
     float inv_ray_dir_y = inv_ray_direction(ray->direction.y);
     float inv_ray_dir_z = inv_ray_direction(ray->direction.z);
@@ -288,7 +288,7 @@ void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *hit_info) {
     queue_free(visit);
 }
 
-void find_ray_from_triangle(Vec3 origin, BVTriangle *triangle, BVRay *ray) {
+void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, BVRay *ray) {
     Vec3 centroid;
     calculate_centroid(triangle, &centroid);
     Vec3 unit_dir = vec3_norm(vec3_sub(centroid, origin));

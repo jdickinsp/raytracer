@@ -52,10 +52,8 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     c = buffer[offset];
     while (offset <= buffer_size) {
         if (c == '#') {  // ignore comment
-            // printf("call #\n");
             c = buffer_skip_line(buffer, &offset);
         } else if (c == 'u') {  // ignore usemtl
-            // printf("call usemtl\n");
             c = buffer_skip_line(buffer, &offset);
         } else if (c == 'v') {
             char peek = buffer[offset++];
@@ -68,7 +66,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             }
             c = buffer_skip_line(buffer, &offset);
         } else if (c == 'f') {  // face indexes
-            // printf("call f\n");
             while (c != '\n') {
                 char peek = buffer[offset + 1];
                 if (peek == '\n' || peek == '\0') {
@@ -119,7 +116,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                 fy = strtof(++next, &next);
                 fz = strtof(++next, &next);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
-                offset += next - &buffer[offset];
+                offset += next - &buffer[offset] - 1;
                 idx_v++;
             } else if (c == 'v' && peek == 'n') {  // normals
                 char *next = &buffer[offset] + 1;
@@ -127,14 +124,14 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                 fy = strtof(++next, &next);
                 fz = strtof(++next, &next);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
-                offset += next - &buffer[offset];
+                offset += next - &buffer[offset] - 1;
                 idx_n++;
             } else if (c == 'v' && peek == 't') {  // texture coordinates
                 char *next = &buffer[offset] + 1;
                 fx = strtof(++next, &next);
                 fy = strtof(++next, &next);
                 ftextures[idx_t] = (Vec2){fx, fy};
-                offset += next - &buffer[offset];
+                offset += next - &buffer[offset] - 1;
                 idx_t++;
             }
         } else if (c == 'f') {  // face indexes
@@ -153,7 +150,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                     vertex_index[idx_f] = fi - 1;
                     texture_index[idx_f] = fj - 1;
                     normal_index[idx_f] = fk - 1;
-                    // offset += next - &buffer[offset];
+                    offset += next - &buffer[offset] - 1;
                     // printf("f(%i,%i,%i)\n", fi, fj, fk);
                     idx_f++;
                     face_vertex_count++;

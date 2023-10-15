@@ -332,11 +332,11 @@ Scene* create_scene_with_bvh() {
 
     };
 
-    // for (int i = 0; i < 12; i++) {
-    //     vec3_debug_print(triangles[i].v1);
-    //     vec3_debug_print(triangles[i].v2);
-    //     vec3_debug_print(triangles[i].v3);
-    // }
+    for (int i = 0; i < 12; i++) {
+        vec3_debug_print(triangles[i].v1);
+        vec3_debug_print(triangles[i].v2);
+        vec3_debug_print(triangles[i].v3);
+    }
 
     Primatives* primatives = bvh_prepare_data(triangles, 12);
     BVHNode* bvh_tree = bvh_build_tree(primatives);
@@ -357,8 +357,8 @@ Scene* create_scene_with_bvh() {
 Scene* create_scene_with_bvh_from_obj() {
     // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/stanford-bunny.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
     int n_size = mesh->vertex_count / 3;
     BVTriangle* triangles = malloc(sizeof(BVTriangle) * n_size);
     for (int n = 0; n < mesh->vertex_count / 3; n++) {
@@ -376,6 +376,16 @@ Scene* create_scene_with_bvh_from_obj() {
     BVHNode* bvh_tree = bvh_build_tree(primatives);
     // bvh_pprint(bvh_tree);
     // bvh_traverse_tree(bvh_tree);
+
+    Vec3 origin = {0, 0, 2};
+    BVRay ray;
+    BVHitInfo hit_info;
+    for (int n = 0; n < mesh->vertex_count / 3; n++) {
+        find_ray_from_triangle(origin, &triangles[n], &ray);
+        // vec3_debug_print(ray.direction);
+        bvh_raycast_bfs(bvh_tree, &ray, &hit_info);
+        printf("hit_info: %i, %f\n", hit_info.index, hit_info.t);
+    }
 
     Scene* scene = malloc(sizeof(Scene));
     return scene;
