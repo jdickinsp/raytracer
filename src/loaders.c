@@ -53,15 +53,15 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                offset += 9;
+                offset += 20;
                 idx_v++;
             }
-            if (c == 'v' && c2 == 'n') {  // normals
-                offset += 9;
+            if (c == 'v' && c2 == 'n') {  // normals;
+                offset += 20;
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                offset += 9;
+                offset += 20;
                 idx_t++;
             }
         }
@@ -118,24 +118,48 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                memcpy(&sub_buffer, &buffer[offset], 32);
-                sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
+                // memcpy(&sub_buffer, &buffer[offset], 32);
+                // sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
+                char *next = &buffer[offset];
+                fx = atof(next);
+                next = strchr(next, ' ') + 1;
+                fy = atof(next);
+                next = strchr(next, ' ') + 1;
+                fz = atof(next);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
-                offset += 9;
+                // printf("off: %i\n", off);
+                // printf("fx: %f, %f, %f\n", fx, fy, fz);
+                offset += 20;
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
-                memcpy(&sub_buffer, &buffer[offset], 32);
-                sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
+                // memcpy(&sub_buffer, &buffer[offset], 32);
+                // sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
+                char *next = &buffer[offset] + 1;
+                fx = atof(next);
+                next = strchr(next, ' ') + 1;
+                fy = atof(next);
+                next = strchr(next, ' ') + 1;
+                fz = atof(next);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
-                offset += 9;
+                // next = strchr(next, '\n');
+                // int off = next - &buffer[offset];
+                // printf("fx: %f, %f, %f\n", fx, fy, fz);
+                offset += 20;
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                memcpy(&sub_buffer, &buffer[offset], 32);
-                sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
+                // memcpy(&sub_buffer, &buffer[offset], 32);
+                // sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
+                char *next = &buffer[offset] + 1;
+                fx = atof(next);
+                next = strchr(next, ' ') + 1;
+                fy = atof(next);
                 ftextures[idx_t] = (Vec2){fx, fy};
-                offset += 9;
+                // next = strchr(next, '\n');
+                // int off = next - &buffer[offset];
+                // printf("fx: %f, %f\n", fx, fy);
+                offset += 20;
                 idx_t++;
             }
         }
@@ -154,8 +178,18 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                     break;
                 }
                 if (c == ' ') {
-                    memcpy(&sub_buffer, &buffer[offset], 32);
-                    sscanf_s(sub_buffer, "%i/%i/%i", &fi, &fj, &fk);
+                    // memcpy(&sub_buffer, &buffer[offset], 32);
+                    // sscanf_s(sub_buffer, "%i/%i/%i", &fi, &fj, &fk);
+                    char *next = &buffer[offset];
+                    fi = atoi(next);
+                    next = strchr(next, '/') + 1;
+                    fj = atoi(next);
+                    next = strchr(next, '/') + 1;
+                    fk = atoi(next);
+                    // next = strchr(next, '\n');
+                    // int off = next - &buffer[offset];
+                    // printf("off: %i\n", off);
+                    // printf("fx: %i, %i, %i\n", fi, fj, fk);
                     vertex_index[idx_f] = fi - 1;
                     texture_index[idx_f] = fj - 1;
                     normal_index[idx_f] = fk - 1;
