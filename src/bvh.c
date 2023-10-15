@@ -70,14 +70,17 @@ static int argmax(float *array, size_t size) {
     return max_index;
 }
 
+static void bvh_swap_primatives(Primatives *primatives, int a, int b) {
+    PrimativeInfo temp = primatives->array[a];
+    primatives->array[a] = primatives->array[b];
+    primatives->array[b] = temp;
+}
+
 static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot) {
     for (int i = lo; i < hi; i++) {
         float point = vec3_index_value(&primatives->array[i].centroid, axis);
         if (point <= pivot) {
-            // swap
-            PrimativeInfo temp = primatives->array[lo];
-            primatives->array[lo] = primatives->array[i];
-            primatives->array[i] = temp;
+            bvh_swap_primatives(primatives, lo, i);
             lo += 1;
         }
     }
@@ -151,7 +154,8 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
             pivot = bvh_partition(primatives, lo, hi, axis, median);
         }
         if (pivot == hi) {
-            pivot = hi - 1;
+            pivot = hi - ((hi - lo) / 2);
+            bvh_swap_primatives(primatives, lo, pivot);
         }
         if (pivot - lo > 0) {
             node->left = bvh_build_child(primatives, lo, pivot, depth + 1);
