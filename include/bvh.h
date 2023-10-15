@@ -8,7 +8,7 @@
 
 #define BVH_MAX_DEPTH 4
 
-static float EPSILON = 1e-4;
+static float EPSILON = 1e-5;
 
 typedef struct {
     Vec3 v1;
@@ -51,9 +51,9 @@ Primatives *bvh_prepare_data(TriangleBVH *triangles, size_t size);
 BVHNode *bvh_build_child(Primatives *primatives, int lo, int hi, int depth);
 BVHNode *bvh_build_tree(Primatives *primatives);
 void bvh_pprint(BVHNode *node);
+void bvh_traverse_tree(BVHNode *node);
 // void inv_ray_direction();
 // void bounding_box_intersection();
-// void bvh_traverse_tree();
 // void bvh_raycast_bfs();
 
 #endif

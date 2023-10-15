@@ -44,13 +44,13 @@ static void calculate_centroid_range(Primatives *primatives, int lo, int hi, Vec
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
     for (int i = lo; i < hi; i++) {
-        Vec3 centroid = primatives->array[i].centroid;
-        max_.x = fmax(max_.x, centroid.x);
-        min_.x = fmin(min_.x, centroid.x);
-        max_.y = fmax(max_.y, centroid.y);
-        min_.y = fmin(min_.y, centroid.y);
-        max_.z = fmax(max_.z, centroid.z);
-        min_.z = fmin(min_.z, centroid.z);
+        Vec3 c = primatives->array[i].centroid;
+        max_.x = fmax(max_.x, c.x);
+        min_.x = fmin(min_.x, c.x);
+        max_.y = fmax(max_.y, c.y);
+        min_.y = fmin(min_.y, c.y);
+        max_.z = fmax(max_.z, c.z);
+        min_.z = fmin(min_.z, c.z);
     }
     float dist_x = fabs(max_.x - min_.x);
     float dist_y = fabs(max_.y - min_.y);
@@ -62,7 +62,7 @@ static int argmax(float *array, size_t size) {
     float max_ = -INFINITY;
     int max_index = 0;
     for (int i = 0; i < size; i++) {
-        if (array[i] > max_) {
+        if (array[i] > max_ + EPSILON) {
             max_ = array[i];
             max_index = i;
         }
@@ -74,6 +74,10 @@ static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float
     for (int i = lo; i < hi; i++) {
         float point = vec3_index_value(&primatives->array[i].centroid, axis);
         if (point <= pivot) {
+            // swap
+            PrimativeInfo temp = primatives->array[lo];
+            primatives->array[lo] = primatives->array[i];
+            primatives->array[i] = temp;
             lo += 1;
         }
     }
@@ -150,15 +154,14 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
         if (pivot == hi) {
             pivot = hi - 1;
         }
-        // printf("pivot: (%i, %f, %f, %i, %i)\n", pivot, median, offset, lo, hi);
         if (pivot - lo > 0) {
-            node->left = bvh_build_child(primatives, lo, pivot, depth);
-            Tuple3Item *item_left = tuple3_item_create(node->left, sizeof(BVHNode), lo, pivot, depth);
+            node->left = bvh_build_child(primatives, lo, pivot, depth + 1);
+            Tuple3Item *item_left = tuple3_item_create(node->left, sizeof(BVHNode), lo, pivot, depth + 1);
             queue_add(visit, item_left, sizeof(Tuple3Item));
         }
         if (hi - pivot > 0) {
-            node->right = bvh_build_child(primatives, pivot, hi, depth);
-            Tuple3Item *item_right = tuple3_item_create(node->right, sizeof(BVHNode), pivot, hi, depth);
+            node->right = bvh_build_child(primatives, pivot, hi, depth + 1);
+            Tuple3Item *item_right = tuple3_item_create(node->right, sizeof(BVHNode), pivot, hi, depth + 1);
             queue_add(visit, item_right, sizeof(Tuple3Item));
         }
     }
@@ -168,6 +171,7 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
 void bvh_pprint(BVHNode *root) {
     int indent = 0;
     int parens = 0;
+    int depth = 0;
     bool is_left = false;
     Queue *visit = queue_init();
     Tuple3Item *item = tuple3_item_create(root, sizeof(BVHNode), indent, parens, 0);
@@ -179,24 +183,44 @@ void bvh_pprint(BVHNode *root) {
         node = current.data;
         indent = current.x;
         parens = current.y;
-        is_left = parens == 1;
+        depth = current.z;
+        is_left = parens == 0;
         int space = indent * 2;
         printf("%*s", space, "");
-        if (is_left) {
+        if (depth == 0) {
+            printf("h:");
+        } else if (is_left) {
             printf("l:");
-        } else if (!is_left && indent != 0) {
+        } else if (!is_left) {
             printf("r:");
         }
+        // printf("box(max=(%f,%f,%f), min=(%f,%f,%f)),", node->aabb->max.x, node->aabb->max.y, node->aabb->max.z,
+        //        node->aabb->min.x, node->aabb->min.y, node->aabb->min.z);
         if (node->is_leaf == true) {
             printf("=>(d=%i", node->data);
             printf("%.*s,\n", is_left ? 1 : parens, ")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))");
         } else {
             printf("->(,\n");
-            Tuple3Item *item_r = tuple3_item_create(node->right, sizeof(BVHNode), indent + 1, parens + 1, 0);
+            Tuple3Item *item_r = tuple3_item_create(node->right, sizeof(BVHNode), indent + 1, parens + 1, depth + 1);
             queue_add(visit, item_r, sizeof(Tuple3Item));
-            Tuple3Item *item_l = tuple3_item_create(node->left, sizeof(BVHNode), indent + 1, 1, 0);
+            Tuple3Item *item_l = tuple3_item_create(node->left, sizeof(BVHNode), indent + 1, 0, depth + 1);
             queue_add(visit, item_l, sizeof(Tuple3Item));
         }
     }
     queue_free(visit);
+}
+
+void bvh_traverse_tree(BVHNode *root) {
+    Queue *visit = queue_init();
+    queue_add(visit, root, sizeof(BVHNode));
+    BVHNode node;
+    while (visit->count) {
+        queue_pop(visit, &node);
+        if (node.is_leaf == true) {
+            printf("%i, ", node.data);
+        } else {
+            queue_add(visit, node.right, sizeof(BVHNode));
+            queue_add(visit, node.left, sizeof(BVHNode));
+        }
+    }
 }

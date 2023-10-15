@@ -355,9 +355,16 @@ Scene* create_scene_with_bvh() {
 
     };
 
+    // for (int i = 0; i < 12; i++) {
+    //     vec3_debug_print(triangles[i].v1);
+    //     vec3_debug_print(triangles[i].v2);
+    //     vec3_debug_print(triangles[i].v3);
+    // }
+
     Primatives* primatives = bvh_prepare_data(triangles, 12);
     BVHNode* bvh_tree = bvh_build_tree(primatives);
     bvh_pprint(bvh_tree);
+    bvh_traverse_tree(bvh_tree);
 
     Scene* scene = malloc(sizeof(Scene));
     return scene;
