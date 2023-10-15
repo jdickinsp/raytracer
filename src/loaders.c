@@ -19,7 +19,8 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         fprintf(stderr, "Failed to copy file to buffer");
         abort();
     }
-    buffer[buffer_size - 1] = '\0';  // add EOF in case it's missing
+    // add EOF in case it's missing
+    buffer[buffer_size - 1] = '\0';
     // printf("buffer: %s\n", buffer);
     char sub_buffer[32];
 
@@ -38,7 +39,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
 
     // first pass: count total vertex and faces
     while (offset < buffer_size) {
-        // printf("offset: %i\n", offset);
         c = buffer[offset++];
         if (c == '#') {  // ignore comment
             while (c != '\n') {
@@ -66,7 +66,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             }
         }
         if (c == 'f') {  // face indexes
-            // printf("f: %i\n", offset);
             while (c != '\n') {
                 c = buffer[offset++];
                 if (offset >= buffer_size) {
@@ -100,8 +99,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     idx_t = 0;
     idx_fv = 0;
     idx_f = 0;
-
-    // fseek(fp, 0, SEEK_SET);
     offset = 0;
 
     // second pass: collect object data
@@ -120,19 +117,19 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                memcpy(&sub_buffer, &buffer[offset], 32);
+                *sub_buffer = buffer[offset];
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
-                memcpy(&sub_buffer, &buffer[offset], 32);
+                *sub_buffer = buffer[offset];
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                memcpy(&sub_buffer, &buffer[offset], 32);
+                *sub_buffer = buffer[offset];
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 ftextures[idx_t] = (Vec2){fx, fy};
                 idx_t++;
@@ -153,7 +150,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                     break;
                 }
                 if (c == ' ') {
-                    memcpy(&sub_buffer, &buffer[offset], 32);
+                    *sub_buffer = buffer[offset];
                     sscanf_s(sub_buffer, "%i/%i/%i", &fi, &fj, &fk);
                     vertex_index[idx_f] = fi - 1;
                     texture_index[idx_f] = fj - 1;
