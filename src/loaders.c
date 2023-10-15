@@ -120,18 +120,21 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                 *sub_buffer = buffer[offset];
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
+                offset += 9;
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
                 *sub_buffer = buffer[offset];
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
+                offset += 9;
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
                 *sub_buffer = buffer[offset];
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 ftextures[idx_t] = (Vec2){fx, fy};
+                offset += 9;
                 idx_t++;
             }
         }
