@@ -116,7 +116,6 @@ BVHNode *bvh_build_child(Primatives *primatives, int lo, int hi, int depth) {
 };
 
 BVHNode *bvh_build_tree(Primatives *primatives) {
-    printf("bvh_build_tree\n");
     int depth = 0;
     int lo = 0;
     int hi = primatives->size;

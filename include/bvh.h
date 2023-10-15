@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <vectors.h>
 
-#define BVH_MAX_DEPTH 4
+#define BVH_MAX_DEPTH 250
 
 static float EPSILON = 1e-5;
 
