@@ -1,6 +1,6 @@
 #include <bvh.h>
 
-static void calculate_bounding_box(TriangleBVH *t, AABoundingBox *box) {
+static void calculate_bounding_box(BVTriangle *t, AABoundingBox *box) {
     float max_x = fmax(fmax(t->v1.x, t->v2.x), t->v3.x) + EPSILON;
     float max_y = fmax(fmax(t->v1.y, t->v2.y), t->v3.y) + EPSILON;
     float max_z = fmax(fmax(t->v1.z, t->v2.z), t->v3.z) + EPSILON;
@@ -13,7 +13,7 @@ static void calculate_bounding_box(TriangleBVH *t, AABoundingBox *box) {
     box->min = (Vec3){min_x, min_y, min_z};
 }
 
-static void calculate_centroid(TriangleBVH *t, Vec3 *centroid) {
+static void calculate_centroid(BVTriangle *t, Vec3 *centroid) {
     centroid->x = (t->v1.x + t->v2.x + t->v3.x) / 3.f;
     centroid->y = (t->v1.y + t->v2.y + t->v3.y) / 3.f;
     centroid->z = (t->v1.z + t->v2.z + t->v3.z) / 3.f;
@@ -87,7 +87,7 @@ static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float
     return lo;
 }
 
-Primatives *bvh_prepare_data(TriangleBVH *triangles, size_t size) {
+Primatives *bvh_prepare_data(BVTriangle *triangles, size_t size) {
     Primatives *primatives = malloc(sizeof(Primatives));
     primatives->array = malloc(sizeof(PrimativeInfo) * size);
     primatives->size = size;
@@ -168,6 +168,7 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
             queue_add(visit, item_right, sizeof(Tuple3Item));
         }
     }
+    queue_free(visit);
     return root;
 }
 
@@ -226,4 +227,70 @@ void bvh_traverse_tree(BVHNode *root) {
             queue_add(visit, node.left, sizeof(BVHNode));
         }
     }
+    printf("\n");
+    queue_free(visit);
+}
+
+float inv_ray_direction(float v) {
+    if (v == 0) {
+        return INFINITY;
+    }
+    return 1.0 / v;
+}
+
+bool bounding_box_intersection(AABoundingBox *box, BVRay *ray, float *t) {
+    float inv_ray_dir_x = inv_ray_direction(ray->direction.x);
+    float inv_ray_dir_y = inv_ray_direction(ray->direction.y);
+    float inv_ray_dir_z = inv_ray_direction(ray->direction.z);
+    float t1 = (box->max.x - ray->origin.x) * inv_ray_dir_x;
+    float t2 = (box->min.x - ray->origin.x) * inv_ray_dir_x;
+    float t3 = (box->max.y - ray->origin.y) * inv_ray_dir_y;
+    float t4 = (box->min.y - ray->origin.y) * inv_ray_dir_y;
+    float t5 = (box->max.z - ray->origin.z) * inv_ray_dir_z;
+    float t6 = (box->min.z - ray->origin.z) * inv_ray_dir_z;
+    float tmin = fmax(fmax(fmin(t1, t2), fmin(t3, t3)), fmin(t5, t6));
+    float tmax = fmin(fmin(fmax(t1, t2), fmax(t3, t4)), fmax(t5, t6));
+    if (tmax < 0 || tmin > tmax) {
+        *t = tmax;
+        return false;
+    }
+    *t = tmin;
+    return true;
+}
+
+void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *hit_info) {
+    float tmin = INFINITY;
+    float t0, t1, t2;
+    Queue *visit = queue_init();
+    queue_add(visit, root, sizeof(BVHNode));
+    BVHNode current;
+    while (visit->count > 0) {
+        queue_popleft(visit, &current);
+        if (current.is_leaf == true) {
+            float t;
+            bool hit = bounding_box_intersection(current.aabb, ray, &t0);
+            if (hit && t0 <= tmin) {
+                *hit_info = (BVHitInfo){current.data, t0, ray};
+                tmin = t0;
+                break;
+            }
+        } else {
+            bool hit1 = bounding_box_intersection(current.left->aabb, ray, &t1);
+            if (hit1) {
+                queue_addleft(visit, current.left, sizeof(BVHNode));
+            }
+            bool hit2 = bounding_box_intersection(current.right->aabb, ray, &t2);
+            if (hit2) {
+                queue_addleft(visit, current.right, sizeof(BVHNode));
+            }
+        }
+    }
+    queue_free(visit);
+}
+
+void find_ray_from_triangle(Vec3 origin, BVTriangle *triangle, BVRay *ray) {
+    Vec3 centroid;
+    calculate_centroid(triangle, &centroid);
+    Vec3 unit_dir = vec3_norm(vec3_sub(centroid, origin));
+    *ray = (BVRay){origin, unit_dir};
 }

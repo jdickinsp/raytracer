@@ -252,29 +252,6 @@ Scene* create_scene_with_texture() {
 #define ARRAY_SIZE 2000
 
 Scene* create_scene_with_binary_tree() {
-    // Queue* queue = queue_init();
-    // printf("queue_init\n");
-    // Vec3 array[6] = {(Vec3){1, 2, 3}, (Vec3){2, 0, 0}, (Vec3){3, 0, 0},
-    //                  (Vec3){4, 0, 0}, (Vec3){2, 0, 0}, (Vec3){2, 0, 0}};
-    // queue_add(queue, &array, sizeof(Vec3) * 6);
-    // Vec3 array2[6] = {(Vec3){7, 7, 4}, (Vec3){2, 0, 1}, (Vec3){3, 0, 1},
-    //                   (Vec3){4, 0, 1}, (Vec3){2, 0, 1}, (Vec3){2, 0, 1}};
-    // queue_add(queue, &array2, sizeof(Vec3) * 6);
-    // printf("queue_add\n");
-    // Vec3 p_data[6];
-    // while (queue->count > 0) {
-    //     queue_popleft(queue, &p_data);
-    //     for (int i = 0; i < 6; i++) {
-    //         vec3_debug_print(p_data[i]);
-    //     }
-    // }
-    // // for (int i = 0; i < 10; i++) {
-    // //     Vec3 rand_vec = rand_in_unit_sphere();
-    // //     vec3_debug_print(rand_vec);
-    // //     queue_add(queue, &rand_vec, sizeof(Vec3));
-    // // }
-    // queue_free(queue);
-
     // test binary tree
     float array[ARRAY_SIZE];
     for (int i = 0; i < ARRAY_SIZE; i++) {
@@ -289,69 +266,69 @@ Scene* create_scene_with_binary_tree() {
 }
 
 Scene* create_scene_with_bvh() {
-    TriangleBVH triangles[12] = {(TriangleBVH){
-                                     (Vec3){-1, 1, -1},
-                                     (Vec3){1, 1, 1},
-                                     (Vec3){1, 1, -1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){1, 1, 1},
-                                     (Vec3){-1, -1, 1},
-                                     (Vec3){1, -1, 1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){-1, 1, 1},
-                                     (Vec3){-1, -1, -1},
-                                     (Vec3){-1, -1, 1},
-                                 },
+    BVTriangle triangles[12] = {(BVTriangle){
+                                    (Vec3){-1, 1, -1},
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){1, 1, -1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){-1, -1, 1},
+                                    (Vec3){1, -1, 1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){-1, 1, 1},
+                                    (Vec3){-1, -1, -1},
+                                    (Vec3){-1, -1, 1},
+                                },
 
-                                 (TriangleBVH){
-                                     (Vec3){1, -1, -1},
-                                     (Vec3){-1, -1, 1},
-                                     (Vec3){-1, -1, -1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){1, 1, 1},
-                                     (Vec3){1, -1, 1},
-                                     (Vec3){1, -1, -1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){-1, 1, -1},
-                                     (Vec3){1, -1, -1},
-                                     (Vec3){-1, -1, -1},
-                                 },
+                                (BVTriangle){
+                                    (Vec3){1, -1, -1},
+                                    (Vec3){-1, -1, 1},
+                                    (Vec3){-1, -1, -1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){1, -1, 1},
+                                    (Vec3){1, -1, -1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){-1, 1, -1},
+                                    (Vec3){1, -1, -1},
+                                    (Vec3){-1, -1, -1},
+                                },
 
-                                 (TriangleBVH){
-                                     (Vec3){-1, 1, -1},
-                                     (Vec3){-1, 1, 1},
-                                     (Vec3){1, 1, 1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){1, 1, 1},
-                                     (Vec3){-1, 1, 1},
-                                     (Vec3){-1, -1, 1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){-1, 1, 1},
-                                     (Vec3){-1, 1, -1},
-                                     (Vec3){-1, -1, -1},
-                                 },
+                                (BVTriangle){
+                                    (Vec3){-1, 1, -1},
+                                    (Vec3){-1, 1, 1},
+                                    (Vec3){1, 1, 1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){-1, 1, 1},
+                                    (Vec3){-1, -1, 1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){-1, 1, 1},
+                                    (Vec3){-1, 1, -1},
+                                    (Vec3){-1, -1, -1},
+                                },
 
-                                 (TriangleBVH){
-                                     (Vec3){1, -1, -1},
-                                     (Vec3){1, -1, 1},
-                                     (Vec3){-1, -1, 1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){1, 1, -1},
-                                     (Vec3){1, 1, 1},
-                                     (Vec3){1, -1, 1},
-                                 },
-                                 (TriangleBVH){
-                                     (Vec3){-1, 1, -1},
-                                     (Vec3){1, 1, -1},
-                                     (Vec3){1, -1, -1},
-                                 }
+                                (BVTriangle){
+                                    (Vec3){1, -1, -1},
+                                    (Vec3){1, -1, 1},
+                                    (Vec3){-1, -1, 1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){1, 1, -1},
+                                    (Vec3){1, 1, 1},
+                                    (Vec3){1, -1, 1},
+                                },
+                                (BVTriangle){
+                                    (Vec3){-1, 1, -1},
+                                    (Vec3){1, 1, -1},
+                                    (Vec3){1, -1, -1},
+                                }
 
     };
 
@@ -366,6 +343,13 @@ Scene* create_scene_with_bvh() {
     bvh_pprint(bvh_tree);
     bvh_traverse_tree(bvh_tree);
 
+    Vec3 origin = {0, 0, 2};
+    BVRay ray;
+    BVHitInfo hit_info;
+    find_ray_from_triangle(origin, &triangles[0], &ray);
+    bvh_raycast_bfs(bvh_tree, &ray, &hit_info);
+    printf("hit_info: %i, %f\n", hit_info.index, hit_info.t);
+
     Scene* scene = malloc(sizeof(Scene));
     return scene;
 }
@@ -376,12 +360,12 @@ Scene* create_scene_with_bvh_from_obj() {
     Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
     int n_size = mesh->vertex_count / 3;
-    TriangleBVH* triangles = malloc(sizeof(TriangleBVH) * n_size);
+    BVTriangle* triangles = malloc(sizeof(BVTriangle) * n_size);
     for (int n = 0; n < mesh->vertex_count / 3; n++) {
         int i = n * 3;
         int j = n * 3 + 1;
         int k = n * 3 + 2;
-        triangles[n] = (TriangleBVH){mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]};
+        triangles[n] = (BVTriangle){mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]};
     }
 
     Primatives* primatives = bvh_prepare_data(triangles, n_size);
