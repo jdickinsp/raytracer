@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <bvh.h>
 #include <constants.h>
 #include <image.h>
 #include <matrix44.h>
@@ -75,6 +76,8 @@ typedef struct {
 typedef struct {
     Mesh *mesh;
     BoundingSphere *bounding_sphere;
+    BVHNode *bvh;
+    Primatives *primatives;
     Material *material;
 } ObjectMesh;
 

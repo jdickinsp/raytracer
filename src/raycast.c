@@ -6,7 +6,6 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
     ObjectNode *node = objects->head;
     for (; node != NULL; node = node->next) {
         float hit = object_intersection(node->current, node->type, ray, hit_info);
-        ;
         if (hit > 0 && hit > near && hit < far && hit < closet_hit) {
             closet_hit = hit;
             hit_info->node = node;

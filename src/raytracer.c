@@ -8,7 +8,7 @@
 #include <vectors.h>
 
 Scene *scene_selector(int index);
-void raytrace_image(Image *image);
+void raytrace_image(Scene *scene, Image *image);
 
 Scene *scene_selector(int index) {
     Scene *scene;
@@ -49,8 +49,7 @@ Scene *scene_selector(int index) {
     return scene;
 }
 
-void raytrace_image(Image *image) {
-    Scene *scene = scene_selector(6);
+void raytrace_image(Scene *scene, Image *image) {
     RenderingOptions options = {.rendering_type = RENDER_SHADOW};
     Camera camera;
     camera_init(&camera, image->width, image->height);
@@ -86,12 +85,10 @@ void raytrace_image(Image *image) {
 
 int main() {
     // printf("raytracer\n");
-    Scene *scene = scene_selector(10);
-    // Image *image = image_create(1366, 768);
-    // Image *image = image_create(768, 512);
-    // raytrace_image(image);
-    // // image_save_ppm(image);
-    // image_save_png(image);
-    // image_close(image);
+    Scene *scene = scene_selector(6);
+    Image *image = image_create(256, 256);  // (768, 512), (1366, 768)
+    raytrace_image(scene, image);
+    image_save_png(image);
+    image_close(image);
     return 0;
 }

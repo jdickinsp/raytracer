@@ -90,11 +90,13 @@ static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float
 Primatives *bvh_prepare_data(const BVTriangle *triangles, size_t size) {
     Primatives *primatives = malloc(sizeof(Primatives));
     primatives->array = malloc(sizeof(PrimativeInfo) * size);
+    primatives->triangles = malloc(sizeof(BVTriangle) * size);
     primatives->size = size;
     for (int i = 0; i < size; i++) {
         calculate_bounding_box(&triangles[i], &primatives->array[i].aabb);
         calculate_centroid(&triangles[i], &primatives->array[i].centroid);
         primatives->array[i].index = i;
+        primatives->triangles[i] = triangles[i];
     }
     return primatives;
 }
@@ -106,12 +108,12 @@ BVHNode *bvh_build_child(const Primatives *primatives, int lo, int hi, int depth
         printf("MAX DEPTH REACHED\n");
         AABoundingBox bb_range;
         calculate_bounding_box_range(primatives, lo, hi, &bb_range);
-        int index = primatives->array[lo].index;
+        int index = lo;
         *node = (BVHNode){&bb_range, index, true, NULL, NULL};
     } else if (range_size == 0) {
         node = NULL;
     } else if (range_size == 1) {
-        *node = (BVHNode){&primatives->array[lo].aabb, primatives->array[lo].index, true, NULL, NULL};
+        *node = (BVHNode){&primatives->array[lo].aabb, lo, true, NULL, NULL};
     } else {
         *node = (BVHNode){NULL, -1, false, NULL, NULL};
     }
@@ -238,7 +240,7 @@ float inv_ray_direction(float v) {
     return 1.0 / v;
 }
 
-bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray, float *t) {
+bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray) {
     float inv_ray_dir_x = inv_ray_direction(ray->direction.x);
     float inv_ray_dir_y = inv_ray_direction(ray->direction.y);
     float inv_ray_dir_z = inv_ray_direction(ray->direction.z);
@@ -251,16 +253,16 @@ bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray, float *t) {
     float tmin = fmax(fmax(fmin(t1, t2), fmin(t3, t3)), fmin(t5, t6));
     float tmax = fmin(fmin(fmax(t1, t2), fmax(t3, t4)), fmax(t5, t6));
     if (tmax < 0 || tmin > tmax) {
-        *t = tmax;
+        ray->t = tmax;
         return false;
     }
-    *t = tmin;
+    ray->t = tmin;
     return true;
 }
 
-void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *hit_info) {
+void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHits *bvhits) {
+    int idx = 0;
     float tmin = INFINITY;
-    float t0, t1, t2;
     Queue *visit = queue_init();
     queue_add(visit, root, sizeof(BVHNode));
     BVHNode current;
@@ -268,18 +270,20 @@ void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *hit_info) {
         queue_popleft(visit, &current);
         if (current.is_leaf == true) {
             float t;
-            bool hit = bounding_box_intersection(current.aabb, ray, &t0);
-            if (hit && t0 <= tmin) {
-                *hit_info = (BVHitInfo){current.data, t0, ray};
-                tmin = t0;
-                break;
+            bool hit = bounding_box_intersection(current.aabb, ray);
+            if (hit && ray->t <= tmin && idx < 4) {
+                bvhits->hits[idx] = (BVHitInfo){current.data, ray};
+                bvhits->has_hit = true;
+                tmin = ray->t;
+                idx++;
+                // printf("idx: %i\n", idx);
             }
         } else {
-            bool hit1 = bounding_box_intersection(current.left->aabb, ray, &t1);
+            bool hit1 = bounding_box_intersection(current.left->aabb, ray);
             if (hit1) {
                 queue_addleft(visit, current.left, sizeof(BVHNode));
             }
-            bool hit2 = bounding_box_intersection(current.right->aabb, ray, &t2);
+            bool hit2 = bounding_box_intersection(current.right->aabb, ray);
             if (hit2) {
                 queue_addleft(visit, current.right, sizeof(BVHNode));
             }
@@ -292,5 +296,5 @@ void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, BVRay
     Vec3 centroid;
     calculate_centroid(triangle, &centroid);
     Vec3 unit_dir = vec3_norm(vec3_sub(centroid, origin));
-    *ray = (BVRay){origin, unit_dir};
+    *ray = (BVRay){origin, unit_dir, 0};
 }
