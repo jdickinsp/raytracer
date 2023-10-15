@@ -99,6 +99,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     idx_t = 0;
     idx_fv = 0;
     idx_f = 0;
+
     offset = 0;
 
     // second pass: collect object data
@@ -117,21 +118,21 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                *sub_buffer = buffer[offset];
+                memcpy(&sub_buffer, &buffer[offset], 32);
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
                 offset += 9;
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals
-                *sub_buffer = buffer[offset];
+                memcpy(&sub_buffer, &buffer[offset], 32);
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
                 offset += 9;
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                *sub_buffer = buffer[offset];
+                memcpy(&sub_buffer, &buffer[offset], 32);
                 sscanf_s(sub_buffer, "%f %f %f", &fx, &fy, &fz);
                 ftextures[idx_t] = (Vec2){fx, fy};
                 offset += 9;
@@ -153,7 +154,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                     break;
                 }
                 if (c == ' ') {
-                    *sub_buffer = buffer[offset];
+                    memcpy(&sub_buffer, &buffer[offset], 32);
                     sscanf_s(sub_buffer, "%i/%i/%i", &fi, &fj, &fk);
                     vertex_index[idx_f] = fi - 1;
                     texture_index[idx_f] = fj - 1;

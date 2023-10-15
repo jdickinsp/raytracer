@@ -363,8 +363,8 @@ Scene* create_scene_with_bvh() {
 
     Primatives* primatives = bvh_prepare_data(triangles, 12);
     BVHNode* bvh_tree = bvh_build_tree(primatives);
-    // bvh_pprint(bvh_tree);
-    // bvh_traverse_tree(bvh_tree);
+    bvh_pprint(bvh_tree);
+    bvh_traverse_tree(bvh_tree);
 
     Scene* scene = malloc(sizeof(Scene));
     return scene;
@@ -373,22 +373,24 @@ Scene* create_scene_with_bvh() {
 Scene* create_scene_with_bvh_from_obj() {
     Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
-    // int n_size = mesh->vertex_count / 3;
-    // TriangleBVH* triangles = malloc(sizeof(TriangleBVH) * n_size);
-    // for (int n = 0; n < mesh->vertex_count / 3; n++) {
-    //     int i = n * 3;
-    //     int j = n * 3 + 1;
-    //     int k = n * 3 + 2;
-    //     triangles[n] = (TriangleBVH){mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]};
-    // }
+    // Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
+    int n_size = mesh->vertex_count / 3;
+    TriangleBVH* triangles = malloc(sizeof(TriangleBVH) * n_size);
+    for (int n = 0; n < mesh->vertex_count / 3; n++) {
+        int i = n * 3;
+        int j = n * 3 + 1;
+        int k = n * 3 + 2;
+        triangles[n] = (TriangleBVH){mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]};
+    }
 
-    // Primatives* primatives = bvh_prepare_data(triangles, n_size);
+    Primatives* primatives = bvh_prepare_data(triangles, n_size);
     // for (int i = 0; i < primatives->size; i++) {
     //     Vec3 centroid = primatives->array[i].centroid;
     //     printf("(%f, %f, %f)\n", centroid.x, centroid.y, centroid.z);
     // }
-    // BVHNode* bvh_tree = bvh_build_tree(primatives);
+    BVHNode* bvh_tree = bvh_build_tree(primatives);
     // bvh_pprint(bvh_tree);
+    // bvh_traverse_tree(bvh_tree);
 
     Scene* scene = malloc(sizeof(Scene));
     return scene;
