@@ -19,16 +19,15 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     fseek(fp, 0L, SEEK_SET);
     printf("buffer_size: %i\n", buffer_size);
     char *buffer = malloc(buffer_size + 1);
-    int bytesread = fread_s(buffer, buffer_size, 1, buffer_size, fp);
+    int bytes_read = fread_s(buffer, buffer_size, 1, buffer_size, fp);
     fclose(fp);
-    if (bytesread != buffer_size) {
+    if (bytes_read != buffer_size) {
         fprintf(stderr, "Failed to copy file to buffer");
         abort();
     }
     // add EOF in case it's missing
     buffer[buffer_size - 1] = '\0';
     // printf("buffer: %s\n", buffer);
-    char sub_buffer[32];
 
     Mesh *mesh = malloc(sizeof(Mesh));
 
