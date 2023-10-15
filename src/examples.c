@@ -371,8 +371,8 @@ Scene* create_scene_with_bvh() {
 }
 
 Scene* create_scene_with_bvh_from_obj() {
-    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
     int n_size = mesh->vertex_count / 3;
     TriangleBVH* triangles = malloc(sizeof(TriangleBVH) * n_size);
@@ -389,7 +389,7 @@ Scene* create_scene_with_bvh_from_obj() {
     //     printf("(%f, %f, %f)\n", centroid.x, centroid.y, centroid.z);
     // }
     BVHNode* bvh_tree = bvh_build_tree(primatives);
-    bvh_pprint(bvh_tree);
+    // bvh_pprint(bvh_tree);
     // bvh_traverse_tree(bvh_tree);
 
     Scene* scene = malloc(sizeof(Scene));

@@ -1,5 +1,11 @@
 #include <loaders.h>
 
+int buffer_offset(char *buffer, char match) {
+    char *next = buffer;
+    next = strchr(next, match);
+    return next - buffer;
+}
+
 Mesh *load_wavefront_obj_model(const char *file_path) {
     FILE *fp;
     fopen_s(&fp, file_path, "rb");
@@ -53,15 +59,15 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         if (c == 'v') {
             c2 = buffer[offset++];
             if (c == 'v' && c2 == ' ') {  // vertices
-                offset += 20;
+                offset += buffer_offset(&buffer[offset], '\n');
                 idx_v++;
             }
             if (c == 'v' && c2 == 'n') {  // normals;
-                offset += 20;
+                offset += buffer_offset(&buffer[offset], '\n');
                 idx_n++;
             }
             if (c == 'v' && c2 == 't') {  // texture coordinates
-                offset += 20;
+                offset += buffer_offset(&buffer[offset], '\n');
                 idx_t++;
             }
         }
