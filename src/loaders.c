@@ -26,15 +26,13 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     int buffer_size = ftell(fp);
     fseek(fp, 0L, SEEK_SET);
     printf("buffer_size: %i\n", buffer_size);
-    char *buffer = malloc(buffer_size + 1);
+    char *buffer = malloc(buffer_size);
     int bytes_read = fread_s(buffer, buffer_size, 1, buffer_size, fp);
     fclose(fp);
     if (bytes_read != buffer_size) {
         fprintf(stderr, "Failed to copy file to buffer");
         abort();
     }
-    // add EOF in case it's missing
-    buffer[buffer_size - 1] = '\0';
     // printf("buffer: %s\n", buffer);
 
     Mesh *mesh = malloc(sizeof(Mesh));
@@ -47,6 +45,8 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     int idx_fv = 0;
     float fx, fy, fz;
     int fi, fj, fk;
+    char sub_buffer[32];
+    ObjFaceIndexType face_index_type = OBJ_FACE_INDEX_TYPE_2;
 
     // first pass: count total vertex and faces
     c = buffer[offset];
@@ -66,6 +66,20 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             }
             c = buffer_skip_line(buffer, &offset);
         } else if (c == 'f') {  // face indexes
+            if (idx_fv == 0) {
+                memcpy(&sub_buffer, &buffer[offset], 32);
+                sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);
+                // determine face index type, 1//2//3, or 1/2/3 or 1 2 3
+                char *forward_dash = strchr(sub_buffer, '/');
+                if (forward_dash != NULL) {
+                    int look = forward_dash - sub_buffer + 1;
+                    char peek = buffer[offset + look];
+                    face_index_type = peek == '/' ? OBJ_FACE_INDEX_TYPE_2 : OBJ_FACE_INDEX_TYPE_1;
+                } else {
+                    face_index_type = OBJ_FACE_INDEX_TYPE_3;
+                }
+                bool is_type_1 = strchr(&buffer[offset], '/') != NULL;
+            }
             while (c != '\n') {
                 char peek = buffer[offset + 1];
                 if (peek == '\n' || peek == '\0') {
@@ -139,14 +153,23 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             int face_vertex_count = 0;
             while (c != '\n') {
                 char peek = buffer[offset + 1];
-                if (peek == '\n' || peek == '\0') {
+                if (peek == '\n') {
                     break;
                 }
                 if (c == ' ') {
-                    char *next = &buffer[offset];
-                    fi = strtol(next, &next, 10);
-                    fj = strtol(++next, &next, 10);
-                    fk = strtol(++next, &next, 10);
+                    if (face_index_type == OBJ_FACE_INDEX_TYPE_1) {
+                        char *next = &buffer[offset];
+                        fi = strtol(next, &next, 10);
+                        fj = strtol(++next, &next, 10);
+                        fk = strtol(++next, &next, 10);
+                    } else if (face_index_type == OBJ_FACE_INDEX_TYPE_2) {
+                        memcpy(&sub_buffer, &buffer[offset], 32);
+                        sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);
+                    } else {
+                        memcpy(&sub_buffer, &buffer[offset], 32);
+                        sscanf_s(sub_buffer, "%i %i %i", &fi, &fj, &fk);
+                    }
+                    // printf("f(%i,%i,%i)\n", fi, fj, fk);
                     vertex_index[idx_f] = fi - 1;
                     texture_index[idx_f] = fj - 1;
                     normal_index[idx_f] = fk - 1;
@@ -164,7 +187,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         c = buffer[offset++];
     }
 
-    const int face_count = idx_fv;
+    const int face_count = face_index[0] == 1 ? idx_fv / 3 : idx_fv;
     int max_vertices = 0;
     for (int n = 0; n < face_count; n++) {
         max_vertices += (face_index[n] - 2) * 3;
