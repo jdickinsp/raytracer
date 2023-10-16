@@ -1,7 +1,7 @@
 #include <camera.h>
 
 void camera_init(Camera *camera, int width, int height) {
-    camera->samples_per_pixel = 25;
+    camera->samples_per_pixel = 10;
     camera->rendering_depth = 25;
     camera->width = width;
     camera->height = height;

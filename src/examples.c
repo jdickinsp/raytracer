@@ -197,6 +197,13 @@ Scene* create_scene_with_obj_to_mesh() {
     PointLight* light = point_light_create(l_position, l_color, 20);
     object_list_add(lights, (Object*)light, PointLightType);
 
+    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
+    p_material->checkerboard = true;
+    Vec3 p_center = {.x = 0, .y = 1, .z = -1};
+    Vec3 p_normal = {.x = 0, .y = 1, .z = 0};
+    Plane* plane = plane_create(p_center, p_normal, p_material);
+    object_list_add(objects, (Object*)plane, PlaneType);
+
     Vec3 eye = {2, -2, 4};
     Vec3 center = {0, 0, 0};
     Vec3 up = {0, 1, 0};
@@ -345,10 +352,10 @@ Scene* create_scene_with_bvh() {
 
     Vec3 origin = {0, 0, 2};
     BVRay ray;
-    BVHits bvhits;
+    BVHitInfo bv_hit;
     find_ray_from_triangle(origin, &triangles[0], &ray);
-    bvh_raycast_bfs(bvh_tree, &ray, &bvhits);
-    printf("hit_info: %i\n", bvhits.has_hit);
+    bvh_raycast_bfs(bvh_tree, &ray, &bv_hit);
+    printf("hit_info: %i\n", bv_hit.has_hit);
 
     Scene* scene = malloc(sizeof(Scene));
     return scene;
@@ -356,7 +363,7 @@ Scene* create_scene_with_bvh() {
 
 Scene* create_scene_with_bvh_from_obj() {
     // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/stanford-bunny.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
     int n_size = mesh->vertex_count / 3;
@@ -379,12 +386,12 @@ Scene* create_scene_with_bvh_from_obj() {
 
     Vec3 origin = {0, 0, 2};
     BVRay ray;
-    BVHits bvhits;
+    BVHitInfo bv_hit;
     for (int n = 0; n < mesh->vertex_count / 3; n++) {
         find_ray_from_triangle(origin, &triangles[n], &ray);
         // vec3_debug_print(ray.direction);
-        bvh_raycast_bfs(bvh_tree, &ray, &bvhits);
-        printf("hit_info: %i\n", bvhits.has_hit);
+        bvh_raycast_bfs(bvh_tree, &ray, &bv_hit);
+        printf("hit_info: %i, %i\n", bv_hit.has_hit, bv_hit.index);
     }
 
     Scene* scene = malloc(sizeof(Scene));

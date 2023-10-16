@@ -233,36 +233,37 @@ void bvh_traverse_tree(BVHNode *root) {
     queue_free(visit);
 }
 
-float inv_ray_direction(float v) {
-    if (v == 0) {
-        return INFINITY;
-    }
-    return 1.0 / v;
-}
+float inv_ray_direction(float v) { return 1.0f / v; }
 
-bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray) {
+bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray, float *t) {
     float inv_ray_dir_x = inv_ray_direction(ray->direction.x);
     float inv_ray_dir_y = inv_ray_direction(ray->direction.y);
     float inv_ray_dir_z = inv_ray_direction(ray->direction.z);
-    float t1 = (box->max.x - ray->origin.x) * inv_ray_dir_x;
-    float t2 = (box->min.x - ray->origin.x) * inv_ray_dir_x;
-    float t3 = (box->max.y - ray->origin.y) * inv_ray_dir_y;
-    float t4 = (box->min.y - ray->origin.y) * inv_ray_dir_y;
-    float t5 = (box->max.z - ray->origin.z) * inv_ray_dir_z;
-    float t6 = (box->min.z - ray->origin.z) * inv_ray_dir_z;
-    float tmin = fmax(fmax(fmin(t1, t2), fmin(t3, t3)), fmin(t5, t6));
-    float tmax = fmin(fmin(fmax(t1, t2), fmax(t3, t4)), fmax(t5, t6));
-    if (tmax < 0 || tmin > tmax) {
-        ray->t = tmax;
+    if (inv_ray_dir_x == INFINITY || inv_ray_dir_y == INFINITY || inv_ray_dir_z == INFINITY) {
+        printf("inv(%f,%f,%f)\n", inv_ray_dir_x, inv_ray_dir_y, inv_ray_dir_z);
         return false;
     }
-    ray->t = tmin;
+    float t1 = (box->min.x - ray->origin.x) * inv_ray_dir_x;
+    float t2 = (box->max.x - ray->origin.x) * inv_ray_dir_x;
+    float t3 = (box->min.y - ray->origin.y) * inv_ray_dir_y;
+    float t4 = (box->max.y - ray->origin.y) * inv_ray_dir_y;
+    float t5 = (box->min.z - ray->origin.z) * inv_ray_dir_z;
+    float t6 = (box->max.z - ray->origin.z) * inv_ray_dir_z;
+    float tmin = fmax(fmax(fmin(t1, t2), fmin(t3, t4)), fmin(t5, t6));
+    float tmax = fmin(fmin(fmax(t1, t2), fmax(t3, t4)), fmax(t5, t6));
+    if (tmax < 0 || tmin > tmax) {
+        *t = tmax;
+        return false;
+    }
+    *t = tmin;
     return true;
 }
 
-void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHits *bvhits) {
-    int idx = 0;
+void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *bv_hit) {
     float tmin = INFINITY;
+    float t = INFINITY;
+    float t1 = INFINITY;
+    float t2 = INFINITY;
     Queue *visit = queue_init();
     queue_add(visit, root, sizeof(BVHNode));
     BVHNode current;
@@ -270,21 +271,18 @@ void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHits *bvhits) {
         queue_popleft(visit, &current);
         if (current.is_leaf == true) {
             float t;
-            bool hit = bounding_box_intersection(current.aabb, ray);
-            if (hit && ray->t <= tmin && idx < 4) {
-                bvhits->hits[idx] = (BVHitInfo){current.data, ray};
-                bvhits->has_hit = true;
-                tmin = ray->t;
-                idx++;
-                // printf("idx: %i\n", idx);
+            bool hit = bounding_box_intersection(current.aabb, ray, &t);
+            if (hit && t <= tmin) {
+                bv_hit->index = current.data;
+                bv_hit->ray = ray;
+                bv_hit->has_hit = true;
+                tmin = t;
             }
         } else {
-            bool hit1 = bounding_box_intersection(current.left->aabb, ray);
-            if (hit1) {
+            if (bounding_box_intersection(current.left->aabb, ray, &t1)) {
                 queue_addleft(visit, current.left, sizeof(BVHNode));
             }
-            bool hit2 = bounding_box_intersection(current.right->aabb, ray);
-            if (hit2) {
+            if (bounding_box_intersection(current.right->aabb, ray, &t2)) {
                 queue_addleft(visit, current.right, sizeof(BVHNode));
             }
         }

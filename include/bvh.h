@@ -50,12 +50,8 @@ typedef struct {
 typedef struct {
     int index;
     BVRay *ray;
-} BVHitInfo;
-
-typedef struct {
-    BVHitInfo hits[5];
     bool has_hit;
-} BVHits;
+} BVHitInfo;
 
 static void calculate_bounding_box(const BVTriangle *triangle, AABoundingBox *box);
 static void calculate_centroid(const BVTriangle *t, Vec3 *centroid);
@@ -71,8 +67,8 @@ BVHNode *bvh_build_tree(Primatives *primatives);
 void bvh_pprint(BVHNode *node);
 void bvh_traverse_tree(BVHNode *node);
 float inv_ray_direction(float v);
-bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray);
-void bvh_raycast_bfs(BVHNode *node, BVRay *ray, BVHits *hits);
+bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray, float *t);
+void bvh_raycast_bfs(BVHNode *node, BVRay *ray, BVHitInfo *bv_hit);
 void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, BVRay *ray);
 
 #endif

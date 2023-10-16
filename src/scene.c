@@ -342,6 +342,7 @@ ObjectMesh *object_mesh_create(Mesh *mesh, Material *material) {
     BVHNode *bvh = bvh_build_tree(primatives);
     object_mesh->bvh = bvh;
     object_mesh->primatives = primatives;
+    bvh_pprint(bvh);
     return object_mesh;
 }
 
@@ -353,7 +354,7 @@ void mesh_set_face_normals(Mesh *mesh) {
         int i = n + s;
         int j = n + s + 1;
         int k = n + s + 2;
-        Vec3 normal = mesh_triangle_normal_at(mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]);
+        Vec3 normal = vec3_triangle_normal_at(mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]);
         float d = -dot_product(normal, mesh->vertices[k]);
         face_normals[n] = normal;
         directions[n] = d;
@@ -361,12 +362,6 @@ void mesh_set_face_normals(Mesh *mesh) {
     }
     mesh->face_normals = face_normals;
     mesh->directions = directions;
-}
-
-Vec3 mesh_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c) {
-    Vec3 A = vec3_sub(b, a);
-    Vec3 B = vec3_sub(c, a);
-    return vec3_norm(cross_product(A, B));
 }
 
 float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw) {
@@ -426,74 +421,72 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     // }
 
     // // // add BVH intersection
-    // BVRay bvh_ray = {
-    //     ray->origin,
-    //     ray->direction,
-    //     ray->t,
-    // };
-    // BVHits bvh_hits = {{{-1, NULL}, {-1, NULL}, {-1, NULL}, {-1, NULL}, {-1, NULL}}, false};
-    // bvh_raycast_bfs(object_mesh->bvh, &bvh_ray, &bvh_hits);
-    // if (bvh_hits.has_hit == true) {
-    //     for (int i = 0; i < 5; i++) {
-    //         BVHitInfo bvh_hit_info = bvh_hits.hits[i];
-    //         if (bvh_hit_info.index > -1) {
-    //             // printf("bvh_hit_info: %i, %f\n", bvh_hit_info.index, bvh_hit_info.t);
-    //             int tri_index = object_mesh->primatives->array[bvh_hit_info.index].index;
-    //             BVTriangle triangle = object_mesh->primatives->triangles[tri_index];
-    //             float hit = mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &barycentric);
-    //             if (hit > 0 && hit < closet_hit) {
-    //                 closet_hit = hit;
-    //                 hit_index = 2;
-    //                 closest_barycentric = barycentric;
-    //                 printf("tri_index: %i\n", hit_index);
-    //             }
-    //         }
-    //     }
-    // }
-    // printf("hit_info: %i, %f\n", bvh_hit_info.index, bvh_hit_info.t);
-
-    for (int n = 0; n < mesh->vertex_count / 3; n++) {
-        int i = n * 3;
-        int j = n * 3 + 1;
-        int k = n * 3 + 2;
-        float hit =
-            mesh_triangle_intersection(ray, mesh->vertices[i], mesh->vertices[j], mesh->vertices[k], &barycentric);
+    BVRay bvh_ray = {
+        ray->origin,
+        ray->direction,
+        ray->t,
+    };
+    BVHitInfo bv_hit = {-1, NULL, false};
+    bvh_raycast_bfs(object_mesh->bvh, &bvh_ray, &bv_hit);
+    if (bv_hit.has_hit == true) {
+        // printf("bvh_hit_info: %i\n", bv_hit.index);
+        int tri_index = object_mesh->primatives->array[bv_hit.index].index;
+        BVTriangle triangle = object_mesh->primatives->triangles[tri_index];
+        float hit = mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &barycentric);
         if (hit > 0 && hit < closet_hit) {
             closet_hit = hit;
-            hit_index = n;
+            hit_index = tri_index;
             closest_barycentric = barycentric;
-            // printf("tri_index: %i\n", n);
+            // printf("tri_index: %i\n", hit_index);
         }
     }
+    // printf("hit_info: %i, %f\n", bvh_hit_info.index, bvh_hit_info.t);
+
+    // for (int n = 0; n < mesh->vertex_count / 3; n++) {
+    //     int i = n * 3;
+    //     int j = n * 3 + 1;
+    //     int k = n * 3 + 2;
+    //     float hit =
+    //         mesh_triangle_intersection(ray, mesh->vertices[i], mesh->vertices[j], mesh->vertices[k], &barycentric);
+    //     if (hit > 0 && hit < closet_hit) {
+    //         // vec3_debug_print(mesh->vertices[i]);
+    //         closet_hit = hit;
+    //         hit_index = n;
+    //         closest_barycentric = barycentric;
+    //         // printf("tri_index: %i\n", n);
+    //     }
+    // }
     if (closet_hit != INFINITY) {
-        Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
-                                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 1], closest_barycentric.y)),
-                                   vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
-        // hit_normal = vec3_norm(hit_normal);
-        // Vec3 hit_normal =  mesh->face_normals[hit_index];
-        // hit_info->color = vec3_component_mul(closest_barycentric, (Vec3)
-        // { 1.f, 1.f, 1.f });
+        // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
+        //                                     vec3_mul(mesh->vertex_normals[hit_index * 3 + 1],
+        //                                     closest_barycentric.y)),
+        //                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
+        // // hit_normal = vec3_norm(hit_normal);
+        Vec3 hit_normal = mesh->face_normals[hit_index];
+        // vec3_debug_print(hit_normal);
+        // // hit_info->color = vec3_component_mul(closest_barycentric, (Vec3)
+        // // { 1.f, 1.f, 1.f });
         hit_info->position = ray_normal_at(ray, closet_hit);
         hit_info->hit = closet_hit;
         bool front_face = dot_product(vec3_neg(ray->direction), hit_normal) < 0.0;
         hit_info->front_face = front_face;
         hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
         hit_info->material = object_mesh->material;
-        float u = (mesh->texture_uv[hit_index * 3].x * closest_barycentric.x +
-                   mesh->texture_uv[hit_index * 3 + 1].x * closest_barycentric.x +
-                   mesh->texture_uv[hit_index * 3 + 2].x * closest_barycentric.x) /
-                  3.f;
-        float v = (mesh->texture_uv[hit_index * 3].y * closest_barycentric.y +
-                   mesh->texture_uv[hit_index * 3 + 1].y * closest_barycentric.y +
-                   mesh->texture_uv[hit_index * 3 + 2].y * closest_barycentric.y) /
-                  3.f;
-        hit_info->u = u;
-        hit_info->v = v;
-        int i = u * object_mesh->material->texture->width;
-        int j = v * object_mesh->material->texture->height;
-        // hit_info->color = texture_pixel_data(object_mesh->material->texture, i,
-        // j);
-        hit_info->color = texture_checkboard(u, v, 0.08f);
+        // float u = (mesh->texture_uv[hit_index * 3].x * closest_barycentric.x +
+        //            mesh->texture_uv[hit_index * 3 + 1].x * closest_barycentric.x +
+        //            mesh->texture_uv[hit_index * 3 + 2].x * closest_barycentric.x) /
+        //           3.f;
+        // float v = (mesh->texture_uv[hit_index * 3].y * closest_barycentric.y +
+        //            mesh->texture_uv[hit_index * 3 + 1].y * closest_barycentric.y +
+        //            mesh->texture_uv[hit_index * 3 + 2].y * closest_barycentric.y) /
+        //           3.f;
+        // hit_info->u = u;
+        // hit_info->v = v;
+        // int i = u * object_mesh->material->texture->width;
+        // int j = v * object_mesh->material->texture->height;
+        // // hit_info->color = texture_pixel_data(object_mesh->material->texture, i,
+        // // j);
+        hit_info->color = texture_checkboard(.5, .4, 0.08f);
     }
     return closet_hit;
 }

@@ -70,3 +70,9 @@ float vec3_index_value(Vec3 *v, int index) {
             return -1;
     }
 }
+
+Vec3 vec3_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c) {
+    Vec3 A = vec3_sub(b, a);
+    Vec3 B = vec3_sub(c, a);
+    return vec3_norm(cross_product(A, B));
+}

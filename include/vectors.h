@@ -85,5 +85,6 @@ Vec3 reflect(Vec3 v, Vec3 n);
 Vec3 refract(Vec3 uv, Vec3 n, float refraction_ratio);
 Vec3 vec3_distance(Vec3 a, Vec3 b);
 float vec3_index_value(Vec3 *v, int index);
+Vec3 vec3_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c);
 
 #endif
