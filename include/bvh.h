@@ -6,7 +6,8 @@
 #include <stdbool.h>
 #include <vectors.h>
 
-#define BVH_MAX_DEPTH 50
+#define BVH_MAX_DEPTH 20
+#define BVH_HIT_INDEX_SIZE 15
 
 static float EPSILON = 1e-5;
 
@@ -48,7 +49,7 @@ typedef struct {
 } BVRay;
 
 typedef struct {
-    int index;
+    int index[BVH_HIT_INDEX_SIZE];
     BVRay *ray;
     bool has_hit;
 } BVHitInfo;

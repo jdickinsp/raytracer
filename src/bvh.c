@@ -104,8 +104,8 @@ Primatives *bvh_prepare_data(const BVTriangle *triangles, size_t size) {
 BVHNode *bvh_build_child(const Primatives *primatives, int lo, int hi, int depth) {
     BVHNode *node = malloc(sizeof(BVHNode));
     int range_size = hi - lo;
-    if (depth > BVH_MAX_DEPTH) {
-        printf("MAX DEPTH REACHED\n");
+    if (depth > BVH_MAX_DEPTH && range_size > 1) {
+        printf("MAX DEPTH REACHED (%i,%i)\n", lo, hi);
         AABoundingBox bb_range;
         calculate_bounding_box_range(primatives, lo, hi, &bb_range);
         int index = lo;
@@ -264,6 +264,7 @@ void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *bv_hit) {
     float t = INFINITY;
     float t1 = INFINITY;
     float t2 = INFINITY;
+    int idx = 0;
     Queue *visit = queue_init();
     queue_add(visit, root, sizeof(BVHNode));
     BVHNode current;
@@ -273,10 +274,12 @@ void bvh_raycast_bfs(BVHNode *root, BVRay *ray, BVHitInfo *bv_hit) {
             float t;
             bool hit = bounding_box_intersection(current.aabb, ray, &t);
             if (hit && t <= tmin) {
-                bv_hit->index = current.data;
+                bv_hit->index[idx] = current.data;
                 bv_hit->ray = ray;
                 bv_hit->has_hit = true;
                 tmin = t;
+                idx++;
+                if (idx > BVH_HIT_INDEX_SIZE) idx = 0;
             }
         } else {
             if (bounding_box_intersection(current.left->aabb, ray, &t1)) {

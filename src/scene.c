@@ -1,5 +1,7 @@
 #include <scene.h>
 
+#define USE_BVH
+
 ObjectList *object_list_create() {
     ObjectList *list = malloc(sizeof(ObjectList));
     list->head = NULL;
@@ -342,7 +344,7 @@ ObjectMesh *object_mesh_create(Mesh *mesh, Material *material) {
     BVHNode *bvh = bvh_build_tree(primatives);
     object_mesh->bvh = bvh;
     object_mesh->primatives = primatives;
-    bvh_pprint(bvh);
+    // bvh_pprint(bvh);
     return object_mesh;
 }
 
@@ -420,28 +422,33 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     //     return -1;
     // }
 
-    // // // add BVH intersection
-    // BVRay bvh_ray = {
-    //     ray->origin,
-    //     ray->direction,
-    //     ray->t,
-    // };
-    // BVHitInfo bv_hit = {-1, NULL, false};
-    // bvh_raycast_bfs(object_mesh->bvh, &bvh_ray, &bv_hit);
-    // if (bv_hit.has_hit == true) {
-    //     // printf("bvh_hit_info: %i\n", bv_hit.index);
-    //     int tri_index = object_mesh->primatives->array[bv_hit.index].index;
-    //     BVTriangle triangle = object_mesh->primatives->triangles[tri_index];
-    //     float hit = mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &barycentric);
-    //     if (hit > 0 && hit < closet_hit) {
-    //         closet_hit = hit;
-    //         hit_index = tri_index;
-    //         closest_barycentric = barycentric;
-    //         // printf("tri_index: %i\n", hit_index);
-    //     }
-    // }
+    // add BVH intersection
+#ifdef USE_BVH
+    BVRay bvh_ray = {
+        ray->origin,
+        ray->direction,
+        ray->t,
+    };
+    BVHitInfo bv_hit = {{0}, NULL, false};
+    bvh_raycast_bfs(object_mesh->bvh, &bvh_ray, &bv_hit);
+    if (bv_hit.has_hit == true) {
+        for (int i = 0; i < BVH_HIT_INDEX_SIZE; i++) {
+            if (bv_hit.index[i] > 0) {
+                int tri_index = object_mesh->primatives->array[bv_hit.index[i]].index;
+                // printf("bvh_hit_info: %i, %i\n", bv_hit.index, tri_index);
+                BVTriangle triangle = object_mesh->primatives->triangles[tri_index];
+                float hit = mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &barycentric);
+                if (hit > 0 && hit < closet_hit) {
+                    closet_hit = hit;
+                    hit_index = bv_hit.index[i];
+                    closest_barycentric = barycentric;
+                    // printf("tri_index: %i\n", hit_index);
+                }
+            }
+        }
+    }
+#else
     // printf("hit_info: %i, %f\n", bvh_hit_info.index, bvh_hit_info.t);
-
     for (int n = 0; n < mesh->vertex_count / 3; n++) {
         int i = n * 3;
         int j = n * 3 + 1;
@@ -456,6 +463,7 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
             // printf("tri_index: %i\n", n);
         }
     }
+#endif
     if (closet_hit != INFINITY) {
         // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
         //                                     vec3_mul(mesh->vertex_normals[hit_index * 3 + 1],
