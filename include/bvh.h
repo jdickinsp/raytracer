@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <vectors.h>
 
-#define BVH_MAX_DEPTH 30
+#define BVH_MAX_DEPTH 20
 
 static float EPSILON = 1e-4;
 
@@ -54,7 +54,7 @@ static void calculate_centroid(const BVTriangle *t, Vec3 *centroid);
 static void calculate_centroid_from_box(const AABoundingBox *box, Vec3 *centroid);
 static void calculate_bounding_box_range(const Primatives *primatives, int lo, int hi, AABoundingBox *box_range);
 static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid_range,
-                                     Vec3 *centroid_min);
+                                     Vec3 *centroid_min, float *scale);
 static int argmax(const float *array, size_t size);
 static void bvh_swap_primatives(Primatives *primatives, int a, int b);
 static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot, bool swap, int depth);

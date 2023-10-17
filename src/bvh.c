@@ -41,7 +41,7 @@ static void calculate_bounding_box_range(const Primatives *primatives, int lo, i
 }
 
 static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid_range,
-                                     Vec3 *centroid_min) {
+                                     Vec3 *centroid_min, float *scale) {
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
     for (int i = lo; i < hi; i++) {
@@ -58,6 +58,7 @@ static void calculate_centroid_range(const Primatives *primatives, int lo, int h
     float dist_z = fabs(max_.z - min_.z);
     *centroid_range = (Vec3){dist_x, dist_y, dist_z};
     *centroid_min = min_;
+    *scale = 0.5f;
 }
 
 static int argmax(const float *array, size_t size) {
@@ -150,12 +151,13 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
         node->aabb = bb_range;
         Vec3 centroid_range;
         Vec3 centroid_min;
-        calculate_centroid_range(primatives, lo, hi, &centroid_range, &centroid_min);
+        float scale_factor;
+        calculate_centroid_range(primatives, lo, hi, &centroid_range, &centroid_min, &scale_factor);
         float array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
         // choose biggest centroid range dimension
         int axis = argmax(array_index, 3);
         // find median on axis
-        float offset = vec3_index_value(&centroid_range, axis) / 2.f;
+        float offset = vec3_index_value(&centroid_range, axis) * scale_factor;
         float median = vec3_index_value(&centroid_min, axis) + offset + EPSILON;
         int pivot = bvh_partition(primatives, lo, hi, axis, median, true, depth);
         if (pivot - lo > 0) {

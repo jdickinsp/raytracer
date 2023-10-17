@@ -78,7 +78,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                 } else {
                     face_index_type = OBJ_FACE_INDEX_TYPE_3;
                 }
-                bool is_type_1 = strchr(&buffer[offset], '/') != NULL;
             }
             while (c != '\n') {
                 char peek = buffer[offset + 1];
@@ -153,7 +152,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
             int face_vertex_count = 0;
             while (c != '\n') {
                 char peek = buffer[offset + 1];
-                if (peek == '\n') {
+                if (peek == '\n' || peek == '\0') {
                     break;
                 }
                 if (c == ' ') {
