@@ -64,9 +64,9 @@ BVHNode *bvh_build_child(const Primatives *primatives, int lo, int hi, int depth
 BVHNode *bvh_build_tree(Primatives *primatives);
 void bvh_pprint(BVHNode *node);
 void bvh_traverse_tree(BVHNode *node);
+void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray);
 float inv_ray_direction(float v);
 bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t);
-void bvh_raycast_bfs(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit);
-void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray);
+void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit);
 
 #endif

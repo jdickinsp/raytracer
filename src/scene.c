@@ -382,7 +382,7 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     // add BVH intersection
 #ifdef USE_BVH
     BVHitInfo bv_hit = {{-1}, NULL, false};
-    bvh_raycast_bfs(object_mesh->bvh, object_mesh->primatives, ray, &bv_hit);
+    bvh_raycast(object_mesh->bvh, object_mesh->primatives, ray, &bv_hit);
     if (bv_hit.has_hit == true) {
         closet_hit = bv_hit.hit;
         hit_index = bv_hit.index[0];

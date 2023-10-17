@@ -233,6 +233,13 @@ void bvh_traverse_tree(BVHNode *root) {
     queue_free(visit);
 }
 
+void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray) {
+    Vec3 centroid;
+    calculate_centroid(triangle, &centroid);
+    Vec3 unit_dir = vec3_norm(vec3_sub(centroid, origin));
+    *ray = (Ray){origin, unit_dir, 0};
+}
+
 float inv_ray_direction(float v) { return 1.0f / v; }
 
 bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t) {
@@ -255,34 +262,7 @@ bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t) {
     return true;
 }
 
-// void bvh_raycast_bfs(BVHNode *root, Ray *ray, BVHitInfo *bv_hit) {
-//     float tmin = INFINITY;
-//     float t = 0.f;
-//     int idx = 0;
-//     Queue *visit = queue_init();
-//     queue_add(visit, root, sizeof(BVHNode));
-//     BVHNode current;
-//     while (visit->count > 0) {
-//         queue_popleft(visit, &current);
-//         bool hit = bounding_box_intersection(current.aabb, ray, &t);
-//         if (current.is_leaf == true) {
-//             if (hit && t <= tmin) {
-//                 bv_hit->index[idx] = current.data;
-//                 bv_hit->ray = ray;
-//                 bv_hit->has_hit = true;
-//                 tmin = t;
-//                 idx++;
-//                 if (idx > BVH_HIT_INDEX_SIZE) idx = 0;
-//             }
-//         } else {
-//             if (hit && current.left) queue_addleft(visit, current.left, sizeof(BVHNode));
-//             if (hit && current.right) queue_addleft(visit, current.right, sizeof(BVHNode));
-//         }
-//     }
-//     queue_free(visit);
-// }
-
-void bvh_raycast_bfs(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
+void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
     float tmin = INFINITY;
     float t = 0.f;
     Queue *visit = queue_init();
@@ -290,8 +270,8 @@ void bvh_raycast_bfs(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo 
     BVHNode current;
     while (visit->count > 0) {
         queue_popleft(visit, &current);
-        bool hit = bounding_box_intersection(current.aabb, ray, &t);
-        if (hit && current.is_leaf == true) {
+        if (!bounding_box_intersection(current.aabb, ray, &t)) continue;
+        if (current.is_leaf == true) {
             int tri_index = current.data;
             BVTriangle triangle = primatives->triangles[tri_index];
             float hit_dist =
@@ -304,16 +284,9 @@ void bvh_raycast_bfs(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo 
                 tmin = t;
             }
         } else {
-            if (hit && current.left) queue_addleft(visit, current.left, sizeof(BVHNode));
-            if (hit && current.right) queue_addleft(visit, current.right, sizeof(BVHNode));
+            if (current.left) queue_addleft(visit, current.left, sizeof(BVHNode));
+            if (current.right) queue_addleft(visit, current.right, sizeof(BVHNode));
         }
     }
     queue_free(visit);
-}
-
-void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray) {
-    Vec3 centroid;
-    calculate_centroid(triangle, &centroid);
-    Vec3 unit_dir = vec3_norm(vec3_sub(centroid, origin));
-    *ray = (Ray){origin, unit_dir, 0};
 }

@@ -358,7 +358,7 @@ Scene* create_scene_with_bvh() {
     Ray ray;
     BVHitInfo bv_hit;
     find_ray_from_triangle(origin, &triangles[0], &ray);
-    bvh_raycast_bfs(bvh_tree, primatives, &ray, &bv_hit);
+    bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
     printf("hit_info: %i\n", bv_hit.has_hit);
 
     Scene* scene = malloc(sizeof(Scene));
@@ -396,7 +396,7 @@ Scene* create_scene_with_bvh_from_obj() {
     // for (int n = 0; n < mesh->vertex_count / 3; n++) {
     //     find_ray_from_triangle(origin, &triangles[n], &ray);
     //     // vec3_debug_print(ray.direction);
-    //     bvh_raycast_bfs(bvh_tree, &ray, &bv_hit);
+    //     bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
     //     printf("hit_info: %i, %i\n", bv_hit.has_hit, bv_hit.index);
     // }
 
