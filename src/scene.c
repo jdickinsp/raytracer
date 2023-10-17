@@ -406,12 +406,11 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     }
 #endif
     if (closet_hit != INFINITY) {
-        // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
-        //                                     vec3_mul(mesh->vertex_normals[hit_index * 3 + 1],
-        //                                     closest_barycentric.y)),
-        //                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
+        Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
+                                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 1], closest_barycentric.y)),
+                                   vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
         // // hit_normal = vec3_norm(hit_normal);
-        Vec3 hit_normal = mesh->face_normals[hit_index];
+        // Vec3 hit_normal = mesh->face_normals[hit_index];
         // vec3_debug_print(hit_normal);
         // // hit_info->color = vec3_component_mul(closest_barycentric, (Vec3)
         // // { 1.f, 1.f, 1.f });
@@ -421,21 +420,20 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
         hit_info->front_face = front_face;
         hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
         hit_info->material = object_mesh->material;
-        // float u = (mesh->texture_uv[hit_index * 3].x * closest_barycentric.x +
-        //            mesh->texture_uv[hit_index * 3 + 1].x * closest_barycentric.x +
-        //            mesh->texture_uv[hit_index * 3 + 2].x * closest_barycentric.x) /
-        //           3.f;
-        // float v = (mesh->texture_uv[hit_index * 3].y * closest_barycentric.y +
-        //            mesh->texture_uv[hit_index * 3 + 1].y * closest_barycentric.y +
-        //            mesh->texture_uv[hit_index * 3 + 2].y * closest_barycentric.y) /
-        //           3.f;
-        // hit_info->u = u;
-        // hit_info->v = v;
-        // int i = u * object_mesh->material->texture->width;
-        // int j = v * object_mesh->material->texture->height;
-        // hit_info->color = texture_pixel_data(object_mesh->material->texture, i,
-        // j);
-        hit_info->color = texture_checkboard(0.6, 0.2, 0.08f);
+        float u = (mesh->texture_uv[hit_index * 3].x * closest_barycentric.x +
+                   mesh->texture_uv[hit_index * 3 + 1].x * closest_barycentric.x +
+                   mesh->texture_uv[hit_index * 3 + 2].x * closest_barycentric.x) /
+                  3.f;
+        float v = (mesh->texture_uv[hit_index * 3].y * closest_barycentric.y +
+                   mesh->texture_uv[hit_index * 3 + 1].y * closest_barycentric.y +
+                   mesh->texture_uv[hit_index * 3 + 2].y * closest_barycentric.y) /
+                  3.f;
+        hit_info->u = u;
+        hit_info->v = v;
+        int i = u * object_mesh->material->texture->width;
+        int j = v * object_mesh->material->texture->height;
+        hit_info->color = texture_pixel_data(object_mesh->material->texture, i, j);
+        // hit_info->color = texture_checkboard(0.6, 0.2, 0.08f);
     }
     return closet_hit;
 }

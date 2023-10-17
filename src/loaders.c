@@ -68,8 +68,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
         } else if (c == 'f') {  // face indexes
             if (idx_fv == 0) {
                 memcpy(&sub_buffer, &buffer[offset], 32);
-                sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);
-                // determine face index type, 1//2//3, or 1/2/3 or 1 2 3
+                // determine face index type, 1//2//3, or 1/2/3 or 1 2 3, or 1//2
                 char *forward_dash = strchr(sub_buffer, '/');
                 if (forward_dash != NULL) {
                     int look = forward_dash - sub_buffer + 1;
