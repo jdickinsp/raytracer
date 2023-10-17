@@ -76,3 +76,46 @@ Vec3 vec3_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c) {
     Vec3 B = vec3_sub(c, a);
     return vec3_norm(cross_product(A, B));
 }
+
+float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw) {
+    Vec3 A = vec3_sub(b, a);
+    Vec3 B = vec3_sub(c, a);
+    Vec3 normal = cross_product(A, B);
+
+    float n_dot_ray_dir = dot_product(normal, ray->direction);
+    if (fabs(n_dot_ray_dir) < 1e-4) {
+        return -1;
+    }
+    float d = -dot_product(normal, a);
+    float ti = -(d + dot_product(normal, ray->origin)) / n_dot_ray_dir;
+    if (ti < 0) {
+        return -1;
+    }
+    Vec3 Q = vec3_add(ray->origin, vec3_mul(ray->direction, ti));
+    Vec3 edge0 = vec3_sub(b, a);
+    Vec3 vp0 = vec3_sub(Q, a);
+    Vec3 C = cross_product(edge0, vp0);
+    if (dot_product(normal, C) < 0) {
+        return -1;
+    }
+    Vec3 edge1 = vec3_sub(c, b);
+    Vec3 vp1 = vec3_sub(Q, c);
+    C = cross_product(edge1, vp1);
+    float u = dot_product(normal, C);
+    if (u < 0) {
+        return -1;
+    }
+    Vec3 edge2 = vec3_sub(a, c);
+    Vec3 vp2 = vec3_sub(Q, c);
+    C = cross_product(edge2, vp2);
+    float v = dot_product(normal, C);
+    if (v < 0) {
+        return -1;
+    }
+    float denom = dot_product(normal, normal);
+    // barycentric coordinates: u + v + w = 1
+    uvw->x = u / denom;
+    uvw->y = v / denom;
+    uvw->z = 1.f - uvw->x - uvw->y;
+    return ti;
+}

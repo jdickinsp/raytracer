@@ -183,10 +183,11 @@ Scene* create_scene_with_obj_to_mesh() {
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
+    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/teapot.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     // material->texture = texture_load("./assets/12273_Lion_Diffuse.jpg");
     ObjectMesh* obj_mesh = object_mesh_create(mesh, material);
@@ -354,10 +355,10 @@ Scene* create_scene_with_bvh() {
     bvh_traverse_tree(bvh_tree);
 
     Vec3 origin = {0, 0, 2};
-    BVRay ray;
+    Ray ray;
     BVHitInfo bv_hit;
     find_ray_from_triangle(origin, &triangles[0], &ray);
-    bvh_raycast_bfs(bvh_tree, &ray, &bv_hit);
+    bvh_raycast_bfs(bvh_tree, primatives, &ray, &bv_hit);
     printf("hit_info: %i\n", bv_hit.has_hit);
 
     Scene* scene = malloc(sizeof(Scene));
@@ -390,7 +391,7 @@ Scene* create_scene_with_bvh_from_obj() {
     // // bvh_traverse_tree(bvh_tree);
 
     // Vec3 origin = {0, 0, 2};
-    // BVRay ray;
+    // Ray ray;
     // BVHitInfo bv_hit;
     // for (int n = 0; n < mesh->vertex_count / 3; n++) {
     //     find_ray_from_triangle(origin, &triangles[n], &ray);

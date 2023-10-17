@@ -366,49 +366,6 @@ void mesh_set_face_normals(Mesh *mesh) {
     mesh->directions = directions;
 }
 
-float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw) {
-    Vec3 A = vec3_sub(b, a);
-    Vec3 B = vec3_sub(c, a);
-    Vec3 normal = cross_product(A, B);
-
-    float n_dot_ray_dir = dot_product(normal, ray->direction);
-    if (fabs(n_dot_ray_dir) < 1e-4) {
-        return -1;
-    }
-    float d = -dot_product(normal, a);
-    float ti = -(d + dot_product(normal, ray->origin)) / n_dot_ray_dir;
-    if (ti < 0) {
-        return -1;
-    }
-    Vec3 Q = vec3_add(ray->origin, vec3_mul(ray->direction, ti));
-    Vec3 edge0 = vec3_sub(b, a);
-    Vec3 vp0 = vec3_sub(Q, a);
-    Vec3 C = cross_product(edge0, vp0);
-    if (dot_product(normal, C) < 0) {
-        return -1;
-    }
-    Vec3 edge1 = vec3_sub(c, b);
-    Vec3 vp1 = vec3_sub(Q, c);
-    C = cross_product(edge1, vp1);
-    float u = dot_product(normal, C);
-    if (u < 0) {
-        return -1;
-    }
-    Vec3 edge2 = vec3_sub(a, c);
-    Vec3 vp2 = vec3_sub(Q, c);
-    C = cross_product(edge2, vp2);
-    float v = dot_product(normal, C);
-    if (v < 0) {
-        return -1;
-    }
-    float denom = dot_product(normal, normal);
-    // barycentric coordinates: u + v + w = 1
-    uvw->x = u / denom;
-    uvw->y = v / denom;
-    uvw->z = 1.f - uvw->x - uvw->y;
-    return ti;
-}
-
 float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_info) {
     Mesh *mesh = object_mesh->mesh;
     float closet_hit = INFINITY;
@@ -416,36 +373,20 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     Vec3 barycentric;
     Vec3 closest_barycentric;
     // // check if in boundary sphere
-    // float sphere_hit =
-    // sphere_intersection(&object_mesh->bounding_sphere->sphere, ray); if
-    // (sphere_hit < 0) {
+    // HitInfo sphere_hit;
+    // sphere_intersection(&object_mesh->bounding_sphere->sphere, ray, &sphere_hit);
+    // if (sphere_hit.hit > 0) {
     //     return -1;
     // }
 
     // add BVH intersection
 #ifdef USE_BVH
-    BVRay bvh_ray = {
-        ray->origin,
-        ray->direction,
-        ray->t,
-    };
-    BVHitInfo bv_hit = {{0}, NULL, false};
-    bvh_raycast_bfs(object_mesh->bvh, &bvh_ray, &bv_hit);
+    BVHitInfo bv_hit = {{-1}, NULL, false};
+    bvh_raycast_bfs(object_mesh->bvh, object_mesh->primatives, ray, &bv_hit);
     if (bv_hit.has_hit == true) {
-        for (int i = 0; i < BVH_HIT_INDEX_SIZE; i++) {
-            if (bv_hit.index[i] > 0) {
-                int tri_index = object_mesh->primatives->array[bv_hit.index[i]].index;
-                // printf("bvh_hit_info: %i, %i\n", bv_hit.index, tri_index);
-                BVTriangle triangle = object_mesh->primatives->triangles[tri_index];
-                float hit = mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &barycentric);
-                if (hit > 0 && hit < closet_hit) {
-                    closet_hit = hit;
-                    hit_index = bv_hit.index[i];
-                    closest_barycentric = barycentric;
-                    // printf("tri_index: %i\n", hit_index);
-                }
-            }
-        }
+        closet_hit = bv_hit.hit;
+        hit_index = bv_hit.index[0];
+        closest_barycentric = bv_hit.barycentric;
     }
 #else
     // printf("hit_info: %i, %f\n", bvh_hit_info.index, bvh_hit_info.t);
@@ -492,9 +433,9 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
         // hit_info->v = v;
         // int i = u * object_mesh->material->texture->width;
         // int j = v * object_mesh->material->texture->height;
-        // // hit_info->color = texture_pixel_data(object_mesh->material->texture, i,
-        // // j);
-        hit_info->color = texture_checkboard(.5, .4, 0.08f);
+        // hit_info->color = texture_pixel_data(object_mesh->material->texture, i,
+        // j);
+        hit_info->color = texture_checkboard(0.6, 0.2, 0.08f);
     }
     return closet_hit;
 }

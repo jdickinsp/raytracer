@@ -131,12 +131,6 @@ typedef struct {
     Material *material;
 } HitInfo;
 
-typedef struct {
-    Vec3 origin;
-    Vec3 direction;
-    float t;
-} Ray;
-
 typedef enum { RENDER_BASIC = 0, RENDER_ADVANCED = 1, RENDER_SHADOW = 2 } RenderingType;
 
 typedef struct {
@@ -176,7 +170,6 @@ ObjectMesh *object_mesh_create(Mesh *mesh, Material *material);
 float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_info);
 Vec3 mesh_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c);
 void mesh_boundaries(Mesh *mesh, Vec3 *min_b, Vec3 *max_b, Vec3 *center_b);
-float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw);
 void mesh_set_face_normals(Mesh *mesh);
 
 Material *material_create(float albedo, float Kd, float Ks, bool reflective, Vec3 color, float index_of_refraction);

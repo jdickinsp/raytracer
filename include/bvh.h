@@ -7,9 +7,9 @@
 #include <vectors.h>
 
 #define BVH_MAX_DEPTH 20
-#define BVH_HIT_INDEX_SIZE 15
+#define BVH_HIT_INDEX_SIZE 1
 
-static float EPSILON = 1e-5;
+static float EPSILON = 1e-4;
 
 typedef struct {
     Vec3 v1;
@@ -33,7 +33,7 @@ typedef struct BVHNode {
 typedef struct {
     AABoundingBox aabb;
     Vec3 centroid;
-    int index;
+    int tri_index;
 } PrimativeInfo;
 
 typedef struct {
@@ -43,33 +43,30 @@ typedef struct {
 } Primatives;
 
 typedef struct {
-    Vec3 origin;
-    Vec3 direction;
-    float t;
-} BVRay;
-
-typedef struct {
     int index[BVH_HIT_INDEX_SIZE];
-    BVRay *ray;
+    Ray *ray;
     bool has_hit;
+    float hit;
+    Vec3 barycentric;
 } BVHitInfo;
 
 static void calculate_bounding_box(const BVTriangle *triangle, AABoundingBox *box);
 static void calculate_centroid(const BVTriangle *t, Vec3 *centroid);
 static void calculate_centroid_from_box(const AABoundingBox *box, Vec3 *centroid);
 static void calculate_bounding_box_range(const Primatives *primatives, int lo, int hi, AABoundingBox *box_range);
-static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid);
+static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid_range,
+                                     Vec3 *centroid_min);
 static int argmax(const float *array, size_t size);
 static void bvh_swap_primatives(Primatives *primatives, int a, int b);
-static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot);
+static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot, bool swap, int depth);
 Primatives *bvh_prepare_data(const BVTriangle *triangles, size_t size);
 BVHNode *bvh_build_child(const Primatives *primatives, int lo, int hi, int depth);
 BVHNode *bvh_build_tree(Primatives *primatives);
 void bvh_pprint(BVHNode *node);
 void bvh_traverse_tree(BVHNode *node);
 float inv_ray_direction(float v);
-bool bounding_box_intersection(const AABoundingBox *box, BVRay *ray, float *t);
-void bvh_raycast_bfs(BVHNode *node, BVRay *ray, BVHitInfo *bv_hit);
-void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, BVRay *ray);
+bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t);
+void bvh_raycast_bfs(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit);
+void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray);
 
 #endif

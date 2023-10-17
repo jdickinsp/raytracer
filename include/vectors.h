@@ -18,6 +18,12 @@ typedef struct {
     float x, y, z, w;
 } Vec4;
 
+typedef struct {
+    Vec3 origin;
+    Vec3 direction;
+    float t;
+} Ray;
+
 inline Vec3 vec3_norm(Vec3 vec) {
     float mag = sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     Vec3 norm_vec = {.x = vec.x / mag, .y = vec.y / mag, .z = vec.z / mag};
@@ -86,5 +92,6 @@ Vec3 refract(Vec3 uv, Vec3 n, float refraction_ratio);
 Vec3 vec3_distance(Vec3 a, Vec3 b);
 float vec3_index_value(Vec3 *v, int index);
 Vec3 vec3_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c);
+float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw);
 
 #endif
