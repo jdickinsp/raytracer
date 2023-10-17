@@ -1,5 +1,17 @@
 #include <bvh.h>
 
+static int argmax(const float *array, size_t size) {
+    float max_ = -INFINITY;
+    int max_index = 0;
+    for (int i = 0; i < size; i++) {
+        if (fabs(array[i]) > max_) {
+            max_ = fabs(array[i]);
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+
 static void calculate_bounding_box(const BVTriangle *t, AABoundingBox *box) {
     float max_x = fmax(fmax(t->v1.x, t->v2.x), t->v3.x);
     float max_y = fmax(fmax(t->v1.y, t->v2.y), t->v3.y);
@@ -41,7 +53,7 @@ static void calculate_bounding_box_range(const Primatives *primatives, int lo, i
 }
 
 static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid_range,
-                                     Vec3 *centroid_min, float *scale) {
+                                     Vec3 *centroid_min) {
     Vec3 max_ = (Vec3){-INFINITY, -INFINITY, -INFINITY};
     Vec3 min_ = (Vec3){INFINITY, INFINITY, INFINITY};
     for (int i = lo; i < hi; i++) {
@@ -58,19 +70,6 @@ static void calculate_centroid_range(const Primatives *primatives, int lo, int h
     float dist_z = fabs(max_.z - min_.z);
     *centroid_range = (Vec3){dist_x, dist_y, dist_z};
     *centroid_min = min_;
-    *scale = 0.5f;
-}
-
-static int argmax(const float *array, size_t size) {
-    float max_ = -INFINITY;
-    int max_index = 0;
-    for (int i = 0; i < size; i++) {
-        if (fabs(array[i]) > max_) {
-            max_ = fabs(array[i]);
-            max_index = i;
-        }
-    }
-    return max_index;
 }
 
 static void bvh_swap_primatives(Primatives *primatives, int a, int b) {
@@ -151,11 +150,10 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
         node->aabb = bb_range;
         Vec3 centroid_range;
         Vec3 centroid_min;
-        float scale_factor;
-        calculate_centroid_range(primatives, lo, hi, &centroid_range, &centroid_min, &scale_factor);
-        float array_index[3] = {centroid_range.x, centroid_range.y, centroid_range.z};
+        float scale_factor = 0.5f;
+        calculate_centroid_range(primatives, lo, hi, &centroid_range, &centroid_min);
         // choose biggest centroid range dimension
-        int axis = argmax(array_index, 3);
+        int axis = vec3_argmax(&centroid_range);
         // find median on axis
         float offset = vec3_index_value(&centroid_range, axis) * scale_factor;
         float median = vec3_index_value(&centroid_min, axis) + offset + EPSILON;

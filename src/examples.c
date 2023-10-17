@@ -183,12 +183,12 @@ Scene* create_scene_with_obj_to_mesh() {
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
-    Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     // material->texture = texture_load("./assets/12273_Lion_Diffuse.jpg");
     ObjectMesh* obj_mesh = object_mesh_create(mesh, material);

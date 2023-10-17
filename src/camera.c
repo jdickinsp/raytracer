@@ -69,5 +69,5 @@ void camera_ray_from_pixel(Camera *camera, int i, int j, Ray *ray) {
                                                                     vec3_mul(camera->pixel_delta_v, (float)j)));
     Vec3 pixel_sample = vec3_add(pixel_center, camera_pixel_sample(camera));
     ray->origin = camera->position;
-    ray->direction = vec3_norm(vec3_sub(pixel_sample, ray->origin));
+    ray->direction = vec3_sub(pixel_sample, ray->origin);
 }

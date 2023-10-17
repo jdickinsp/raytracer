@@ -49,13 +49,13 @@ typedef struct {
     Vec3 barycentric;
 } BVHitInfo;
 
+static int argmax(const float *array, size_t size);
 static void calculate_bounding_box(const BVTriangle *triangle, AABoundingBox *box);
 static void calculate_centroid(const BVTriangle *t, Vec3 *centroid);
 static void calculate_centroid_from_box(const AABoundingBox *box, Vec3 *centroid);
 static void calculate_bounding_box_range(const Primatives *primatives, int lo, int hi, AABoundingBox *box_range);
 static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid_range,
-                                     Vec3 *centroid_min, float *scale);
-static int argmax(const float *array, size_t size);
+                                     Vec3 *centroid_min);
 static void bvh_swap_primatives(Primatives *primatives, int a, int b);
 static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot, bool swap, int depth);
 Primatives *bvh_prepare_data(const BVTriangle *triangles, size_t size);

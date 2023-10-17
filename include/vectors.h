@@ -78,6 +78,10 @@ inline float vec3_length_squared(Vec3 a) { return a.x * a.x + a.y * a.y + a.z * 
 
 inline float vec3_mag(Vec3 a) { return sqrt(a.x * a.x + a.y * a.y + a.z * a.z); }
 
+inline Vec3 vec3_inv(Vec3 a) { return (Vec3){1.f / a.x, 1.f / a.y, 1.f / a.z}; }
+
+inline int vec3_argmax(Vec3 *a) { return a->x > a->y ? 0 : a->y > a->z ? 1 : 2; }
+
 void vec3_debug_print(Vec3 v);
 Vec4 vec4_from_vec3(Vec3 a, float w);
 Vec3 vec3_from_vec4(Vec4 a);
