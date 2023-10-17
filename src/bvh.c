@@ -277,7 +277,7 @@ void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_
             float hit_dist =
                 mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &bv_hit->barycentric);
             if (hit_dist > 0 && t <= tmin) {
-                bv_hit->index[0] = current.data;
+                bv_hit->index = current.data;
                 bv_hit->ray = ray;
                 bv_hit->has_hit = true;
                 bv_hit->hit = t;

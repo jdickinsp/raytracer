@@ -6,8 +6,7 @@
 #include <stdbool.h>
 #include <vectors.h>
 
-#define BVH_MAX_DEPTH 20
-#define BVH_HIT_INDEX_SIZE 1
+#define BVH_MAX_DEPTH 30
 
 static float EPSILON = 1e-4;
 
@@ -43,7 +42,7 @@ typedef struct {
 } Primatives;
 
 typedef struct {
-    int index[BVH_HIT_INDEX_SIZE];
+    int index;
     Ray *ray;
     bool has_hit;
     float hit;

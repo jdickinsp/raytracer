@@ -184,6 +184,7 @@ Scene* create_scene_with_obj_to_mesh() {
     ObjectList* lights = object_list_create();
 
     // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
