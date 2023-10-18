@@ -7,6 +7,7 @@
 #include <vectors.h>
 
 #define BVH_MAX_DEPTH 50
+#define BVH_MAX_STACK_SIZE 100
 
 static float EPSILON = 1e-4;
 

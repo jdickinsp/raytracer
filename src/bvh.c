@@ -1,5 +1,7 @@
 #include <bvh.h>
 
+#define USE_BVH_RAYCAST_STACK
+
 static int argmax(const float *array, size_t size) {
     float max_ = -INFINITY;
     int max_index = 0;
@@ -262,6 +264,41 @@ bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t) {
     return true;
 }
 
+#ifdef USE_BVH_RAYCAST_STACK
+void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
+    float tmin = INFINITY;
+    float t = 0.f;
+    int s = 0;
+    BVHNode **stack = malloc(sizeof(BVHNode *) * BVH_MAX_STACK_SIZE);
+    stack[++s] = root;
+    BVHNode *current;
+    while (s > 0) {
+        current = stack[s--];
+        if (!bounding_box_intersection(current->aabb, ray, &t)) continue;
+        if (current->is_leaf == true) {
+            int tri_index = current->data;
+            BVTriangle triangle = primatives->triangles[tri_index];
+            float hit_dist =
+                mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &bv_hit->barycentric);
+            if (hit_dist > 0 && t <= tmin) {
+                bv_hit->index = current->data;
+                bv_hit->ray = ray;
+                bv_hit->has_hit = true;
+                bv_hit->hit = t;
+                tmin = t;
+            }
+        } else {
+            if (current->left) {
+                stack[++s] = current->left;
+            }
+            if (current->right) {
+                stack[++s] = current->right;
+            }
+        }
+    }
+    free(stack);
+}
+#else
 void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
     float tmin = INFINITY;
     float t = 0.f;
@@ -290,3 +327,4 @@ void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_
     }
     queue_free(visit);
 }
+#endif
