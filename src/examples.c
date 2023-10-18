@@ -368,11 +368,10 @@ Scene* create_scene_with_bvh() {
 }
 
 Scene* create_scene_with_bvh_from_obj() {
-    printf("create_scene_with_bvh_from_obj\n");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
 
@@ -390,15 +389,15 @@ Scene* create_scene_with_bvh_from_obj() {
     // bvh_pprint(bvh_tree);
     // // bvh_traverse_tree(bvh_tree);
 
-    Vec3 origin = {0, 0, 2};
-    Ray ray;
-    BVHitInfo bv_hit;
-    for (int n = 0; n < mesh->vertex_count / 3; n++) {
-        find_ray_from_triangle(origin, &triangles[n], &ray);
-        // vec3_debug_print(ray.direction);
-        bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
-        printf("hit_info: %i, %i\n", bv_hit.has_hit, bv_hit.index);
-    }
+    // Vec3 origin = {0, 0, 2};
+    // Ray ray;
+    // BVHitInfo bv_hit;
+    // for (int n = 0; n < mesh->vertex_count / 3; n++) {
+    //     find_ray_from_triangle(origin, &triangles[n], &ray);
+    //     // vec3_debug_print(ray.direction);
+    //     bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
+    //     printf("hit_info: %i, %i\n", bv_hit.has_hit, bv_hit.index);
+    // }
 
     Scene* scene = malloc(sizeof(Scene));
     return scene;

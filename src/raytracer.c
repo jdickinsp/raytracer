@@ -86,9 +86,9 @@ void raytrace_image(Scene *scene, Image *image) {
 int main() {
     // printf("raytracer\n");
     Scene *scene = scene_selector(6);
-    Image *image = image_create(1366, 768);  // (768, 512), (1366, 768)
-    raytrace_image(scene, image);
-    image_save_png(image);
-    image_close(image);
+    // Image *image = image_create(1366, 768);  // (768, 512), (1366, 768)
+    // raytrace_image(scene, image);
+    // image_save_png(image);
+    // image_close(image);
     return 0;
 }

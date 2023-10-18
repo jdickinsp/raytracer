@@ -1,7 +1,5 @@
 #include <bvh.h>
 
-#define USE_BVH_RAYCAST_STACK
-
 static int argmax(const float *array, size_t size) {
     float max_ = -INFINITY;
     int max_index = 0;
@@ -84,9 +82,9 @@ static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float
     int nlo = lo;
     for (int i = lo; i < hi; i++) {
         float point = vec3_index_value(&primatives->array[i].centroid, axis);
-        if (depth >= BVH_MAX_DEPTH) {
-            printf("\t(%f <= %f)\n", point, pivot);
-        }
+        // if (depth >= BVH_MAX_DEPTH) {
+        //     printf("\t(%f <= %f)\n", point, pivot);
+        // }
         if (point <= pivot) {
             bvh_swap_primatives(primatives, lo, i);
             nlo += 1;
@@ -264,7 +262,6 @@ bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t) {
     return true;
 }
 
-#ifdef USE_BVH_RAYCAST_STACK
 void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
     float tmin = INFINITY;
     float t = 0.f;
@@ -298,33 +295,3 @@ void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_
     }
     free(stack);
 }
-#else
-void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
-    float tmin = INFINITY;
-    float t = 0.f;
-    Queue *visit = queue_init();
-    queue_add(visit, root, sizeof(BVHNode));
-    BVHNode current;
-    while (visit->count > 0) {
-        queue_popleft(visit, &current);
-        if (!bounding_box_intersection(current.aabb, ray, &t)) continue;
-        if (current.is_leaf == true) {
-            int tri_index = current.data;
-            BVTriangle triangle = primatives->triangles[tri_index];
-            float hit_dist =
-                mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &bv_hit->barycentric);
-            if (hit_dist > 0 && t <= tmin) {
-                bv_hit->index = current.data;
-                bv_hit->ray = ray;
-                bv_hit->has_hit = true;
-                bv_hit->hit = t;
-                tmin = t;
-            }
-        } else {
-            if (current.left) queue_addleft(visit, current.left, sizeof(BVHNode));
-            if (current.right) queue_addleft(visit, current.right, sizeof(BVHNode));
-        }
-    }
-    queue_free(visit);
-}
-#endif
