@@ -266,11 +266,11 @@ void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_
     float tmin = INFINITY;
     float t = 0.f;
     int s = 0;
-    BVHNode **stack = malloc(sizeof(BVHNode *) * BVH_MAX_STACK_SIZE);
-    stack[++s] = root;
+    BVHNode **stack[BVH_MAX_STACK_SIZE];
+    stack[++s] = &root;
     BVHNode *current;
     while (s > 0) {
-        current = stack[s--];
+        current = *stack[s--];
         if (!bounding_box_intersection(current->aabb, ray, &t)) continue;
         if (current->is_leaf == true) {
             int tri_index = current->data;
@@ -286,12 +286,11 @@ void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_
             }
         } else {
             if (current->left) {
-                stack[++s] = current->left;
+                stack[++s] = &current->left;
             }
             if (current->right) {
-                stack[++s] = current->right;
+                stack[++s] = &current->right;
             }
         }
     }
-    free(stack);
 }

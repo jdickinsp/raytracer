@@ -160,6 +160,8 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
                         fi = strtol(next, &next, 10);
                         fj = strtol(++next, &next, 10);
                         fk = strtol(++next, &next, 10);
+                        // memcpy(&sub_buffer, &buffer[offset], 32);
+                        // sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);
                     } else if (face_index_type == OBJ_FACE_INDEX_TYPE_2) {
                         memcpy(&sub_buffer, &buffer[offset], 32);
                         sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);

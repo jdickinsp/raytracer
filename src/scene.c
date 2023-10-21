@@ -406,14 +406,12 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     }
 #endif
     if (closet_hit != INFINITY) {
-        Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
-                                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 1], closest_barycentric.y)),
-                                   vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
-        // // hit_normal = vec3_norm(hit_normal);
-        // Vec3 hit_normal = mesh->face_normals[hit_index];
-        // vec3_debug_print(hit_normal);
-        // // hit_info->color = vec3_component_mul(closest_barycentric, (Vec3)
-        // // { 1.f, 1.f, 1.f });
+        // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[hit_index * 3], closest_barycentric.x),
+        //                                     vec3_mul(mesh->vertex_normals[hit_index * 3 + 1],
+        //                                     closest_barycentric.y)),
+        //                            vec3_mul(mesh->vertex_normals[hit_index * 3 + 2], closest_barycentric.z));
+        // hit_normal = vec3_norm(hit_normal);
+        Vec3 hit_normal = mesh->face_normals[hit_index];
         hit_info->position = ray_normal_at(ray, closet_hit);
         hit_info->hit = closet_hit;
         bool front_face = dot_product(vec3_neg(ray->direction), hit_normal) < 0.0;
@@ -428,12 +426,14 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
                    mesh->texture_uv[hit_index * 3 + 1].y * closest_barycentric.y +
                    mesh->texture_uv[hit_index * 3 + 2].y * closest_barycentric.y) /
                   3.f;
+        // float u = closest_barycentric.x;
+        // float v = closest_barycentric.y;
         hit_info->u = u;
         hit_info->v = v;
         int i = u * object_mesh->material->texture->width;
         int j = v * object_mesh->material->texture->height;
         hit_info->color = texture_pixel_data(object_mesh->material->texture, i, j);
-        // hit_info->color = texture_checkboard(0.6, 0.2, 0.08f);
+        // hit_info->color = texture_checkboard(u, v, 0.08f);
     }
     return closet_hit;
 }
