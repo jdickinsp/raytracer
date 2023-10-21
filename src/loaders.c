@@ -205,7 +205,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     int p = 0;
     for (int n = 0; n < face_count; n++) {
         for (int m = 0; m < face_index[n] - 2; m++) {
-            int total = face_index[n];
             int i = p;
             int j = p + m + 1;
             int k = p + m + 2;

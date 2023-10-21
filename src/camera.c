@@ -7,7 +7,7 @@ void camera_init(Camera *camera, int width, int height) {
     camera->height = height;
     camera->aspect_ratio = (float)width / (float)height;
     camera->vfov = 50.f;
-    camera->lookfrom = vec3_create(-1.6f, -0.4f, 8.0f);
+    camera->lookfrom = vec3_create(-1.6f, -1.5f, 6.0f);
     camera->lookat = vec3_create(0, 0, -1);
     camera->up = vec3_create(0, 1, 0);
     camera->position = camera->lookfrom;
@@ -70,4 +70,5 @@ void camera_ray_from_pixel(Camera *camera, int i, int j, Ray *ray) {
     Vec3 pixel_sample = vec3_add(pixel_center, camera_pixel_sample(camera));
     ray->origin = camera->position;
     ray->direction = vec3_norm(vec3_sub(pixel_sample, ray->origin));
+    ray->t = 1e30f;
 }

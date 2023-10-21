@@ -96,6 +96,6 @@ Vec3 refract(Vec3 uv, Vec3 n, float refraction_ratio);
 Vec3 vec3_distance(Vec3 a, Vec3 b);
 float vec3_index_value(Vec3 *v, int index);
 Vec3 vec3_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c);
-float mesh_triangle_intersection(Ray *ray, Vec3 a, Vec3 b, Vec3 c, Vec3 *uvw);
+float mesh_triangle_intersection(Ray *ray, Vec3 v0, Vec3 v1, Vec3 v2, Vec3 *uvw);
 
 #endif
