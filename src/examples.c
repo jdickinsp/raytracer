@@ -188,10 +188,10 @@ Scene* create_scene_with_obj_to_mesh() {
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/teapot2.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/teapot2.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
     material->texture = texture_load("./assets/2k_mars.jpg");
