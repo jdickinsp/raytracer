@@ -211,7 +211,7 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     material->checkerboard = true;
-    material->scale = 0.01f;
+    material->scale = 0.001f;
     // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
     material->texture = texture_load("./assets/2k_mars.jpg");
     Vec3 offset = (Vec3){0, 0, 3};

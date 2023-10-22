@@ -82,17 +82,15 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
             hit_info->u = u;
             hit_info->v = v;
 
-            // if (object_mesh->material->checkerboard) {
-            //     hit_info->color = texture_checkboard(u, v, object_mesh->material->scale,
-            //     &object_mesh->material->color);
-            // } else if (object_mesh->material->texture != NULL) {
-            //     int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
-            //     int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
-            //     hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
-            // } else {
-            //     hit_info->color = closest_barycentric;
-            // }
-            hit_info->color = closest_barycentric;
+            if (object_mesh->material->checkerboard) {
+                hit_info->color = texture_checkboard(u, v, object_mesh->material->scale, &object_mesh->material->color);
+            } else if (object_mesh->material->texture != NULL) {
+                int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
+                int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
+                hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
+            } else {
+                hit_info->color = closest_barycentric;
+            }
         }
         return true;
     }

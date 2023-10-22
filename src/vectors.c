@@ -97,7 +97,6 @@ float mesh_triangle_intersection(Ray *ray, Vec3 v0, Vec3 v1, Vec3 v2, Vec3 *uvw)
         return -1;
     }
     float t = f * dot_product(edge2, q);
-    // t < ray->t, removes back facing rendering, but also removes the shadow
     if (t > 1e-4 && t < ray->t) {
         ray->t = t;
         uvw->x = u;
