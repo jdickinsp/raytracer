@@ -99,7 +99,7 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
     return false;
 }
 
-Vec3 cast_ray(Ray *ray, RenderingOptions *options, Scene *scene) {
+Vec3 cast_ray(Ray *ray, RenderOptions *options, Scene *scene) {
     if (scene->lights == NULL) return vec3_empty();
     Vec3 hit_color = {0, 0, 0};
     HitInfo hit_info;
@@ -108,10 +108,10 @@ Vec3 cast_ray(Ray *ray, RenderingOptions *options, Scene *scene) {
     Sphere *sphere = (Sphere *)objects->head->current;
     bool has_hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY);
     if (has_hit) {
-        if (options->rendering_type == RENDER_BASIC) {
+        if (options->rendering_type == RAY_TRACE) {
             hit_color = vec3_mul(object_color(hit_info.node->current, hit_info.node->type),
                                  dot_product(hit_info.normal, vec3_neg(ray->direction)));
-        } else if (options->rendering_type == RENDER_SHADOW) {
+        } else if (options->rendering_type == RAY_TRACE_2) {
             // Phong shading
             ObjectNode *light_node = lights->head;
             Material *material = object_material(hit_info.node->current, hit_info.node->type);
@@ -147,7 +147,7 @@ Vec3 cast_ray(Ray *ray, RenderingOptions *options, Scene *scene) {
             }
             hit_color =
                 vec3_clip_max(vec3_add(vec3_mul(diffuse, material->Kd), vec3_mul(specular, material->Ks)), 1.0f);
-        } else if (options->rendering_type == RENDER_ADVANCED) {
+        } else if (options->rendering_type == RAY_TRACE_3) {
             // cast shadow
             float shadow_bias = 1e-4;
             HitInfo shadow_info;
@@ -172,7 +172,7 @@ Vec3 cast_ray(Ray *ray, RenderingOptions *options, Scene *scene) {
     return hit_color;
 }
 
-Vec3 raycast_color(Ray *ray, RenderingOptions *options, Scene *scene, int depth) {
+Vec3 raycast_color(Ray *ray, RenderOptions *options, Scene *scene, int depth) {
     if (depth <= 0) return vec3_empty();
     // if (scene->lights == NULL) return vec3_empty();
     HitInfo hit_info;

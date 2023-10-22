@@ -11,11 +11,7 @@
 #include <texture.h>
 #include <vectors.h>
 
-typedef enum { RENDER_BASIC = 0, RENDER_ADVANCED = 1, RENDER_SHADOW = 2 } RenderingType;
-
-typedef struct {
-    RenderingType rendering_type;
-} RenderingOptions;
+Scene *scene_create(RenderOptions *options, Camera *camera);
 
 ObjectList *object_list_create(void);
 void object_list_add(ObjectList *object_list, Object *object, ObjectType type);
@@ -46,6 +42,7 @@ Vec3 sphere_normal_at(Sphere *s, Vec3 p);
 float sphere_intersection(Sphere *s, Ray *ray, HitInfo *hit_info);
 Vec2 sphere_uv_texture_coord(Vec3 p);
 
-Material *material_create(float albedo, float Kd, float Ks, bool reflective, Vec3 color, float index_of_refraction);
+void object_list_free(ObjectList *object_list);
+void scene_free(Scene *scene);
 
 #endif

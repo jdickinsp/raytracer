@@ -19,15 +19,15 @@
 #include <utils.h>
 #include <vectors.h>
 
-Scene *create_scene_basic(void);
-Scene *create_scene_rand_spheres(void);
-Scene *create_scene_triangle(void);
-Scene *create_scene_box(void);
-Scene *create_scene_with_obj_file(void);
-Scene *create_scene_with_obj_to_mesh(void);
-Scene *create_scene_with_texture(void);
-Scene *create_scene_with_binary_tree(void);
-Scene *create_scene_with_bvh(void);
-Scene *create_scene_with_bvh_from_obj(void);
+Scene *create_scene_basic(RenderOptions *options);
+Scene *create_scene_rand_spheres(RenderOptions *options);
+Scene *create_scene_triangle(RenderOptions *options);
+Scene *create_scene_box(RenderOptions *options);
+Scene *create_scene_with_obj_file(RenderOptions *options);
+Scene *create_scene_with_obj_to_mesh(RenderOptions *options);
+Scene *create_scene_with_texture(RenderOptions *options);
+Scene *create_scene_with_binary_tree(RenderOptions *options);
+Scene *create_scene_with_bvh(RenderOptions *options);
+Scene *create_scene_with_bvh_from_obj(RenderOptions *options);
 
 #endif

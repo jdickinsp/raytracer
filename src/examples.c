@@ -1,7 +1,10 @@
 #include <examples.h>
 
-Scene* create_scene_basic() {
-    Scene* scene = malloc(sizeof(Scene));
+Scene* create_scene_basic(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    Vec3 lookfrom = vec3_create(-1.6f, -1.5f, 2.0f);
+    camera_init(scene->camera, options, &lookfrom, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -27,6 +30,7 @@ Scene* create_scene_basic() {
 
     Material* p_material = material_create(0.1, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
     p_material->checkerboard = true;
+    p_material->scale = 0.5f;
     Vec3 p_center = {.x = 0, .y = 0.5, .z = -1};
     Vec3 p_normal = {.x = 0, .y = 1, .z = 0};
     Plane* plane = plane_create(p_center, p_normal, p_material);
@@ -37,9 +41,12 @@ Scene* create_scene_basic() {
     return scene;
 }
 
-Scene* create_scene_rand_spheres() {
+Scene* create_scene_rand_spheres(RenderOptions* options) {
     // srand(time(NULL));
-    Scene* scene = malloc(sizeof(Scene));
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    Vec3 lookfrom = vec3_create(-1.6f, -1.5f, 2.0f);
+    camera_init(scene->camera, options, &lookfrom, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -76,8 +83,10 @@ Scene* create_scene_rand_spheres() {
     return scene;
 }
 
-Scene* create_scene_triangle() {
-    Scene* scene = malloc(sizeof(Scene));
+Scene* create_scene_triangle(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    camera_init(scene->camera, options, NULL, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -98,8 +107,10 @@ Scene* create_scene_triangle() {
     return scene;
 }
 
-Scene* create_scene_box() {
-    Scene* scene = malloc(sizeof(Scene));
+Scene* create_scene_box(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    camera_init(scene->camera, options, NULL, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -142,8 +153,10 @@ Scene* create_scene_box() {
     return scene;
 }
 
-Scene* create_scene_with_obj_file() {
-    Scene* scene = malloc(sizeof(Scene));
+Scene* create_scene_with_obj_file(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    camera_init(scene->camera, options, NULL, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -178,8 +191,11 @@ Scene* create_scene_with_obj_file() {
     return scene;
 }
 
-Scene* create_scene_with_obj_to_mesh() {
-    Scene* scene = malloc(sizeof(Scene));
+Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    Vec3 lookfrom = vec3_create(-1.6f, -1.5f, 6.0f);
+    camera_init(scene->camera, options, &lookfrom, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -240,8 +256,11 @@ Scene* create_scene_with_obj_to_mesh() {
     return scene;
 }
 
-Scene* create_scene_with_texture() {
-    Scene* scene = malloc(sizeof(Scene));
+Scene* create_scene_with_texture(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    Vec3 lookfrom = {0, 0, 4.0f};
+    camera_init(scene->camera, options, &lookfrom, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
@@ -282,7 +301,7 @@ Scene* create_scene_with_texture() {
 
 #define ARRAY_SIZE 2000
 
-Scene* create_scene_with_binary_tree() {
+Scene* create_scene_with_binary_tree(RenderOptions* options) {
     // test binary tree
     float array[ARRAY_SIZE];
     for (int i = 0; i < ARRAY_SIZE; i++) {
@@ -292,11 +311,11 @@ Scene* create_scene_with_binary_tree() {
     // binary_tree_traversal(tree);
     binary_tree_pprint(tree);
 
-    Scene* scene = malloc(sizeof(Scene));
+    Scene* scene = scene_create(options, NULL);
     return scene;
 }
 
-Scene* create_scene_with_bvh() {
+Scene* create_scene_with_bvh(RenderOptions* options) {
     BVTriangle triangles[12] = {(BVTriangle){
                                     (Vec3){-1, 1, -1},
                                     (Vec3){1, 1, 1},
@@ -381,11 +400,11 @@ Scene* create_scene_with_bvh() {
     // bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
     printf("hit_info: %i\n", bv_hit.has_hit);
 
-    Scene* scene = malloc(sizeof(Scene));
+    Scene* scene = scene_create(options, NULL);
     return scene;
 }
 
-Scene* create_scene_with_bvh_from_obj() {
+Scene* create_scene_with_bvh_from_obj(RenderOptions* options) {
     Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
@@ -417,6 +436,6 @@ Scene* create_scene_with_bvh_from_obj() {
     //     printf("hit_info: %i, %i\n", bv_hit.has_hit, bv_hit.index);
     // }
 
-    Scene* scene = malloc(sizeof(Scene));
+    Scene* scene = scene_create(options, NULL);
     return scene;
 }

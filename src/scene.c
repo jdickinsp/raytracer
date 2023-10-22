@@ -4,7 +4,7 @@
 ObjectList *object_list_create() {
     ObjectList *list = malloc(sizeof(ObjectList));
     list->head = NULL;
-    list->count = 0;
+    list->size = 0;
     return list;
 }
 
@@ -23,7 +23,7 @@ void object_list_add(ObjectList *object_list, Object *object, ObjectType type) {
         }
         node->next = next_obj;
     }
-    object_list->count = object_list->count + 1;
+    object_list->size = object_list->size + 1;
 }
 
 float object_intersection(Object *object, ObjectType type, Ray *ray, HitInfo *hit_info) {
@@ -308,15 +308,25 @@ void mesh_boundaries(Mesh *mesh, Vec3 *min_b, Vec3 *max_b, Vec3 *center_b) {
     *center_b = center;
 }
 
-Material *material_create(float albedo, float Kd, float Ks, bool reflective, Vec3 color, float index_of_refraction) {
-    Material *material = malloc(sizeof(Material));
-    material->albedo = albedo;
-    material->Kd = Kd;
-    material->Ks = Ks;
-    material->reflective = reflective;
-    material->color = color;
-    material->index_of_refraction = index_of_refraction;
-    material->checkerboard = false;
-    material->texture = NULL;
-    return material;
+Scene *scene_create(RenderOptions *options, Camera *camera) {
+    Scene *scene = malloc(sizeof(Scene));
+    scene->camera = camera;
+    scene->render_options = options;
+    return scene;
+}
+
+void object_list_free(ObjectList *object_list) {
+    ObjectNode *node = object_list->head;
+    while (node->current != NULL) {
+        free(node->current);
+        node = node->next;
+    }
+    free(object_list);
+}
+
+void scene_free(Scene *scene) {
+    object_list_free(scene->objects);
+    object_list_free(scene->lights);
+    free(scene->camera);
+    free(scene);
 }

@@ -34,7 +34,7 @@ typedef struct QueueItem {
 typedef struct Queue {
     QueueItem *head;
     QueueItem *current;
-    int count;
+    int size;
 } Queue;
 
 Queue *queue_init();

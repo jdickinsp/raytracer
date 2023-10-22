@@ -43,7 +43,7 @@ BinaryNode *binary_tree_build(float *array, size_t size) {
     Tuple3Item item = {root, sizeof(BinaryNode), lo, hi, 0};
     BinaryNode *node;
     queue_add(queue, &item, sizeof(Tuple3Item));
-    while (queue->count > 0) {
+    while (queue->size > 0) {
         queue_pop(queue, &item);
         node = item.data;
         lo = item.x;
@@ -74,7 +74,7 @@ BinaryNode *binary_tree_build(float *array, size_t size) {
 void binary_tree_traversal(BinaryNode *root) {
     Queue *visit = queue_init();
     queue_add(visit, root, sizeof(BinaryNode));
-    while (visit->count > 0) {
+    while (visit->size > 0) {
         BinaryNode current;
         queue_pop(visit, &current);
         if (current.is_leaf == true) {
@@ -96,7 +96,7 @@ void binary_tree_pprint(BinaryNode *root) {
     Tuple3Item current;
     BinaryNode *node;
     queue_add(visit, item, sizeof(Tuple3Item));
-    while (visit->count > 0) {
+    while (visit->size > 0) {
         queue_pop(visit, &current);
         node = current.data;
         indent = current.x;

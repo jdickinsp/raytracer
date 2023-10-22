@@ -135,7 +135,7 @@ BVHNode *bvh_build_tree(Primatives *primatives) {
     Tuple3Item item = {root, sizeof(BVHNode), lo, hi, depth};
     BVHNode *node;
     queue_add(visit, &item, sizeof(Tuple3Item));
-    while (visit->count > 0) {
+    while (visit->size > 0) {
         queue_pop(visit, &item);
         node = item.data;
         lo = item.x;
@@ -183,7 +183,7 @@ void bvh_pprint(BVHNode *root) {
     Tuple3Item current;
     BVHNode *node;
     queue_add(visit, item, sizeof(Tuple3Item));
-    while (visit->count > 0) {
+    while (visit->size > 0) {
         queue_pop(visit, &current);
         node = current.data;
         indent = current.x;
@@ -220,7 +220,7 @@ void bvh_traverse_tree(BVHNode *root) {
     Queue *visit = queue_init();
     queue_add(visit, root, sizeof(BVHNode));
     BVHNode node;
-    while (visit->count) {
+    while (visit->size > 0) {
         queue_pop(visit, &node);
         if (node.is_leaf == true) {
             printf("%i, ", node.data);

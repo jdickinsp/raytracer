@@ -4,14 +4,14 @@ Queue *queue_init() {
     Queue *queue = (Queue *)malloc(sizeof(Queue));
     queue->head = NULL;
     queue->current = NULL;
-    queue->count = 0;
+    queue->size = 0;
     return queue;
 }
 
 void queue_item_free(QueueItem *q) { free(q); }
 
 void queue_free(Queue *q) {
-    while (q->count > 0) {
+    while (q->size > 0) {
         queue_pop(q, NULL);
     }
     free(q);
@@ -31,7 +31,7 @@ void queue_add(Queue *q, void *data, size_t size) {
         q->current->next = item;
     }
     q->current = item;
-    q->count++;
+    q->size++;
 }
 
 void queue_addleft(Queue *q, void *data, size_t size) {
@@ -50,7 +50,7 @@ void queue_addleft(Queue *q, void *data, size_t size) {
         q->current = item;
     }
     q->head = item;
-    q->count++;
+    q->size++;
 }
 
 void queue_pop(Queue *q, void *dest) {
@@ -67,7 +67,7 @@ void queue_pop(Queue *q, void *dest) {
             q->head = NULL;
         }
         queue_item_free(current);
-        q->count--;
+        q->size--;
     }
 }
 
@@ -85,7 +85,7 @@ void queue_popleft(Queue *q, void *dest) {
             q->head = NULL;
         }
         queue_item_free(head);
-        q->count--;
+        q->size--;
     }
 }
 

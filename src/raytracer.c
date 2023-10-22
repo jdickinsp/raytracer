@@ -7,41 +7,41 @@
 #include <scene.h>
 #include <vectors.h>
 
-Scene *scene_selector(int index);
-void raytrace_image(Scene *scene, Image *image);
+Scene *scene_selector(int index, RenderOptions *options);
+void raytrace_image(Scene *scene, Image *image, RenderOptions *options);
 
-Scene *scene_selector(int index) {
+Scene *scene_selector(int index, RenderOptions *options) {
     Scene *scene;
     switch (index) {
         case 1:
-            scene = create_scene_basic();
+            scene = create_scene_basic(options);
             break;
         case 2:
-            scene = create_scene_rand_spheres();
+            scene = create_scene_rand_spheres(options);
             break;
         case 3:
-            scene = create_scene_triangle();
+            scene = create_scene_triangle(options);
             break;
         case 4:
-            scene = create_scene_box();
+            scene = create_scene_box(options);
             break;
         case 5:
-            scene = create_scene_with_obj_file();
+            scene = create_scene_with_obj_file(options);
             break;
         case 6:
-            scene = create_scene_with_obj_to_mesh();
+            scene = create_scene_with_obj_to_mesh(options);
             break;
         case 7:
-            scene = create_scene_with_texture();
+            scene = create_scene_with_texture(options);
             break;
         case 8:
-            scene = create_scene_with_binary_tree();
+            scene = create_scene_with_binary_tree(options);
             break;
         case 9:
-            scene = create_scene_with_bvh();
+            scene = create_scene_with_bvh(options);
             break;
         case 10:
-            scene = create_scene_with_bvh_from_obj();
+            scene = create_scene_with_bvh_from_obj(options);
             break;
         default:
             exit(1);
@@ -49,11 +49,12 @@ Scene *scene_selector(int index) {
     return scene;
 }
 
-void raytrace_image(Scene *scene, Image *image) {
-    RenderingOptions options = {.rendering_type = RENDER_SHADOW};
-    Camera camera;
-    camera_init(&camera, image->width, image->height);
-
+void raytrace_image(Scene *scene, Image *image, RenderOptions *options) {
+    Camera *camera = scene->camera;
+    if (camera == NULL) {
+        fprintf(stderr, "Error: must include a camera.\n");
+        abort();
+    }
     int buffer_size = (image->width * image->height);
     Vec3 *frame_buffer = malloc(sizeof(Vec3) * buffer_size);
     // find all the rays that intersect the camera plane
@@ -65,9 +66,9 @@ void raytrace_image(Scene *scene, Image *image) {
         for (int i = 0; i < image->width; i++) {
             Ray ray;
             Vec3 pixel_color = {0, 0, 0};
-            for (int sample = 0; sample < camera.samples_per_pixel; sample++) {
-                camera_ray_from_pixel(&camera, i, j, &ray);
-                Vec3 p = raycast_color(&ray, &options, scene, camera.rendering_depth);
+            for (int sample = 0; sample < camera->samples_per_pixel; sample++) {
+                camera_ray_from_pixel(camera, i, j, &ray);
+                Vec3 p = raycast_color(&ray, options, scene, camera->rendering_depth);
                 pixel_color = vec3_add(pixel_color, p);
             }
             // #pragma omp critical
@@ -80,16 +81,20 @@ void raytrace_image(Scene *scene, Image *image) {
         }
     }
     printf("\n");
-    image_from_buffer(image, frame_buffer, buffer_size, camera.samples_per_pixel);
+    image_from_buffer(image, frame_buffer, buffer_size, camera->samples_per_pixel);
     free(frame_buffer);
 }
 
 int main() {
-    // printf("raytracer\n");
-    Scene *scene = scene_selector(6);
-    Image *image = image_create(1366, 768);  // (768, 512), (1366, 768)
-    raytrace_image(scene, image);
+    printf("raytracer\n");
+    RenderOptions options = {
+        .rendering_type = PATH_TRACE, .width = 1366, .height = 768, .samples_per_pixel = 50, .rendering_depth = 25};
+    Scene *scene = scene_selector(6, &options);
+    Image *image = image_create(options.width, options.height);
+    raytrace_image(scene, image, &options);
     image_save_png(image);
     image_close(image);
+    free(image);
+    free(scene);
     return 0;
 }

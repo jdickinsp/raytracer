@@ -106,14 +106,27 @@ typedef struct ObjectNode {
 
 typedef struct ObjectList {
     struct ObjectNode *head;
-    int count;
+    int size;
 } ObjectList;
 
-typedef struct Scene {
-    struct ObjectList *objects;
-    struct ObjectList *lights;
-    Matrix44 world_matrix;
-} Scene;
+typedef struct {
+    int samples_per_pixel;
+    int rendering_depth;
+    int width;
+    int height;
+    float aspect_ratio;
+    float vfov;
+    Vec3 position;
+    Vec3 direction;
+    Matrix44 transform;
+    Vec3 pixel_delta_u;
+    Vec3 pixel_delta_v;
+    Vec3 pixel_upper_left;
+    Vec3 lookfrom;
+    Vec3 lookat;
+    Vec3 up;
+    Vec3 u, v, w;
+} Camera;
 
 typedef struct {
     float hit;
@@ -136,5 +149,23 @@ typedef struct {
     float hit;
     Vec3 barycentric;
 } BVHitInfo;
+
+typedef enum { RAY_TRACE = 0, PATH_TRACE = 1, RAY_TRACE_2 = 2, RAY_TRACE_3 = 3 } RenderingType;
+
+typedef struct {
+    RenderingType rendering_type;
+    int width;
+    int height;
+    int samples_per_pixel;
+    int rendering_depth;
+} RenderOptions;
+
+typedef struct {
+    ObjectList *objects;
+    ObjectList *lights;
+    Camera *camera;
+    RenderOptions *render_options;
+    Matrix44 world_matrix;
+} Scene;
 
 #endif
