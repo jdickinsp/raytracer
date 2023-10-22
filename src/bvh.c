@@ -261,36 +261,3 @@ bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t) {
     *t = tmin;
     return true;
 }
-
-void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit) {
-    float tmin = INFINITY;
-    float t = 0.f;
-    int s = 0;
-    BVHNode **stack[BVH_MAX_STACK_SIZE];
-    stack[++s] = &root;
-    BVHNode *current;
-    while (s > 0) {
-        current = *stack[s--];
-        if (!bounding_box_intersection(current->aabb, ray, &t)) continue;
-        if (current->is_leaf == true) {
-            int tri_index = current->data;
-            BVTriangle triangle = primatives->triangles[tri_index];
-            float hit_dist =
-                mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &bv_hit->barycentric);
-            if (hit_dist > 0 && t <= tmin) {
-                bv_hit->index = current->data;
-                bv_hit->ray = ray;
-                bv_hit->has_hit = true;
-                bv_hit->hit = t;
-                tmin = t;
-            }
-        } else {
-            if (current->left) {
-                stack[++s] = &current->left;
-            }
-            if (current->right) {
-                stack[++s] = &current->right;
-            }
-        }
-    }
-}

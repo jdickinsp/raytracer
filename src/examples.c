@@ -188,18 +188,26 @@ Scene* create_scene_with_obj_to_mesh() {
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
+
     // Mesh* mesh = load_wavefront_obj_model("./assets/teapot2.obj");
-    Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
-    // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
-    material->texture = texture_load("./assets/2k_mars.jpg");
-    ObjectMesh* obj_mesh = object_mesh_create(mesh, material);
-    printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
-    Sphere s = obj_mesh->bounding_sphere->sphere;
-    printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
-    object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
+    // Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    // // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
+    // material->texture = texture_load("./assets/2k_mars.jpg");
+    // Vec3 offset = (Vec3){0, 0, 0};
+    // ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
+    // printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
+    // Sphere s = obj_mesh->bounding_sphere->sphere;
+    // printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
+    // object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
+
+    Mesh* mesh2 = load_wavefront_obj_model("./assets/cube_texture.obj");
+    Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    Vec3 offset2 = (Vec3){0, 0, 0};
+    ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, offset2);
+    object_list_add(objects, (Object*)obj_mesh2, ObjectMeshType);
 
     Vec3 l_position = {0, 5, 1};
     Vec3 l_color = {1, 1, 1};
@@ -363,7 +371,7 @@ Scene* create_scene_with_bvh() {
     Ray ray;
     BVHitInfo bv_hit;
     find_ray_from_triangle(origin, &triangles[0], &ray);
-    bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
+    // bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
     printf("hit_info: %i\n", bv_hit.has_hit);
 
     Scene* scene = malloc(sizeof(Scene));

@@ -2,9 +2,9 @@
 #define MATERIAL_H
 
 #include <scene.h>
+#include <shared.h>
 #include <stdbool.h>
 #include <vectors.h>
-
 
 bool material_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered);
 bool lambertian_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered);

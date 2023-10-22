@@ -42,14 +42,6 @@ typedef struct {
     size_t size;
 } Primatives;
 
-typedef struct {
-    int index;
-    Ray *ray;
-    bool has_hit;
-    float hit;
-    Vec3 barycentric;
-} BVHitInfo;
-
 static int argmax(const float *array, size_t size);
 static void calculate_bounding_box(const BVTriangle *triangle, AABoundingBox *box);
 static void calculate_centroid(const BVTriangle *t, Vec3 *centroid);
@@ -67,6 +59,5 @@ void bvh_traverse_tree(BVHNode *node);
 void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray);
 float inv_ray_direction(float v);
 bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t);
-void bvh_raycast(BVHNode *root, Primatives *primatives, Ray *ray, BVHitInfo *bv_hit);
 
 #endif

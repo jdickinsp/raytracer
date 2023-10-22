@@ -1,7 +1,9 @@
 #ifndef LOADERS_H
 #define LOADERS_H
 
+#include <object_mesh.h>
 #include <scene.h>
+#include <shared.h>
 #include <stdio.h>
 #include <string.h>
 #include <vectors.h>

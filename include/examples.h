@@ -9,7 +9,9 @@
 #include <material.h>
 #include <math.h>
 #include <matrix44.h>
+#include <object_mesh.h>
 #include <scene.h>
+#include <shared.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
