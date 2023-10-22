@@ -33,7 +33,8 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
                     int j = uv.y * s.material->texture->height;
                     hit_info->color = texture_pixel_data(s.material->texture, i, j);
                 } else if (s.material->checkerboard == true) {
-                    hit_info->color = texture_checkboard(uv.x, uv.y, 0.3f);
+                    hit_info->color =
+                        texture_checkboard(uv.x, uv.y, hit_info->material->scale, &hit_info->material->color);
                 } else {
                     hit_info->color = object_color(hit_info->node->current, hit_info->node->type);
                 }
@@ -43,7 +44,8 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
                 hit_info->u = uv.x;
                 hit_info->v = uv.y;
                 if (plane.material->checkerboard == true) {
-                    hit_info->color = texture_checkboard(uv.x, uv.y, 0.1f);
+                    hit_info->color =
+                        texture_checkboard(uv.x, uv.y, hit_info->material->scale, &hit_info->material->color);
                 } else {
                     hit_info->color = object_color(hit_info->node->current, hit_info->node->type);
                 }

@@ -186,27 +186,33 @@ Scene* create_scene_with_obj_to_mesh() {
     // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
 
     // Mesh* mesh = load_wavefront_obj_model("./assets/teapot2.obj");
-    // Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
-    // // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
-    // material->texture = texture_load("./assets/2k_mars.jpg");
-    // Vec3 offset = (Vec3){0, 0, 0};
-    // ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
-    // printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
-    // Sphere s = obj_mesh->bounding_sphere->sphere;
-    // printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
-    // object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
+    Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    material->checkerboard = true;
+    material->scale = 0.01f;
+    // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
+    material->texture = texture_load("./assets/2k_mars.jpg");
+    Vec3 offset = (Vec3){0.5, 0, 3};
+    ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
+    printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
+    Sphere s = obj_mesh->bounding_sphere->sphere;
+    printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
+    object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
 
-    Mesh* mesh2 = load_wavefront_obj_model("./assets/cube_texture.obj");
-    Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
-    Vec3 offset2 = (Vec3){0, 0, 0};
-    ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, offset2);
+    Mesh* mesh2 = load_wavefront_obj_model("./assets/teapot2.obj");
+    float ior = rand_range(0, 1) > 0.8 ? 1.5 : 0;
+    Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){.2, .3, .1}, ior);
+    // material2->texture = texture_load("./assets/2k_mars.jpg");
+    material2->checkerboard = false;
+    material2->scale = 0.02f;
+    Vec3 rand_offset = {0, 1, -2};
+    ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, rand_offset);
     object_list_add(objects, (Object*)obj_mesh2, ObjectMeshType);
 
     Vec3 l_position = {0, 5, 1};
@@ -214,8 +220,9 @@ Scene* create_scene_with_obj_to_mesh() {
     PointLight* light = point_light_create(l_position, l_color, 20);
     object_list_add(lights, (Object*)light, PointLightType);
 
-    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
+    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){.2, .3, .1}, 0);
     p_material->checkerboard = true;
+    p_material->scale = 0.5f;
     Vec3 p_center = {.x = 0, .y = 1, .z = -1};
     Vec3 p_normal = {.x = 0, .y = 1, .z = 0};
     Plane* plane = plane_create(p_center, p_normal, p_material);

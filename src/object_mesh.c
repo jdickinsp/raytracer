@@ -34,9 +34,10 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     int hit_index = 0;
     Vec3 barycentric;
     Vec3 closest_barycentric;
+    Ray ray_offset = (Ray){vec3_sub(ray->origin, object_mesh->offset), ray->direction, ray->t};
     // // check if in boundary sphere
     // HitInfo sphere_hit;
-    // sphere_intersection(&object_mesh->bounding_sphere->sphere, ray, &sphere_hit);
+    // sphere_intersection(&object_mesh->bounding_sphere->sphere, &ray_offset, &sphere_hit);
     // if (sphere_hit.hit > 0) {
     //     return -1;
     // }
@@ -44,7 +45,7 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     // add BVH intersection
 #ifdef USE_BVH
     BVHitInfo bv_hit = {-1, NULL, false};
-    bvh_raycast(object_mesh, ray, &bv_hit);
+    bvh_raycast(object_mesh, &ray_offset, &bv_hit);
     if (bv_hit.has_hit == true) {
         closet_hit = bv_hit.hit;
         hit_index = bv_hit.index;
@@ -72,15 +73,14 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
         i = hit_index * 3 + 1;
         j = hit_index * 3 + 2;
         k = hit_index * 3;
-        // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[i], closest_barycentric.x),
-        //                                     vec3_mul(mesh->vertex_normals[j], closest_barycentric.y)),
-        //                            vec3_mul(mesh->vertex_normals[k], closest_barycentric.z));
-        // hit_normal = vec3_norm(hit_normal);
+        Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[i], closest_barycentric.x),
+                                            vec3_mul(mesh->vertex_normals[j], closest_barycentric.y)),
+                                   vec3_mul(mesh->vertex_normals[k], closest_barycentric.z));
         // using a face normal will just mean it's not smooth
-        Vec3 hit_normal = mesh->face_normals[hit_index];
-        hit_info->position = ray_normal_at(ray, closet_hit);
+        // Vec3 hit_normal = mesh->face_normals[hit_index];
+        hit_info->position = vec3_add(ray_normal_at(&ray_offset, closet_hit), object_mesh->offset);
         hit_info->hit = closet_hit;
-        bool front_face = dot_product(vec3_neg(ray->direction), hit_normal) < 0.0;
+        bool front_face = dot_product(vec3_neg(ray_offset.direction), hit_normal) < 0.0;
         hit_info->front_face = front_face;
         hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
         hit_info->material = object_mesh->material;
@@ -92,11 +92,16 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
                   3.f;
         hit_info->u = u;
         hit_info->v = v;
-        // int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
-        // int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
-        // hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
-        hit_info->color = texture_checkboard(u, v, 0.01f);
-        // hit_info->color = closest_barycentric;
+
+        if (object_mesh->material->checkerboard) {
+            hit_info->color = texture_checkboard(u, v, object_mesh->material->scale, &object_mesh->material->color);
+        } else if (object_mesh->material->texture != NULL) {
+            int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
+            int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
+            hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
+        } else {
+            hit_info->color = closest_barycentric;
+        }
     }
     return closet_hit;
 }
@@ -110,12 +115,10 @@ void bvh_raycast(ObjectMesh *obj_mesh, Ray *ray, BVHitInfo *bv_hit) {
     BVHNode **stack[BVH_MAX_STACK_SIZE];
     stack[++s] = &root;
     BVHNode *current;
-    // Ray ray_offset = (Ray){ray->origin, ray->direction, ray->t};
-    // ray_offset.origin = vec3_sub(ray->origin, obj_mesh->offset);
     while (s > 0) {
         current = *stack[s--];
-        // AABoundingBox box_offset = (AABoundingBox){vec3_sub(current->aabb->min, obj_mesh->offset),
-        //                                            vec3_sub(current->aabb->min, obj_mesh->offset)};
+        // AABoundingBox box_offset = (AABoundingBox){vec3_add(current->aabb->min, obj_mesh->offset),
+        //                                            vec3_add(current->aabb->max, obj_mesh->offset)};
         if (!bounding_box_intersection(current->aabb, ray, &t)) continue;
         if (current->is_leaf == true) {
             int tri_index = current->data;
@@ -123,7 +126,6 @@ void bvh_raycast(ObjectMesh *obj_mesh, Ray *ray, BVHitInfo *bv_hit) {
             float hit_dist =
                 mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &bv_hit->barycentric);
             if (hit_dist > 0 && t <= tmin) {
-                // ray->t = ray_offset.t;
                 bv_hit->index = current->data;
                 bv_hit->ray = ray;
                 bv_hit->has_hit = true;

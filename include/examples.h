@@ -5,6 +5,7 @@
 #include <bvh.h>
 #include <camera.h>
 #include <collections.h>
+#include <constants.h>
 #include <loaders.h>
 #include <material.h>
 #include <math.h>

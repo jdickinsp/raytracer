@@ -12,6 +12,7 @@ typedef struct {
     Vec3 color;
     float index_of_refraction;
     bool checkerboard;
+    float scale;
     TextureImage *texture;
 } Material;
 
