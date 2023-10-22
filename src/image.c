@@ -44,7 +44,7 @@ Image *image_create(int width, int height) {
     return image;
 }
 
-void image_close(Image *image) {
+void image_free(Image *image) {
     free(image->data);
     free(image);
 }

@@ -199,20 +199,10 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
-    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube2.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
-
-    // Mesh* mesh = load_wavefront_obj_model("./assets/teapot2.obj");
     Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     material->checkerboard = true;
     material->scale = 0.001f;
-    // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
     material->texture = texture_load("./assets/2k_mars.jpg");
     Vec3 offset = (Vec3){0, 0, 3};
     ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
@@ -224,17 +214,77 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     Mesh* mesh2 = load_wavefront_obj_model("./assets/teapot2.obj");
     float ior = rand_range(0, 1) > 0.8 ? 1.5 : 0;
     Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){.2, .3, .1}, ior);
-    // material2->texture = texture_load("./assets/2k_mars.jpg");
     material2->checkerboard = false;
     material2->scale = 0.02f;
     Vec3 rand_offset = {0, 1, -2};
     ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, rand_offset);
     object_list_add(objects, (Object*)obj_mesh2, ObjectMeshType);
 
-    Vec3 l_position = {0, 5, 1};
+    Vec3 l_position = {0, -8, 0};
     Vec3 l_color = {1, 1, 1};
-    PointLight* light = point_light_create(l_position, l_color, 20);
+    PointLight* light = point_light_create(l_position, l_color, 25);
     object_list_add(lights, (Object*)light, PointLightType);
+
+    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){.2, .3, .1}, 0);
+    p_material->checkerboard = true;
+    p_material->scale = 0.5f;
+    Vec3 p_center = {.x = 0, .y = 1, .z = -1};
+    Vec3 p_normal = {.x = 0, .y = 1, .z = 0};
+    Plane* plane = plane_create(p_center, p_normal, p_material);
+    object_list_add(objects, (Object*)plane, PlaneType);
+
+    Vec3 eye = {2, -2, 4};
+    Vec3 center = {0, 0, 0};
+    Vec3 up = {0, 1, 0};
+    Matrix44 camera_matrix;
+    camera_lookat(eye, center, up, &camera_matrix);
+
+    scene->world_matrix = camera_matrix;
+    scene->lights = lights;
+    scene->objects = objects;
+    return scene;
+}
+
+Scene* create_scene_with_rand_cubes(RenderOptions* options) {
+    Scene* scene = scene_create(options, NULL);
+    scene->camera = malloc(sizeof(Camera));
+    Vec3 lookfrom = vec3_create(-1.6f, -1.5f, 6.0f);
+    camera_init(scene->camera, options, &lookfrom, NULL);
+    ObjectList* objects = object_list_create();
+    ObjectList* lights = object_list_create();
+
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
+    Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    // material->checkerboard = true;
+    material->scale = 0.001f;
+    material->texture = texture_load("./assets/2k_earth_clouds.jpg");
+    Vec3 offset = (Vec3){0, 0, 3};
+    ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
+    printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
+    Sphere s = obj_mesh->bounding_sphere->sphere;
+    printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
+    object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
+
+    for (int i = 0; i < 50; i++) {
+        float ior3 = rand_range(0, 1) > 0.8 ? 1.5 : 0;
+        Vec3 rand_color = vec3_rand(0, 1);
+        Material* material3 = material_create(0.22, 0.3, 0.2, true, rand_color, ior3);
+        material3->checkerboard = true;
+        material3->scale = rand_range(0.001f, 0.05f);
+        Vec3 rand_offset3 = (Vec3){rand_range(-6, 6), 0, rand_range(0, -15)};
+        ObjectMesh* obj_mesh3 = object_mesh_create(mesh, material3, rand_offset3);
+        object_list_add(objects, (Object*)obj_mesh3, ObjectMeshType);
+    }
+
+    Vec3 l_position = {0, 10, 0};
+    Vec3 l_color = {1, 1, 1};
+    PointLight* light = point_light_create(l_position, l_color, 15);
+    object_list_add(lights, (Object*)light, PointLightType);
+
+    Vec3 l_position2 = {0, -10, 0};
+    Vec3 l_color2 = {1, 1, 1};
+    PointLight* light2 = point_light_create(l_position2, l_color2, 5);
+    object_list_add(lights, (Object*)light2, PointLightType);
 
     Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){.2, .3, .1}, 0);
     p_material->checkerboard = true;

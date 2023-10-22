@@ -183,7 +183,7 @@ float triangle_intersection(Triangle *t, Ray *ray) {
 Vec3 light_direction(Object *object, ObjectType type, Vec3 point) {
     switch (type) {
         case DirectionalLightType:
-            return object->directional_light.direction;
+            return vec3_norm(object->directional_light.direction);
         case PointLightType:
             return vec3_neg(vec3_norm(vec3_sub(point, object->point_light.position)));
         default:

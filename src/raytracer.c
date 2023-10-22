@@ -8,7 +8,7 @@
 #include <vectors.h>
 
 Scene *scene_selector(int index, RenderOptions *options);
-void raytrace_image(Scene *scene, Image *image, RenderOptions *options);
+void raytrace_image(Scene *scene, Image *image);
 
 Scene *scene_selector(int index, RenderOptions *options) {
     Scene *scene;
@@ -32,15 +32,18 @@ Scene *scene_selector(int index, RenderOptions *options) {
             scene = create_scene_with_obj_to_mesh(options);
             break;
         case 7:
-            scene = create_scene_with_texture(options);
+            scene = create_scene_with_rand_cubes(options);
             break;
         case 8:
-            scene = create_scene_with_binary_tree(options);
+            scene = create_scene_with_texture(options);
             break;
         case 9:
-            scene = create_scene_with_bvh(options);
+            scene = create_scene_with_binary_tree(options);
             break;
         case 10:
+            scene = create_scene_with_bvh(options);
+            break;
+        case 11:
             scene = create_scene_with_bvh_from_obj(options);
             break;
         default:
@@ -49,7 +52,7 @@ Scene *scene_selector(int index, RenderOptions *options) {
     return scene;
 }
 
-void raytrace_image(Scene *scene, Image *image, RenderOptions *options) {
+void raytrace_image(Scene *scene, Image *image) {
     Camera *camera = scene->camera;
     if (camera == NULL) {
         fprintf(stderr, "Error: must include a camera.\n");
@@ -61,25 +64,46 @@ void raytrace_image(Scene *scene, Image *image, RenderOptions *options) {
     int total_progress = (image->height) / 25;
     int k = 0;
     printf("progress: ");
+    if (scene->render_options->rendering_type == PATH_TRACING) {
 #pragma omp parallel for schedule(dynamic, 1)
-    for (int j = 0; j < image->height; j++) {
-        for (int i = 0; i < image->width; i++) {
-            Ray ray;
-            Vec3 pixel_color = {0, 0, 0};
-            for (int sample = 0; sample < camera->samples_per_pixel; sample++) {
-                camera_ray_from_pixel(camera, i, j, &ray);
-                Vec3 p = raycast_color(&ray, options, scene, camera->rendering_depth);
-                pixel_color = vec3_add(pixel_color, p);
+        for (int j = 0; j < image->height; j++) {
+            for (int i = 0; i < image->width; i++) {
+                Ray ray;
+                Vec3 pixel_color = {0, 0, 0};
+                for (int sample = 0; sample < camera->samples_per_pixel; sample++) {
+                    camera_ray_from_subpixel(camera, i, j, &ray);
+                    Vec3 p = path_trace_color(scene, &ray, camera->rendering_depth);
+                    pixel_color = vec3_add(pixel_color, p);
+                }
+                // #pragma omp critical
+                frame_buffer[j * image->width + i] = pixel_color;
             }
-            // #pragma omp critical
-            frame_buffer[j * image->width + i] = pixel_color;
+            // #pragma omp atomic
+            ++k;
+            if (k % total_progress == 0) {
+                printf("#");
+            }
         }
-        // #pragma omp atomic
-        ++k;
-        if (k % total_progress == 0) {
-            printf("#");
+    } else if (scene->render_options->rendering_type == WHITTED_RAY_TRACING) {
+#pragma omp parallel for schedule(dynamic, 1)
+        for (int j = 0; j < image->height; j++) {
+            for (int i = 0; i < image->width; i++) {
+                Ray ray;
+                Vec3 pixel_color = {0, 0, 0};
+                camera_ray_from_pixel(camera, i, j, &ray);
+                Vec3 p = ray_trace_color(scene, &ray, camera->rendering_depth);
+                pixel_color = vec3_add(pixel_color, p);
+                // #pragma omp critical
+                frame_buffer[j * image->width + i] = pixel_color;
+            }
+            // #pragma omp atomic
+            ++k;
+            if (k % total_progress == 0) {
+                printf("#");
+            }
         }
     }
+
     printf("\n");
     image_from_buffer(image, frame_buffer, buffer_size, camera->samples_per_pixel);
     free(frame_buffer);
@@ -88,13 +112,12 @@ void raytrace_image(Scene *scene, Image *image, RenderOptions *options) {
 int main() {
     printf("raytracer\n");
     RenderOptions options = {
-        .rendering_type = PATH_TRACE, .width = 1366, .height = 768, .samples_per_pixel = 50, .rendering_depth = 25};
+        .rendering_type = PATH_TRACING, .width = 1366, .height = 768, .samples_per_pixel = 25, .rendering_depth = 10};
     Scene *scene = scene_selector(6, &options);
     Image *image = image_create(options.width, options.height);
-    raytrace_image(scene, image, &options);
+    raytrace_image(scene, image);
     image_save_png(image);
-    image_close(image);
-    free(image);
+    image_free(image);
     free(scene);
     return 0;
 }

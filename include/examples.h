@@ -25,6 +25,7 @@ Scene *create_scene_triangle(RenderOptions *options);
 Scene *create_scene_box(RenderOptions *options);
 Scene *create_scene_with_obj_file(RenderOptions *options);
 Scene *create_scene_with_obj_to_mesh(RenderOptions *options);
+Scene *create_scene_with_rand_cubes(RenderOptions *options);
 Scene *create_scene_with_texture(RenderOptions *options);
 Scene *create_scene_with_binary_tree(RenderOptions *options);
 Scene *create_scene_with_bvh(RenderOptions *options);

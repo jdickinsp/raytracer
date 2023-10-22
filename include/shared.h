@@ -150,7 +150,7 @@ typedef struct {
     Vec3 barycentric;
 } BVHitInfo;
 
-typedef enum { RAY_TRACE = 0, PATH_TRACE = 1, RAY_TRACE_2 = 2, RAY_TRACE_3 = 3 } RenderingType;
+typedef enum { WHITTED_RAY_TRACING = 0, PATH_TRACING = 1, RAY_TRACING_2 = 2, RAY_TRACING_3 = 3 } RenderingType;
 
 typedef struct {
     RenderingType rendering_type;

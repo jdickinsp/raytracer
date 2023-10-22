@@ -12,5 +12,6 @@ bool lambertian_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenu
 bool metal_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered);
 bool dielectric_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered);
 float reflectance(float cosine, float ref_index);
+bool phong_shading(ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation);
 
 #endif
