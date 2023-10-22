@@ -178,7 +178,7 @@ Vec3 raycast_color(Ray *ray, RenderingOptions *options, Scene *scene, int depth)
     HitInfo hit_info;
     ObjectList *objects = scene->objects;
     ObjectList *lights = scene->lights;
-    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, ray->t);
+    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY);
     if (hit) {
         Vec3 attenuation;
         Ray scattered;
