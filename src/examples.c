@@ -186,19 +186,19 @@ Scene* create_scene_with_obj_to_mesh() {
     // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube_texture.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/cube2.obj");
     // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
 
     // Mesh* mesh = load_wavefront_obj_model("./assets/teapot2.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
     Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
     material->checkerboard = true;
     material->scale = 0.01f;
     // material->texture = texture_load("./assets/2k_earth_clouds.jpg");
     material->texture = texture_load("./assets/2k_mars.jpg");
-    Vec3 offset = (Vec3){0.5, 0, 3};
+    Vec3 offset = (Vec3){0, 0, 3};
     ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
     printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
     Sphere s = obj_mesh->bounding_sphere->sphere;

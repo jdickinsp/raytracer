@@ -46,10 +46,11 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
 #ifdef USE_BVH
     BVHitInfo bv_hit = {-1, NULL, false};
     bvh_raycast(object_mesh, &ray_offset, &bv_hit);
-    if (bv_hit.has_hit == true) {
+    if (bv_hit.has_hit == true && bv_hit.hit < ray->t) {
         closet_hit = bv_hit.hit;
         hit_index = bv_hit.index;
         closest_barycentric = bv_hit.barycentric;
+        ray->t = bv_hit.hit;
     }
 #else
     // printf("hit_info: %i, %f\n", bvh_hit_info.index, bvh_hit_info.t);
@@ -69,39 +70,11 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     }
 #endif
     if (closet_hit != INFINITY) {
-        int i, j, k;
-        i = hit_index * 3 + 1;
-        j = hit_index * 3 + 2;
-        k = hit_index * 3;
-        Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[i], closest_barycentric.x),
-                                            vec3_mul(mesh->vertex_normals[j], closest_barycentric.y)),
-                                   vec3_mul(mesh->vertex_normals[k], closest_barycentric.z));
-        // using a face normal will just mean it's not smooth
-        // Vec3 hit_normal = mesh->face_normals[hit_index];
-        hit_info->position = vec3_add(ray_normal_at(&ray_offset, closet_hit), object_mesh->offset);
+        hit_info->iu = bv_hit.barycentric.x;
+        hit_info->iv = bv_hit.barycentric.y;
+        hit_info->tri_index = hit_index;
         hit_info->hit = closet_hit;
-        bool front_face = dot_product(vec3_neg(ray_offset.direction), hit_normal) < 0.0;
-        hit_info->front_face = front_face;
-        hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
-        hit_info->material = object_mesh->material;
-        float u = (mesh->texture_uv[i].x * closest_barycentric.x + mesh->texture_uv[j].x * closest_barycentric.y +
-                   mesh->texture_uv[k].x * closest_barycentric.z) /
-                  3.f;
-        float v = (mesh->texture_uv[i].y * closest_barycentric.x + mesh->texture_uv[j].y * closest_barycentric.y +
-                   mesh->texture_uv[k].y * closest_barycentric.z) /
-                  3.f;
-        hit_info->u = u;
-        hit_info->v = v;
-
-        if (object_mesh->material->checkerboard) {
-            hit_info->color = texture_checkboard(u, v, object_mesh->material->scale, &object_mesh->material->color);
-        } else if (object_mesh->material->texture != NULL) {
-            int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
-            int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
-            hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
-        } else {
-            hit_info->color = closest_barycentric;
-        }
+        hit_info->ray = &ray_offset;
     }
     return closet_hit;
 }
@@ -117,8 +90,6 @@ void bvh_raycast(ObjectMesh *obj_mesh, Ray *ray, BVHitInfo *bv_hit) {
     BVHNode *current;
     while (s > 0) {
         current = *stack[s--];
-        // AABoundingBox box_offset = (AABoundingBox){vec3_add(current->aabb->min, obj_mesh->offset),
-        //                                            vec3_add(current->aabb->max, obj_mesh->offset)};
         if (!bounding_box_intersection(current->aabb, ray, &t)) continue;
         if (current->is_leaf == true) {
             int tri_index = current->data;

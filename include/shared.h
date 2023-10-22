@@ -124,6 +124,9 @@ typedef struct {
     float u, v;
     bool front_face;
     Material *material;
+    int tri_index;
+    float iu, iv;
+    Ray *ray;
 } HitInfo;
 
 typedef struct {

@@ -55,7 +55,7 @@ void raytrace_image(Scene *scene, Image *image) {
     camera_init(&camera, image->width, image->height);
 
     int buffer_size = (image->width * image->height);
-    Vec3 *frame_buffer = malloc((size_t)buffer_size * sizeof(Vec3));
+    Vec3 *frame_buffer = malloc(sizeof(Vec3) * buffer_size);
     // find all the rays that intersect the camera plane
     int total_progress = (image->height) / 25;
     int k = 0;
@@ -81,6 +81,7 @@ void raytrace_image(Scene *scene, Image *image) {
     }
     printf("\n");
     image_from_buffer(image, frame_buffer, buffer_size, camera.samples_per_pixel);
+    free(frame_buffer);
 }
 
 int main() {

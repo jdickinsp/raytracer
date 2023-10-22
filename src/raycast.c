@@ -53,6 +53,46 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
             } else {
                 hit_info->color = object_color(hit_info->node->current, hit_info->node->type);
             }
+        } else {
+            ObjectMesh *object_mesh = &hit_info->node->current->object_mesh;
+            Mesh *mesh = object_mesh->mesh;
+            Vec3 closest_barycentric = (Vec3){hit_info->iu, hit_info->iv, (1 - (hit_info->iu + hit_info->iv))};
+            int hit_index = hit_info->tri_index;
+            int i, j, k;
+            i = hit_index * 3 + 1;
+            j = hit_index * 3 + 2;
+            k = hit_index * 3;
+            // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[i], closest_barycentric.x),
+            //                                     vec3_mul(mesh->vertex_normals[j], closest_barycentric.y)),
+            //                            vec3_mul(object_mesh->mesh->vertex_normals[k], closest_barycentric.z));
+            // using a face normal will just mean it's not smooth
+            Vec3 hit_normal = mesh->face_normals[hit_index];
+            hit_info->position = vec3_add(ray_normal_at(hit_info->ray, closet_hit), object_mesh->offset);
+            hit_info->hit = closet_hit;
+            bool front_face = dot_product(vec3_neg(hit_info->ray->direction), hit_normal) < 0.0;
+            hit_info->front_face = front_face;
+            hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
+            hit_info->material = object_mesh->material;
+            float u = (mesh->texture_uv[i].x * closest_barycentric.x + mesh->texture_uv[j].x * closest_barycentric.y +
+                       mesh->texture_uv[k].x * closest_barycentric.z) /
+                      3.f;
+            float v = (mesh->texture_uv[i].y * closest_barycentric.x + mesh->texture_uv[j].y * closest_barycentric.y +
+                       mesh->texture_uv[k].y * closest_barycentric.z) /
+                      3.f;
+            hit_info->u = u;
+            hit_info->v = v;
+
+            // if (object_mesh->material->checkerboard) {
+            //     hit_info->color = texture_checkboard(u, v, object_mesh->material->scale,
+            //     &object_mesh->material->color);
+            // } else if (object_mesh->material->texture != NULL) {
+            //     int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
+            //     int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
+            //     hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
+            // } else {
+            //     hit_info->color = closest_barycentric;
+            // }
+            hit_info->color = closest_barycentric;
         }
         return true;
     }
@@ -138,7 +178,7 @@ Vec3 raycast_color(Ray *ray, RenderingOptions *options, Scene *scene, int depth)
     HitInfo hit_info;
     ObjectList *objects = scene->objects;
     ObjectList *lights = scene->lights;
-    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY);
+    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, ray->t);
     if (hit) {
         Vec3 attenuation;
         Ray scattered;
