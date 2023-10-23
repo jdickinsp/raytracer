@@ -13,7 +13,7 @@ Scene* create_scene_basic(RenderOptions* options) {
     PointLight* light = point_light_create(l_position, l_color, 20);
     object_list_add(lights, (Object*)light, PointLightType);
 
-    Material* s_material = material_create(0.1f, 0.3f, 0.6f, true, (Vec3){1, 0, 0}, 0.f);
+    Material* s_material = material_create(0.1f, 0.3f, 0.06f, true, (Vec3){1, 0, 0}, 0.f);
     Vec3 s_center = {.x = 0, .y = -.1, .z = -1};
     Sphere* sphere = sphere_create(s_center, 0.5, s_material);
     object_list_add(objects, (Object*)sphere, SphereType);
@@ -200,7 +200,7 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     ObjectList* lights = object_list_create();
 
     Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
-    Material* material = material_create(0.22, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    Material* material = material_create(0.22, 0.3, 0.02, true, (Vec3){1, 0, 0}, 0);
     material->checkerboard = true;
     material->scale = 0.001f;
     material->texture = texture_load("./assets/2k_mars.jpg");
@@ -212,17 +212,19 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
 
     Mesh* mesh2 = load_wavefront_obj_model("./assets/teapot2.obj");
+    // Mesh* mesh2 = load_wavefront_obj_model("./assets/armadillo2.obj");
     float ior = rand_range(0, 1) > 0.8 ? 1.5 : 0;
-    Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){.2, .3, .1}, ior);
+    Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){.2, .3, .1}, 0);
+    material2->texture = texture_load("./assets/2k_mars.jpg");
     material2->checkerboard = false;
-    material2->scale = 0.02f;
-    Vec3 rand_offset = {0, 1, -2};
+    material2->scale = 0.01f;
+    Vec3 rand_offset = {0, 1, -1};
     ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, rand_offset);
     object_list_add(objects, (Object*)obj_mesh2, ObjectMeshType);
 
-    Vec3 l_position = {0, -8, 0};
+    Vec3 l_position = {0, -10, 0};
     Vec3 l_color = {1, 1, 1};
-    PointLight* light = point_light_create(l_position, l_color, 25);
+    PointLight* light = point_light_create(l_position, l_color, 80);
     object_list_add(lights, (Object*)light, PointLightType);
 
     Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){.2, .3, .1}, 0);

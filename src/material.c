@@ -82,7 +82,7 @@ bool phong_shading(ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation) {
         diffuse = vec3_add(diffuse, d_color);
         // specular
         Vec3 reflect = vec3_sub(light_dir, vec3_mul(hit_info->normal, 2 * dot_product(hit_info->normal, light_dir)));
-        int n = 4;
+        int n = 10;
         float mag = vec3_mag(light_dir);
         Vec3 light_intensity = vec3_mul(color_intensity, 1 / (4 * M_PI * mag));
         Vec3 s_color = vec3_mul(light_intensity, pow(max(0.f, dot_product(reflect, light_dir)), n));

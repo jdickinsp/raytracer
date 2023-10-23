@@ -185,7 +185,7 @@ Vec3 light_direction(Object *object, ObjectType type, Vec3 point) {
         case DirectionalLightType:
             return vec3_norm(object->directional_light.direction);
         case PointLightType:
-            return vec3_neg(vec3_norm(vec3_sub(point, object->point_light.position)));
+            return vec3_norm(vec3_sub(point, object->point_light.position));
         default:
             printf("error with light_direction");
             abort();
