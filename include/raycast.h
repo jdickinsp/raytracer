@@ -12,7 +12,5 @@
 #include <vectors.h>
 
 bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
-Vec3 ray_trace_color(Scene *scene, Ray *ray, int depth);
-Vec3 path_trace_color(Scene *scene, Ray *ray, int depth);
 
 #endif
