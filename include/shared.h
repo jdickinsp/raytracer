@@ -1,7 +1,26 @@
 #ifndef SHARED_H
 #define SHARED_H
 
+#include <bvh.h>
+#include <matrix44.h>
+#include <stdbool.h>
 #include <vectors.h>
+
+typedef struct {
+    unsigned char r, g, b;
+} Pixel;
+
+typedef struct {
+    int width, height;
+    Pixel *data;
+} Image;
+
+typedef struct {
+    int width, height;
+    int bytes_per_pixel;
+    size_t size;
+    unsigned char *data;
+} TextureImage;
 
 typedef struct {
     float albedo;
@@ -150,7 +169,7 @@ typedef struct {
     Vec3 barycentric;
 } BVHitInfo;
 
-typedef enum { RAY_TRACING = 0, PATH_TRACING = 1 } RenderingType;
+typedef enum { RAY_TRACE = 0, PATH_TRACE = 1 } RenderingType;
 
 typedef struct {
     RenderingType rendering_type;

@@ -75,10 +75,10 @@ void raytrace_image(Scene *scene, Image *image) {
             for (int sample = 0; sample < camera->samples_per_pixel; sample++) {
                 camera_ray_from_subpixel(camera, i, j, &ray);
                 switch (scene->render_options->rendering_type) {
-                    case RAY_TRACING:
+                    case RAY_TRACE:
                         p = ray_trace_color(scene, &ray, camera->rendering_depth);
                         break;
-                    case PATH_TRACING:
+                    case PATH_TRACE:
                         p = path_trace_color(scene, &ray, camera->rendering_depth);
                         break;
                     default:
@@ -104,7 +104,7 @@ void raytrace_image(Scene *scene, Image *image) {
 int main() {
     printf("raytracer\n");
     RenderOptions options = {
-        .rendering_type = RAY_TRACING, .width = 1366, .height = 768, .samples_per_pixel = 5, .rendering_depth = 5};
+        .rendering_type = PATH_TRACE, .width = 1366, .height = 768, .samples_per_pixel = 20, .rendering_depth = 5};
     Scene *scene = scene_selector(1, &options);
     Image *image = image_create(options.width, options.height);
     raytrace_image(scene, image);

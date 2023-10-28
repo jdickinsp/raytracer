@@ -1,4 +1,5 @@
 #include <path_trace.h>
+
 bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
 
 bool material_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered) {

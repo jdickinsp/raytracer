@@ -1,25 +1,10 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <shared.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <vectors.h>
-
-typedef struct {
-    unsigned char r, g, b;
-} Pixel;
-
-typedef struct {
-    int width, height;
-    Pixel *data;
-} Image;
-
-typedef struct {
-    int width, height;
-    int bytes_per_pixel;
-    size_t size;
-    unsigned char *data;
-} TextureImage;
 
 int image_save_png(Image *image);
 int image_save_ppm(Image *image);

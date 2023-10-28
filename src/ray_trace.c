@@ -1,4 +1,5 @@
 #include <ray_trace.h>
+
 bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
 
 bool phong_shading(ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation) {
