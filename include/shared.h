@@ -24,12 +24,18 @@ typedef struct {
 
 typedef struct {
     float albedo;
-    float Kd;
-    float Ks;
+    // float Ke; // emissive term
+    // float Ka // ambient term
+    // float Ia; // ambient light
+    float Kd;  // diffuse term
+    float Ks;  // specular term
     // bool diffuse;
     bool reflective;
     Vec3 color;
     float index_of_refraction;
+    // int n; // shininess exponent
+    // bool glass;
+    // bool mirror;
     bool checkerboard;
     float scale;
     TextureImage *texture;

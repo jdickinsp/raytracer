@@ -104,7 +104,7 @@ void raytrace_image(Scene *scene, Image *image) {
 int main() {
     printf("raytracer\n");
     RenderOptions options = {
-        .rendering_type = PATH_TRACE, .width = 1366, .height = 768, .samples_per_pixel = 20, .rendering_depth = 5};
+        .rendering_type = RAY_TRACE, .width = 1366, .height = 768, .samples_per_pixel = 20, .rendering_depth = 5};
     Scene *scene = scene_selector(1, &options);
     Image *image = image_create(options.width, options.height);
     raytrace_image(scene, image);
