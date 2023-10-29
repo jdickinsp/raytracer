@@ -28,7 +28,7 @@ bool metal_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation
     reflected = vec3_add(reflected, vec3_mul(random_unit_vector(), fuzz));
     *scattered = (Ray){hit_info->position, reflected};
     *attenuation = vec3_mul(hit_info->color, mat->albedo);
-    return true;
+    return dot_product(scattered->direction, hit_info->normal) > 0;
 }
 
 bool dielectric_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered) {
