@@ -92,6 +92,7 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
                 hit_info->color = closest_barycentric;
             }
         }
+        hit_info->ray = ray;
         return true;
     }
     return false;

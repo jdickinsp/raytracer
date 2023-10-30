@@ -66,11 +66,11 @@ void phong_shading(ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation) {
                                 (hit_info->material->albedo / M_PI));
         diffuse = vec3_add(diffuse, d_color);
         // specular
-        Vec3 reflect = vec3_sub(light_dir, vec3_mul(hit_info->normal, 2 * dot_product(hit_info->normal, light_dir)));
+        Vec3 R = reflect_vec(&light_dir, &hit_info->normal);
         int n = 5;
         float mag = vec3_mag(light_dir);
         Vec3 light_intensity = vec3_mul(color_intensity, 1 / (4 * M_PI * mag));
-        Vec3 s_color = vec3_mul(light_intensity, pow(max(0.f, dot_product(reflect, light_dir)), n));
+        Vec3 s_color = vec3_mul(light_intensity, pow(fmax(0.f, dot_product(R, light_dir)), n));
         specular = vec3_add(specular, s_color);
     }
     *attenuation = vec3_clip_max(
@@ -119,7 +119,12 @@ Vec3 ray_trace_color(Scene *scene, Ray *ray, int depth) {
         if (hit_info.material->index_of_refraction > 0 && hit_info.material->reflective == true) {  // transparent
             reflection_and_refraction_shading(scene, &hit_info, ray, depth - 1, &hit_color);
         } else if (hit_info.material->reflective == true) {  // reflective
-            reflection_color_shading(&hit_info, ray, &hit_color);
+            Vec3 reflect_dir;
+            reflection_color_shading(&hit_info, ray, &reflect_dir);
+            Vec3 reflect_point = vec3_add(hit_info.position, hit_info.normal);
+            Ray reflection_ray = {reflect_point, reflect_dir, INFINITY};
+            Vec3 color = ray_trace_color(scene, &reflection_ray, depth - 1);
+            hit_color = vec3_add(hit_color, vec3_mul(color, 0.8f));
         } else {  // diffuse, uses phong shading
             phong_shading(lights, &hit_info, &hit_color);
         }
