@@ -73,6 +73,7 @@ inline Vec3 vec3_create(float x, float y, float z) {
 }
 
 inline Vec3 vec3_empty() { return vec3_create(0, 0, 0); }
+inline Vec3 vec3_copy(Vec3 v) { return vec3_create(v.x, v.y, v.z); }
 
 inline float vec3_length_squared(Vec3 a) { return a.x * a.x + a.y * a.y + a.z * a.z; }
 

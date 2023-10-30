@@ -4,6 +4,7 @@
 #include <scene.h>
 #include <shared.h>
 #include <stdbool.h>
+#include <utils.h>
 #include <vectors.h>
 
 void phong_shading(ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation);

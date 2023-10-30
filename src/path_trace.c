@@ -15,7 +15,6 @@ bool lambertian_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenu
     Vec3 scatter_dir = vec3_add(hit_info->normal, random_unit_vector());
     if (vec3_near_zero(scatter_dir)) {
         scatter_dir = hit_info->normal;
-        printf("vec3_near_zero\n");
     }
     *scattered = (Ray){hit_info->position, scatter_dir};
     *attenuation = vec3_mul(hit_info->color, mat->albedo);

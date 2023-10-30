@@ -23,7 +23,7 @@ Scene* create_scene_basic(RenderOptions* options) {
     Sphere* sphere2 = sphere_create(s_center2, 0.4, s_material2);
     object_list_add(objects, (Object*)sphere2, SphereType);
 
-    Material* s_material3 = material_create(0.4, 0.3, 0.6, false, (Vec3){1, 1, 0}, 1.5);
+    Material* s_material3 = material_create(0.4, 0.3, 0.6, true, (Vec3){1, 1, 0}, 1.5);
     Vec3 s_center3 = {.x = -.9, .y = -.1, .z = -1};
     Sphere* sphere3 = sphere_create(s_center3, 0.4, s_material3);
     object_list_add(objects, (Object*)sphere3, SphereType);
