@@ -18,7 +18,7 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
         hit_index++;
     }
     if (closet_hit != INFINITY) {
-        if (hit_info->node->type != ObjectMeshType) {
+        if (hit_info->node->type != MeshInfoType) {
             hit_info->hit = closet_hit;
             Vec3 hit_position = ray_normal_at(ray, closet_hit);
             hit_info->position = hit_position;
@@ -64,8 +64,8 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
                 hit_info->color = object_color(hit_info->node->current, hit_info->node->type);
             }
         } else {
-            ObjectMesh *object_mesh = &hit_info->node->current->object_mesh;
-            Mesh *mesh = object_mesh->mesh;
+            MeshInfo *mesh_info = &hit_info->node->current->mesh_info;
+            Mesh *mesh = mesh_info->mesh;
             Vec3 closest_barycentric = (Vec3){hit_info->iu, hit_info->iv, (1 - (hit_info->iu + hit_info->iv))};
             int hit_index = hit_info->tri_index;
             int i, j, k;
@@ -74,15 +74,15 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
             k = hit_index * 3;
             // Vec3 hit_normal = vec3_add(vec3_add(vec3_mul(mesh->vertex_normals[i], closest_barycentric.x),
             //                                     vec3_mul(mesh->vertex_normals[j], closest_barycentric.y)),
-            //                            vec3_mul(object_mesh->mesh->vertex_normals[k], closest_barycentric.z));
+            //                            vec3_mul(mesh_info->mesh->vertex_normals[k], closest_barycentric.z));
             // using a face normal will not have shading
             Vec3 hit_normal = mesh->face_normals[hit_index];
-            hit_info->position = vec3_add(ray_normal_at(hit_info->ray, closet_hit), object_mesh->offset);
+            hit_info->position = vec3_add(ray_normal_at(hit_info->ray, closet_hit), mesh_info->offset);
             hit_info->hit = closet_hit;
             bool front_face = dot_product(vec3_neg(hit_info->ray->direction), hit_normal) < 0.0;
             hit_info->front_face = front_face;
             hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
-            hit_info->material = object_mesh->material;
+            hit_info->material = mesh_info->material;
             float u = (mesh->texture_uv[i].x * closest_barycentric.x + mesh->texture_uv[j].x * closest_barycentric.y +
                        mesh->texture_uv[k].x * closest_barycentric.z) /
                       3.f;
@@ -92,12 +92,12 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
             hit_info->u = u;
             hit_info->v = v;
 
-            if (object_mesh->material->checkerboard) {
-                hit_info->color = texture_checkboard(u, v, object_mesh->material->scale, &object_mesh->material->color);
-            } else if (object_mesh->material->texture != NULL) {
-                int iu = (int)(u * object_mesh->material->texture->width) % object_mesh->material->texture->width;
-                int iv = (int)(v * object_mesh->material->texture->height) % object_mesh->material->texture->height;
-                hit_info->color = texture_pixel_data(object_mesh->material->texture, iu, iv);
+            if (mesh_info->material->checkerboard) {
+                hit_info->color = texture_checkboard(u, v, mesh_info->material->scale, &mesh_info->material->color);
+            } else if (mesh_info->material->texture != NULL) {
+                int iu = (int)(u * mesh_info->material->texture->width) % mesh_info->material->texture->width;
+                int iv = (int)(v * mesh_info->material->texture->height) % mesh_info->material->texture->height;
+                hit_info->color = texture_pixel_data(mesh_info->material->texture, iu, iv);
             } else {
                 hit_info->color = closest_barycentric;
             }

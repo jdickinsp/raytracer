@@ -57,7 +57,7 @@ typedef enum {
     SphereType = 0,
     PlaneType = 1,
     TriangleType = 2,
-    ObjectMeshType = 3,
+    MeshInfoType = 3,
     DirectionalLightType = 4,
     PointLightType = 5
 } ObjectType;
@@ -99,7 +99,7 @@ typedef struct {
     Primatives *primatives;
     Material *material;
     Vec3 offset;
-} ObjectMesh;
+} MeshInfo;
 
 typedef struct {
     Vec3 color;
@@ -118,7 +118,7 @@ typedef union {
     Sphere sphere;
     Plane plane;
     Triangle triangle;
-    ObjectMesh object_mesh;
+    MeshInfo mesh_info;
     DirectionalLight directional_light;
     PointLight point_light;
 } Object;

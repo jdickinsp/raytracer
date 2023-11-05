@@ -2,8 +2,8 @@
 
 #define USE_BVH
 
-ObjectMesh *object_mesh_create(Mesh *mesh, Material *material, Vec3 offset) {
-    ObjectMesh *object_mesh = malloc(sizeof(ObjectMesh));
+MeshInfo *object_mesh_create(Mesh *mesh, Material *material, Vec3 offset) {
+    MeshInfo *object_mesh = malloc(sizeof(MeshInfo));
     Vec3 min_bounds, max_bounds, center;
     mesh_boundaries(mesh, &min_bounds, &max_bounds, &center);
     BoundingSphere *bounding_sphere = bounding_sphere_create(max_bounds, min_bounds, center);
@@ -28,7 +28,7 @@ ObjectMesh *object_mesh_create(Mesh *mesh, Material *material, Vec3 offset) {
     return object_mesh;
 }
 
-float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_info) {
+float object_mesh_intersection(MeshInfo *object_mesh, Ray *ray, HitInfo *hit_info) {
     Mesh *mesh = object_mesh->mesh;
     float closet_hit = INFINITY;
     int hit_index = 0;
@@ -79,12 +79,12 @@ float object_mesh_intersection(ObjectMesh *object_mesh, Ray *ray, HitInfo *hit_i
     return closet_hit;
 }
 
-void bvh_raycast(ObjectMesh *obj_mesh, Ray *ray, BVHitInfo *bv_hit) {
+void bvh_raycast(MeshInfo *mesh_info, Ray *ray, BVHitInfo *bv_hit) {
     float tmin = INFINITY;
     float t = 0.f;
     int s = 0;
-    BVHNode *root = obj_mesh->bvh;
-    Primatives *primatives = obj_mesh->primatives;
+    BVHNode *root = mesh_info->bvh;
+    Primatives *primatives = mesh_info->primatives;
     BVHNode **stack[BVH_MAX_STACK_SIZE];
     stack[++s] = &root;
     BVHNode *current;

@@ -222,11 +222,11 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     material->scale = 0.001f;
     material->texture = texture_load("./assets/2k_mars.jpg");
     Vec3 offset = (Vec3){1.5, 0, 3};
-    ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
-    printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
-    Sphere s = obj_mesh->bounding_sphere->sphere;
+    MeshInfo* mesh_info = object_mesh_create(mesh, material, offset);
+    printf("mesh->vertex_count: %i\n", mesh_info->mesh->vertex_count);
+    Sphere s = mesh_info->bounding_sphere->sphere;
     printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
-    object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
+    object_list_add(objects, (Object*)mesh_info, MeshInfoType);
 
     Mesh* mesh2 = load_wavefront_obj_model("./assets/teapot2.obj");
     float ior = 1.5;
@@ -235,8 +235,8 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     material2->checkerboard = false;
     material2->scale = 0.01f;
     Vec3 rand_offset = {0, 1, -1};
-    ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, rand_offset);
-    object_list_add(objects, (Object*)obj_mesh2, ObjectMeshType);
+    MeshInfo* mesh_info2 = object_mesh_create(mesh2, material2, rand_offset);
+    object_list_add(objects, (Object*)mesh_info2, MeshInfoType);
 
     // Mesh* mesh3 = load_wavefront_obj_model("./assets/suzanne.obj");
     // float ior3 = 1.5;
@@ -245,8 +245,8 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     // material3->checkerboard = false;
     // material3->scale = 0.01f;
     // Vec3 rand_offset3 = {0, 0, 0};
-    // ObjectMesh* obj_mesh3 = object_mesh_create(mesh3, material3, rand_offset3);
-    // object_list_add(objects, (Object*)obj_mesh3, ObjectMeshType);
+    // MeshInfo* mesh_info3 = object_mesh_create(mesh3, material3, rand_offset3);
+    // object_list_add(objects, (Object*)mesh_info3, MeshInfoType);
 
     Vec3 l_position = {0, -10, -4};
     Vec3 l_color = {1, 0, 1};
@@ -292,11 +292,11 @@ Scene* create_scene_with_rand_cubes(RenderOptions* options) {
     material->scale = 0.001f;
     material->texture = texture_load("./assets/2k_earth_clouds.jpg");
     Vec3 offset = (Vec3){0, 0, 3};
-    ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
-    printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
-    Sphere s = obj_mesh->bounding_sphere->sphere;
+    MeshInfo* mesh_info = object_mesh_create(mesh, material, offset);
+    printf("mesh->vertex_count: %i\n", mesh_info->mesh->vertex_count);
+    Sphere s = mesh_info->bounding_sphere->sphere;
     printf("sphere: (%f,%f,%f) r:%f\n", s.position.x, s.position.y, s.position.z, s.radius);
-    object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
+    object_list_add(objects, (Object*)mesh_info, MeshInfoType);
 
     for (int i = 0; i < 50; i++) {
         float ior3 = rand_range(0, 1) > 0.8 ? 1.5 : 0;
@@ -305,8 +305,8 @@ Scene* create_scene_with_rand_cubes(RenderOptions* options) {
         material3->checkerboard = true;
         material3->scale = rand_range(0.001f, 0.05f);
         Vec3 rand_offset3 = (Vec3){rand_range(-6, 6), 0, rand_range(0, -15)};
-        ObjectMesh* obj_mesh3 = object_mesh_create(mesh, material3, rand_offset3);
-        object_list_add(objects, (Object*)obj_mesh3, ObjectMeshType);
+        MeshInfo* mesh_info3 = object_mesh_create(mesh, material3, rand_offset3);
+        object_list_add(objects, (Object*)mesh_info3, MeshInfoType);
     }
 
     Vec3 l_position = {0, 10, 0};

@@ -34,8 +34,8 @@ float object_intersection(Object *object, ObjectType type, Ray *ray, HitInfo *hi
             return plane_intersection((Plane *)object, ray);
         case TriangleType:
             return triangle_intersection((Triangle *)object, ray);
-        case ObjectMeshType:
-            return object_mesh_intersection((ObjectMesh *)object, ray, hit_info);
+        case MeshInfoType:
+            return object_mesh_intersection((MeshInfo *)object, ray, hit_info);
         default:
             return -1;
     }
@@ -62,7 +62,7 @@ Vec3 object_color(Object *object, ObjectType type) {
             return object->plane.material->color;
         case TriangleType:
             return object->triangle.material->color;
-        case ObjectMeshType:
+        case MeshInfoType:
             Vec3 color = {1, 0, 0};
             return color;
         default:
@@ -78,8 +78,8 @@ Material *object_material(Object *object, ObjectType type) {
             return object->plane.material;
         case TriangleType:
             return object->triangle.material;
-        case ObjectMeshType:
-            return object->object_mesh.material;
+        case MeshInfoType:
+            return object->mesh_info.material;
         default:
             return NULL;
     }
