@@ -1,6 +1,6 @@
 #include <ray_trace.h>
 
-bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
+bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far, int skip_index);
 
 const float BIAS = 1e-3;
 
@@ -52,29 +52,76 @@ Vec3 refract_vec(Vec3 *I, Vec3 *N, float ior) {
     return vec3_add(vec3_mul(*I, eta), vec3_mul(n, eta * cosi - sqrtf(k)));
 }
 
-void phong_shading(ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation) {
+void phong_shading(Ray *ray, ObjectList *obj_list, ObjectList *lights, HitInfo *hit_info, Vec3 *attenuation) {
     ObjectNode *light_node = lights->head;
     Vec3 diffuse = {0, 0, 0};
     Vec3 specular = {0, 0, 0};
+    Vec3 hitcolor = {0, 0, 0};
     for (; light_node != NULL; light_node = light_node->next) {
-        Vec3 light_dir = light_direction(light_node->current, light_node->type, hit_info->position);
-        float diffuse_intensity = light_intensity(light_node->current, light_node->type);
-        // Vec3 color = object_color(hit_info->node->current, hit_info->node->type);
         Vec3 color = hit_info->color;
-        Vec3 color_intensity = vec3_mul(color, diffuse_intensity);
-        Vec3 d_color = vec3_mul(vec3_mul(color_intensity, fmax(0.f, dot_product(hit_info->normal, light_dir))),
-                                (hit_info->material->albedo / M_PI));
+        // calculate illumination
+        Vec3 light_dir;
+        Vec3 light_intensity;
+        float light_distance;
+        if (light_node->type == PointLightType) {
+            light_dir = vec3_sub(hit_info->position, light_node->current->point_light.position);
+            float r2 = vec3_mag(light_dir);
+            light_distance = sqrt(r2);
+            light_dir = vec3_mul(light_dir, (1.f / light_distance));
+            light_intensity = vec3_mul(light_node->current->point_light.color,
+                                       light_node->current->point_light.intensity / (4.f * M_PI * r2));
+
+        } else if (light_node->type == DirectionalLightType) {
+            light_dir = light_node->current->directional_light.direction;
+            light_intensity = vec3_mul(light_node->current->directional_light.color,
+                                       light_node->current->directional_light.intensity);
+            light_distance = INFINITY;
+        }
+        Vec3 shadow_origin = vec3_mul(vec3_add(hit_info->position, hit_info->normal), 1.f + BIAS);
+        Ray kshadow = {shadow_origin, vec3_neg(ray->direction), INFINITY};
+        HitInfo shadow_hit;
+        bool vis = !detect_ray_hits(&kshadow, obj_list, &shadow_hit, 1e-3, INFINITY, hit_info->hit_index);
+        // bool vis = true;
+        Vec3 color_intensity = vec3_component_mul(color, light_intensity);
+
+        // float angle = 45 * (180.f / M_PI);
+        // float s = hit_info->u * cos(angle) - hit_info->v * sin(angle);
+        // float t = hit_info->v * cos(angle) + hit_info->u * sin(angle);
+        // float scaleS = 5.f;
+        // float scaleT = 5.f;
+        // float pattern = (s * scaleS - floorf(s * scaleS)) < 0.5f;
+        // Vec3 d_color =
+        //     vec3_mul(color_intensity, vis * pattern * fmax(0.f, dot_product(hit_info->normal, vec3_neg(light_dir))));
+        // Vec3 color_intensity = vec3_component_mul(color, light_intensity);
+        // Vec3 s_color = vec3_mul(light_intensity, vis * fmax(0.f, dot_product(hit_info->normal,
+        // vec3_neg(light_dir)))); hitcolor = vec3_add(hitcolor, light_intensity);
+
+        // // Vec3 light_dir = light_direction(light_node->current, light_node->type, hit_info->position);
+        // // float diffuse_intensity = light_intensity(light_node->current, light_node->type);
+        // // Vec3 color = object_color(hit_info->node->current, hit_info->node->type);
+
+        // // Vec3 d_color =
+        // //     vec3_mul(vec3_mul(color_intensity, vis * fmax(0.f, dot_product(hit_info->normal,
+        // vec3_neg(light_dir)))),
+        // //              (hit_info->material->albedo / M_PI));
+
+        Vec3 d_color = vec3_mul(color_intensity, vis * hit_info->material->albedo *
+                                                     fmax(0.f, dot_product(hit_info->normal, vec3_neg(light_dir))));
         diffuse = vec3_add(diffuse, d_color);
+
         // specular
-        Vec3 R = reflect_vec(&light_dir, &hit_info->normal);
+        Vec3 R = vec3_norm(reflect_vec(&light_dir, &hit_info->normal));
         int n = 5;
-        float mag = vec3_mag(light_dir);
-        Vec3 light_intensity = vec3_mul(color_intensity, 1 / (4 * M_PI * mag));
-        Vec3 s_color = vec3_mul(light_intensity, pow(fmax(0.f, dot_product(R, light_dir)), n));
+        // float mag = vec3_mag(light_dir);
+        // Vec3 light_intensity = vec3_mul(light_intensity, 1 / (4 * M_PI * mag));
+        Vec3 s_color = vec3_mul(color_intensity, vis * pow(fmax(0.f, dot_product(R, vec3_neg(ray->direction))), n));
         specular = vec3_add(specular, s_color);
     }
     *attenuation = vec3_clip_max(
         vec3_add(vec3_mul(diffuse, hit_info->material->Kd), vec3_mul(specular, hit_info->material->Ks)), 1.0f);
+    // *attenuation = diffuse;
+    // *attenuation = vec3_mul(vec3_add(hit_info->normal, (Vec3){1, 1, 1}), 0.5f);
+    // vec3_debug_print(hit_info->normal);
 }
 
 // trace another ray at intersection point
@@ -113,7 +160,7 @@ Vec3 ray_trace_color(Scene *scene, Ray *ray, int depth) {
     HitInfo hit_info;
     ObjectList *objects = scene->objects;
     ObjectList *lights = scene->lights;
-    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY);
+    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY, -1);
     if (hit) {
         // hit_color = vec3_mul(hit_info.color, dot_product(hit_info.normal, vec3_neg(ray->direction)));
         if (hit_info.material->index_of_refraction > 0 && hit_info.material->reflective == true) {  // transparent
@@ -126,7 +173,7 @@ Vec3 ray_trace_color(Scene *scene, Ray *ray, int depth) {
             Vec3 color = ray_trace_color(scene, &reflection_ray, depth - 1);
             hit_color = vec3_add(hit_color, vec3_mul(color, 0.8f));
         } else {  // diffuse, uses phong shading
-            phong_shading(lights, &hit_info, &hit_color);
+            phong_shading(ray, objects, lights, &hit_info, &hit_color);
         }
         return hit_color;
     }

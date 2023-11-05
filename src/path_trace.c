@@ -1,6 +1,6 @@
 #include <path_trace.h>
 
-bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
+bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far, int skip_index);
 
 bool material_scatter(Material *mat, Ray *ray, HitInfo *hit_info, Vec3 *attenuation, Ray *scattered) {
     if (mat->index_of_refraction > 0) {
@@ -59,7 +59,7 @@ Vec3 path_trace_color(Scene *scene, Ray *ray, int depth) {
     HitInfo hit_info;
     ObjectList *objects = scene->objects;
     ObjectList *lights = scene->lights;
-    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY);
+    bool hit = detect_ray_hits(ray, objects, &hit_info, 1e-3, INFINITY, -1);
     if (hit) {
         Vec3 attenuation;
         Ray scattered;

@@ -11,6 +11,6 @@
 #include <texture.h>
 #include <vectors.h>
 
-bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far);
+bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far, int skip_index);
 
 #endif

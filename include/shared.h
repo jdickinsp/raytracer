@@ -165,6 +165,7 @@ typedef struct {
     int tri_index;
     float iu, iv;
     Ray *ray;
+    int hit_index;
 } HitInfo;
 
 typedef struct {
@@ -183,6 +184,7 @@ typedef struct {
     int height;
     int samples_per_pixel;
     int rendering_depth;
+    float vfov;
 } RenderOptions;
 
 typedef struct {

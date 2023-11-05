@@ -4,29 +4,45 @@ Scene* create_scene_basic(RenderOptions* options) {
     Scene* scene = scene_create(options, NULL);
     scene->camera = malloc(sizeof(Camera));
     Vec3 lookfrom = vec3_create(-1.6f, -1.5f, 2.0f);
+    options->vfov = 40;
     camera_init(scene->camera, options, &lookfrom, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
-    Vec3 l_position = {0, 4, 2};
-    Vec3 l_color = {1, 1, 1};
-    PointLight* light = point_light_create(l_position, l_color, 20);
+    Vec3 l_position = {0, -2, 4};
+    Vec3 l_color = {1, 0, 0};
+    PointLight* light = point_light_create(l_position, l_color, 50);
     object_list_add(lights, (Object*)light, PointLightType);
 
-    Material* s_material = material_create(0.1f, 0.3f, 0.06f, true, (Vec3){1, 0, 0}, 0.f);
-    Vec3 s_center = {.x = 0, .y = -.1, .z = -1};
-    Sphere* sphere = sphere_create(s_center, 0.5, s_material);
-    object_list_add(objects, (Object*)sphere, SphereType);
+    Vec3 l_position2 = {0, -2, -4};
+    Vec3 l_color2 = {0, 1, 0};
+    PointLight* light2 = point_light_create(l_position2, l_color2, 50);
+    object_list_add(lights, (Object*)light2, PointLightType);
+
+    // Vec3 l2_direction = {1, 1, -1};
+    // Vec3 l2_color = {1, 1, 1};
+    // DirectionalLight* d_light = directional_light_create(vec3_norm(l2_direction), l2_color, 1);
+    // object_list_add(lights, (Object*)d_light, DirectionalLightType);
+
+    // Material* s_material = material_create(0.1f, 0.3f, 0.06f, true, (Vec3){1, 0, 0}, 0.f);
+    // Vec3 s_center = {.x = 0, .y = -.1, .z = -3};
+    // Sphere* sphere = sphere_create(s_center, 0.5, s_material);
+    // object_list_add(objects, (Object*)sphere, SphereType);
 
     Material* s_material2 = material_create(0.4, 0.3, 0.6, false, (Vec3){1, 1, 0}, 0);
-    Vec3 s_center2 = {.x = .9, .y = -.1, .z = -1};
-    Sphere* sphere2 = sphere_create(s_center2, 0.4, s_material2);
+    Vec3 s_center2 = {.x = 1.5, .y = -.1, .z = -1};
+    Sphere* sphere2 = sphere_create(s_center2, 0.5, s_material2);
     object_list_add(objects, (Object*)sphere2, SphereType);
 
     Material* s_material3 = material_create(0.4, 0.3, 0.6, true, (Vec3){1, 1, 0}, 1.5);
-    Vec3 s_center3 = {.x = -.9, .y = -.1, .z = -1};
+    Vec3 s_center3 = {.x = -1.5, .y = -.1, .z = -1};
     Sphere* sphere3 = sphere_create(s_center3, 0.4, s_material3);
     object_list_add(objects, (Object*)sphere3, SphereType);
+
+    Material* s_material4 = material_create(0.4, 0.3, 0.6, false, (Vec3){1, 1, 0}, 0);
+    Vec3 s_center4 = {.x = 0, .y = -.1, .z = -1};
+    Sphere* sphere4 = sphere_create(s_center4, 0.5, s_material4);
+    object_list_add(objects, (Object*)sphere4, SphereType);
 
     Material* p_material = material_create(0.1, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
     p_material->checkerboard = true;
@@ -195,16 +211,17 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     Scene* scene = scene_create(options, NULL);
     scene->camera = malloc(sizeof(Camera));
     Vec3 lookfrom = vec3_create(-1.6f, -1.5f, 6.0f);
+    options->vfov = 60.f;
     camera_init(scene->camera, options, &lookfrom, NULL);
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
     Material* material = material_create(0.22, 0.3, 0.02, true, (Vec3){1, 0, 0}, 0);
     material->checkerboard = true;
     material->scale = 0.001f;
     material->texture = texture_load("./assets/2k_mars.jpg");
-    Vec3 offset = (Vec3){0, 0, 3};
+    Vec3 offset = (Vec3){1.5, 0, 3};
     ObjectMesh* obj_mesh = object_mesh_create(mesh, material, offset);
     printf("mesh->vertex_count: %i\n", obj_mesh->mesh->vertex_count);
     Sphere s = obj_mesh->bounding_sphere->sphere;
@@ -212,9 +229,8 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     object_list_add(objects, (Object*)obj_mesh, ObjectMeshType);
 
     Mesh* mesh2 = load_wavefront_obj_model("./assets/teapot2.obj");
-    // Mesh* mesh2 = load_wavefront_obj_model("./assets/armadillo2.obj");
-    float ior = rand_range(0, 1) > 0.8 ? 1.5 : 0;
-    Material* material2 = material_create(0.22, 0.3, 0.2, true, (Vec3){.2, .3, .1}, 0);
+    float ior = 1.5;
+    Material* material2 = material_create(0.22, 0.3, 0.2, false, (Vec3){.2, .3, .1}, 0);
     material2->texture = texture_load("./assets/2k_mars.jpg");
     material2->checkerboard = false;
     material2->scale = 0.01f;
@@ -222,12 +238,27 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     ObjectMesh* obj_mesh2 = object_mesh_create(mesh2, material2, rand_offset);
     object_list_add(objects, (Object*)obj_mesh2, ObjectMeshType);
 
-    Vec3 l_position = {0, -10, 0};
-    Vec3 l_color = {1, 1, 1};
-    PointLight* light = point_light_create(l_position, l_color, 80);
+    // Mesh* mesh3 = load_wavefront_obj_model("./assets/suzanne.obj");
+    // float ior3 = 1.5;
+    // Material* material3 = material_create(0.22, 0.3, 0.2, false, (Vec3){.2, .3, .1}, 0);
+    // material3->texture = texture_load("./assets/2k_mars.jpg");
+    // material3->checkerboard = false;
+    // material3->scale = 0.01f;
+    // Vec3 rand_offset3 = {0, 0, 0};
+    // ObjectMesh* obj_mesh3 = object_mesh_create(mesh3, material3, rand_offset3);
+    // object_list_add(objects, (Object*)obj_mesh3, ObjectMeshType);
+
+    Vec3 l_position = {0, -10, -4};
+    Vec3 l_color = {1, 0, 1};
+    PointLight* light = point_light_create(l_position, l_color, 100);
     object_list_add(lights, (Object*)light, PointLightType);
 
-    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){.2, .3, .1}, 0);
+    Vec3 l_position2 = {0, -10, 4};
+    Vec3 l_color2 = {1, 1, 0};
+    PointLight* light2 = point_light_create(l_position2, l_color2, 100);
+    object_list_add(lights, (Object*)light2, PointLightType);
+
+    Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
     p_material->checkerboard = true;
     p_material->scale = 0.5f;
     Vec3 p_center = {.x = 0, .y = 1, .z = -1};

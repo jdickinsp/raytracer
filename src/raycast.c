@@ -1,29 +1,35 @@
 #include <raycast.h>
 
-bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far) {
+bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float near, float far, int skip_index) {
     float closet_hit = INFINITY;
     hit_info->hit = -1;
     ObjectNode *node = objects->head;
+    int hit_index = 0;
     for (; node != NULL; node = node->next) {
+        if (skip_index >= 0 && skip_index == hit_index) {
+            continue;
+        }
         float hit = object_intersection(node->current, node->type, ray, hit_info);
         if (hit > 0 && hit > near && hit < far && hit < closet_hit) {
             closet_hit = hit;
             hit_info->node = node;
+            hit_info->hit_index = hit_index;
         }
+        hit_index++;
     }
     if (closet_hit != INFINITY) {
         if (hit_info->node->type != ObjectMeshType) {
             hit_info->hit = closet_hit;
             Vec3 hit_position = ray_normal_at(ray, closet_hit);
-            Vec3 hit_normal = vec3_norm(object_normal_at(hit_info->node->current, hit_info->node->type, hit_position));
             hit_info->position = hit_position;
-            bool front_face = dot_product(ray->direction, hit_normal) < 0.0;
-            hit_info->front_face = front_face;
-            hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
             Material *material = object_material(hit_info->node->current, hit_info->node->type);
             hit_info->material = material;
             if (hit_info->node->type == SphereType) {
                 Sphere s = hit_info->node->current->sphere;
+                Vec3 hit_normal = vec3_norm(vec3_sub(hit_position, s.position));
+                bool front_face = dot_product(ray->direction, hit_normal) < 0.0;
+                hit_info->front_face = front_face;
+                hit_info->normal = front_face ? hit_normal : vec3_neg(hit_normal);
                 Vec3 outward_normal = vec3_mul(vec3_sub(hit_info->position, s.position), (1 / s.radius));
                 Vec2 uv = sphere_uv_texture_coord(outward_normal);
                 hit_info->u = uv.x;
@@ -39,6 +45,10 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
                     hit_info->color = object_color(hit_info->node->current, hit_info->node->type);
                 }
             } else if (hit_info->node->type == PlaneType) {
+                hit_info->front_face = true;
+                Vec3 hit_normal =
+                    vec3_norm(object_normal_at(hit_info->node->current, hit_info->node->type, hit_position));
+                hit_info->normal = vec3_neg(hit_normal);
                 Plane plane = hit_info->node->current->plane;
                 Vec2 uv = {fmod(hit_position.x, 1), fmod(hit_position.z, 1)};
                 hit_info->u = uv.x;
