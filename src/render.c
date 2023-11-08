@@ -106,7 +106,7 @@ int main() {
     // (1366, 768) (1920, 1080)
     RenderOptions options = {
         .rendering_type = RAY_TRACE, .width = 1920, .height = 1080, .samples_per_pixel = 5, .rendering_depth = 5};
-    Scene *scene = scene_selector(6, &options);
+    Scene *scene = scene_selector(1, &options);
     Image *image = image_create(options.width, options.height);
     raytrace_image(scene, image);
     image_save_png(image);

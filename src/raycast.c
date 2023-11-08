@@ -6,7 +6,8 @@ bool detect_ray_hits(Ray *ray, ObjectList *objects, HitInfo *hit_info, float nea
     ObjectNode *node = objects->head;
     int hit_index = 0;
     for (; node != NULL; node = node->next) {
-        if (skip_index >= 0 && skip_index == hit_index) {
+        Material *mat = object_material(node->current, node->type);
+        if (skip_index >= 0 && (skip_index == hit_index || mat->reflective == true)) {
             continue;
         }
         float hit = object_intersection(node->current, node->type, ray, hit_info);
