@@ -1,71 +1,102 @@
 #include <loaders.h>
 
+int buffer_offset(char *buffer, char match) {
+    char *next = buffer;
+    next = strchr(next, match);
+    return next - buffer;
+}
+
+int buffer_skip_line(char *buffer, int *offset) {
+    int c = buffer[*offset];
+    while (c != '\n' && c != '\0') {
+        c = buffer[(*offset)++];
+    }
+    return c;
+}
+
 Mesh *load_wavefront_obj_model(const char *file_path) {
     FILE *fp;
-    fopen_s(&fp, file_path, "r");
+    fopen_s(&fp, file_path, "rb");
     if (!fp) {
         fprintf(stderr, "Unable to open obj model %s\n", file_path);
         exit(1);
     }
+    fseek(fp, 0L, SEEK_END);
+    int offset = 0;
+    int buffer_size = ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
+    printf("buffer_size: %i\n", buffer_size);
+    char *buffer = malloc(buffer_size);
+    int bytes_read = fread_s(buffer, buffer_size, 1, buffer_size, fp);
+    fclose(fp);
+    if (bytes_read != buffer_size) {
+        fprintf(stderr, "Failed to copy file to buffer");
+        abort();
+    }
+    // printf("buffer: %s\n", buffer);
+
     Mesh *mesh = malloc(sizeof(Mesh));
 
     int c = 0;
-    int c2 = 0;
     int idx_v = 0;
     int idx_n = 0;
     int idx_t = 0;
     int idx_f = 0;
     int idx_fv = 0;
-
     float fx, fy, fz;
     int fi, fj, fk;
+    char sub_buffer[32];
+    ObjFaceIndexType face_index_type = OBJ_FACE_INDEX_TYPE_2;
 
     // first pass: count total vertex and faces
-    while (!feof(fp)) {
-        c = getc(fp);
+    c = buffer[offset];
+    while (offset <= buffer_size) {
         if (c == '#') {  // ignore comment
-            while (c != '\n') {
-                c = getc(fp);
-            }
-        }
-        if (c == 'u') {  // ignore usemtl
-            while (c != '\n') {
-                c = getc(fp);
-            }
-        }
-        if (c == 'v') {
-            c2 = getc(fp);
-            if (c == 'v' && c2 == ' ') {  // vertices
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+            c = buffer_skip_line(buffer, &offset);
+        } else if (c == 'u') {  // ignore usemtl
+            c = buffer_skip_line(buffer, &offset);
+        } else if (c == 'v') {
+            char peek = buffer[offset++];
+            if (c == 'v' && peek == ' ') {  // vertices
                 idx_v++;
-            }
-            if (c == 'v' && c2 == 'n') {  // normals
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+            } else if (c == 'v' && peek == 'n') {  // normals;
                 idx_n++;
-            }
-            if (c == 'v' && c2 == 't') {  // texture coordinates
-                fscanf_s(fp, "%f %f", &fx, &fy);
+            } else if (c == 'v' && peek == 't') {  // texture coordinates
                 idx_t++;
             }
-        }
-        if (c == 'f') {  // face indexes
+            c = buffer_skip_line(buffer, &offset);
+        } else if (c == 'f') {  // face indexes
+            if (idx_fv == 0) {
+                memcpy(&sub_buffer, &buffer[offset], 32);
+                // determine face index type, 1//2//3, or 1/2/3 or 1 2 3, or 1//2
+                char *forward_dash = strchr(sub_buffer, '/');
+                if (forward_dash != NULL) {
+                    int look = forward_dash - sub_buffer + 1;
+                    char peek = buffer[offset + look];
+                    face_index_type = peek == '/' ? OBJ_FACE_INDEX_TYPE_2 : OBJ_FACE_INDEX_TYPE_1;
+                } else {
+                    face_index_type = OBJ_FACE_INDEX_TYPE_3;
+                }
+            }
             while (c != '\n') {
-                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
-                c = getc(fp);
-                if (feof(fp)) {
+                char peek = buffer[offset + 1];
+                if (peek == '\n' || peek == '\0') {
                     break;
                 }
                 if (c == ' ') {
-                    c = getc(fp);
-                    if (c != '\n') {
-                        ungetc(c, fp);
-                    }
+                    idx_f++;
                 }
-                idx_f++;
+                c = buffer[offset++];
             }
             idx_fv++;
+            c = buffer_skip_line(buffer, &offset);
+        } else {
+            c = buffer_skip_line(buffer, &offset);
         }
+        c = buffer[offset++];
     }
+
+    printf("indexes: idx_fv:%i, %i, %i, %i, %i\n", idx_fv, idx_f, idx_v, idx_n, idx_t);
 
     int *face_index = malloc(sizeof(int) * idx_fv);
     int *vertex_index = malloc(sizeof(int) * idx_f);
@@ -81,68 +112,82 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     idx_fv = 0;
     idx_f = 0;
 
-    fseek(fp, 0, SEEK_SET);
-
+    offset = 0;
+    c = buffer[offset];
     // second pass: collect object data
-    while (!feof(fp)) {
-        c = getc(fp);
+    while (offset <= buffer_size) {
         if (c == '#') {  // ignore comment
-            while (c != '\n') {
-                c = getc(fp);
-            }
-        }
-        if (c == 'u') {  // ignore usemtl
-            while (c != '\n') {
-                c = getc(fp);
-            }
-        }
-        if (c == 'v') {
-            c2 = getc(fp);
-            if (c == 'v' && c2 == ' ') {  // vertices
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+            c = buffer_skip_line(buffer, &offset);
+        } else if (c == 'u') {  // ignore usemtl
+            c = buffer_skip_line(buffer, &offset);
+        } else if (c == 'v') {
+            char peek = buffer[offset++];
+            if (c == 'v' && peek == ' ') {  // vertices
+                char *next = &buffer[offset] - 1;
+                fx = strtof(++next, &next);
+                fy = strtof(++next, &next);
+                fz = strtof(++next, &next);
                 fvertices[idx_v] = (Vec3){fx, fy, fz};
+                offset += next - &buffer[offset] - 1;
                 idx_v++;
-            }
-            if (c == 'v' && c2 == 'n') {  // normals
-                fscanf_s(fp, "%f %f %f", &fx, &fy, &fz);
+            } else if (c == 'v' && peek == 'n') {  // normals
+                char *next = &buffer[offset] + 1;
+                fx = strtof(++next, &next);
+                fy = strtof(++next, &next);
+                fz = strtof(++next, &next);
                 fnormals[idx_n] = (Vec3){fx, fy, fz};
+                offset += next - &buffer[offset] - 1;
                 idx_n++;
-            }
-            if (c == 'v' && c2 == 't') {  // texture coordinates
-                fscanf_s(fp, "%f %f", &fx, &fy);
+            } else if (c == 'v' && peek == 't') {  // texture coordinates
+                char *next = &buffer[offset] + 1;
+                fx = strtof(++next, &next);
+                fy = strtof(++next, &next);
                 ftextures[idx_t] = (Vec2){fx, fy};
+                offset += next - &buffer[offset] - 1;
                 idx_t++;
             }
-        }
-        if (c == 'f') {  // face indexes
+        } else if (c == 'f') {  // face indexes
             int fi, fj, fk;
             int face_vertex_count = 0;
             while (c != '\n') {
-                // vertex_index / texture_index / normal_index
-                fscanf_s(fp, "%i/%i/%i", &fi, &fj, &fk);
-                c = getc(fp);
-                if (feof(fp)) {
+                char peek = buffer[offset + 1];
+                if (peek == '\n' || peek == '\0') {
                     break;
                 }
                 if (c == ' ') {
-                    c = getc(fp);
-                    if (c != '\n') {
-                        ungetc(c, fp);
+                    if (face_index_type == OBJ_FACE_INDEX_TYPE_1) {
+                        char *next = &buffer[offset];
+                        fi = strtol(next, &next, 10);
+                        fj = strtol(++next, &next, 10);
+                        fk = strtol(++next, &next, 10);
+                        // memcpy(&sub_buffer, &buffer[offset], 32);
+                        // sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);
+                    } else if (face_index_type == OBJ_FACE_INDEX_TYPE_2) {
+                        memcpy(&sub_buffer, &buffer[offset], 32);
+                        sscanf_s(sub_buffer, "%i//%i//%i", &fi, &fj, &fk);
+                    } else {
+                        memcpy(&sub_buffer, &buffer[offset], 32);
+                        sscanf_s(sub_buffer, "%i %i %i", &fi, &fj, &fk);
                     }
+                    // printf("f(%i,%i,%i)\n", fi, fj, fk);
+                    vertex_index[idx_f] = fi - 1;
+                    texture_index[idx_f] = fj - 1;
+                    normal_index[idx_f] = fk - 1;
+                    idx_f++;
+                    face_vertex_count++;
                 }
-                vertex_index[idx_f] = fi - 1;
-                texture_index[idx_f] = fj - 1;
-                normal_index[idx_f] = fk - 1;
-
-                idx_f++;
-                face_vertex_count++;
+                c = buffer[offset++];
             }
             face_index[idx_fv] = face_vertex_count;
             idx_fv++;
+            c = buffer_skip_line(buffer, &offset);
+        } else {
+            c = buffer_skip_line(buffer, &offset);
         }
+        c = buffer[offset++];
     }
 
-    const int face_count = idx_fv;
+    const int face_count = face_index[0] == 1 ? idx_fv / 3 : idx_fv;
     int max_vertices = 0;
     for (int n = 0; n < face_count; n++) {
         max_vertices += (face_index[n] - 2) * 3;
@@ -160,7 +205,6 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     int p = 0;
     for (int n = 0; n < face_count; n++) {
         for (int m = 0; m < face_index[n] - 2; m++) {
-            int total = face_index[n];
             int i = p;
             int j = p + m + 1;
             int k = p + m + 2;
@@ -200,7 +244,7 @@ Mesh *load_wavefront_obj_model(const char *file_path) {
     mesh->texture_uv = textures;
     mesh_set_face_normals(mesh);
 
-    fclose(fp);
+    free(buffer);
     free(fvertices);
     free(fnormals);
     free(ftextures);

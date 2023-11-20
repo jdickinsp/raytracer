@@ -4,3 +4,4 @@
 /.vscode
 code.profdata
 default.profraw
+/src/opencl/bin

@@ -18,6 +18,12 @@ typedef struct {
     float x, y, z, w;
 } Vec4;
 
+typedef struct {
+    Vec3 origin;
+    Vec3 direction;
+    float t;
+} Ray;
+
 inline Vec3 vec3_norm(Vec3 vec) {
     float mag = sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     Vec3 norm_vec = {.x = vec.x / mag, .y = vec.y / mag, .z = vec.z / mag};
@@ -67,10 +73,15 @@ inline Vec3 vec3_create(float x, float y, float z) {
 }
 
 inline Vec3 vec3_empty() { return vec3_create(0, 0, 0); }
+inline Vec3 vec3_copy(Vec3 v) { return vec3_create(v.x, v.y, v.z); }
 
 inline float vec3_length_squared(Vec3 a) { return a.x * a.x + a.y * a.y + a.z * a.z; }
 
 inline float vec3_mag(Vec3 a) { return sqrt(a.x * a.x + a.y * a.y + a.z * a.z); }
+
+inline Vec3 vec3_inv(Vec3 a) { return (Vec3){1.f / a.x, 1.f / a.y, 1.f / a.z}; }
+
+inline int vec3_argmax(Vec3 *a) { return a->x > a->y ? 0 : a->y > a->z ? 1 : 2; }
 
 void vec3_debug_print(Vec3 v);
 Vec4 vec4_from_vec3(Vec3 a, float w);
@@ -83,5 +94,9 @@ Vec3 random_unit_vector(void);
 bool vec3_near_zero(Vec3 v);
 Vec3 reflect(Vec3 v, Vec3 n);
 Vec3 refract(Vec3 uv, Vec3 n, float refraction_ratio);
+Vec3 vec3_distance(Vec3 a, Vec3 b);
+float vec3_index_value(Vec3 *v, int index);
+Vec3 vec3_triangle_normal_at(Vec3 a, Vec3 b, Vec3 c);
+float mesh_triangle_intersection(Ray *ray, Vec3 v0, Vec3 v1, Vec3 v2, Vec3 *uvw);
 
 #endif

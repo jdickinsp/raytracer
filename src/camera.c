@@ -1,14 +1,14 @@
 #include <camera.h>
 
-void camera_init(Camera *camera, int width, int height) {
-    camera->samples_per_pixel = 100;
-    camera->rendering_depth = 25;
-    camera->width = width;
-    camera->height = height;
-    camera->aspect_ratio = (float)width / (float)height;
-    camera->vfov = 50.f;
-    camera->lookfrom = vec3_create(-1.6f, -0.4f, 2.0f);
-    camera->lookat = vec3_create(0, 0, -1);
+void camera_init(Camera *camera, RenderOptions *render_options, Vec3 *lookfrom, Vec3 *lookat) {
+    camera->samples_per_pixel = render_options->samples_per_pixel;
+    camera->rendering_depth = render_options->rendering_depth;
+    camera->width = render_options->width;
+    camera->height = render_options->height;
+    camera->aspect_ratio = (float)camera->width / (float)camera->height;
+    camera->vfov = render_options->vfov ? render_options->vfov : 50.f;
+    camera->lookfrom = lookfrom == NULL ? vec3_create(-1.6f, -1.5f, 5.0f) : *lookfrom;
+    camera->lookat = lookat == NULL ? vec3_create(0, 0, -1) : *lookat;
     camera->up = vec3_create(0, 1, 0);
     camera->position = camera->lookfrom;
 
@@ -25,8 +25,8 @@ void camera_init(Camera *camera, int width, int height) {
     Vec3 viewport_u = vec3_mul(camera->u, viewport_width);
     Vec3 viewport_v = vec3_mul(vec3_neg(camera->v), viewport_height);
 
-    camera->pixel_delta_u = vec3_mul(viewport_u, (1.0f / (float)width));
-    camera->pixel_delta_v = vec3_mul(viewport_v, (1.0f / (float)height));
+    camera->pixel_delta_u = vec3_mul(viewport_u, (1.0f / (float)camera->width));
+    camera->pixel_delta_v = vec3_mul(viewport_v, (1.0f / (float)camera->height));
 
     Vec3 upper_left_corner = vec3_sub(vec3_sub(camera->position, vec3_mul(camera->w, focal_length)),
                                       vec3_sub(vec3_mul(viewport_u, 0.5f), vec3_mul(viewport_v, 0.5f)));
@@ -64,12 +64,21 @@ Vec3 camera_pixel_sample(Camera *camera) {
     return sample;
 }
 
-void camera_ray_from_pixel(Camera *camera, int i, int j, Ray *ray) {
+void camera_ray_from_subpixel(Camera *camera, int i, int j, Ray *ray) {
     Vec3 pixel_center = vec3_add(camera->pixel_upper_left, vec3_sub(vec3_mul(camera->pixel_delta_u, (float)i),
                                                                     vec3_mul(camera->pixel_delta_v, (float)j)));
     Vec3 pixel_sample = vec3_add(pixel_center, camera_pixel_sample(camera));
-    Vec3 ray_origin = camera->position;
-    Vec3 ray_direction = vec3_sub(pixel_sample, ray_origin);
-    ray->origin = ray_origin;
-    ray->direction = vec3_norm(ray_direction);
+    ray->origin = camera->position;
+    ray->direction = vec3_norm(vec3_sub(pixel_sample, ray->origin));
+    ray->t = INFINITY;
+}
+
+void camera_ray_from_pixel(Camera *camera, int i, int j, Ray *ray) {
+    Vec3 pixel_center = vec3_add(camera->pixel_upper_left, vec3_sub(vec3_mul(camera->pixel_delta_u, (float)i),
+                                                                    vec3_mul(camera->pixel_delta_v, (float)j)));
+    Vec3 sample = vec3_add(camera->pixel_delta_u, camera->pixel_delta_v);
+    Vec3 pixel_sample = vec3_add(pixel_center, sample);
+    ray->origin = camera->position;
+    ray->direction = vec3_norm(vec3_sub(pixel_sample, ray->origin));
+    ray->t = INFINITY;
 }
