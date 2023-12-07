@@ -19,16 +19,6 @@ Scene* create_scene_basic(RenderOptions* options) {
     PointLight* light2 = point_light_create(l_position2, l_color2, 50);
     object_list_add(lights, (Object*)light2, PointLightType);
 
-    // Vec3 l2_direction = {1, 1, -1};
-    // Vec3 l2_color = {1, 1, 1};
-    // DirectionalLight* d_light = directional_light_create(vec3_norm(l2_direction), l2_color, 1);
-    // object_list_add(lights, (Object*)d_light, DirectionalLightType);
-
-    // Material* s_material = material_create(0.1f, 0.3f, 0.06f, true, (Vec3){1, 0, 0}, 0.f);
-    // Vec3 s_center = {.x = 0, .y = -.1, .z = -3};
-    // Sphere* sphere = sphere_create(s_center, 0.5, s_material);
-    // object_list_add(objects, (Object*)sphere, SphereType);
-
     Material* s_material2 = material_create(0.4, 0.3, 0.6, false, (Vec3){1, 1, 0}, 0);
     Vec3 s_center2 = {.x = 1.5, .y = -.1, .z = -1};
     Sphere* sphere2 = sphere_create(s_center2, 0.5, s_material2);
@@ -238,16 +228,6 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     MeshInfo* mesh_info2 = object_mesh_create(mesh2, material2, rand_offset);
     object_list_add(objects, (Object*)mesh_info2, MeshInfoType);
 
-    // Mesh* mesh3 = load_wavefront_obj_model("./assets/suzanne.obj");
-    // float ior3 = 1.5;
-    // Material* material3 = material_create(0.22, 0.3, 0.2, false, (Vec3){.2, .3, .1}, 0);
-    // material3->texture = texture_load("./assets/2k_mars.jpg");
-    // material3->checkerboard = false;
-    // material3->scale = 0.01f;
-    // Vec3 rand_offset3 = {0, 0, 0};
-    // MeshInfo* mesh_info3 = object_mesh_create(mesh3, material3, rand_offset3);
-    // object_list_add(objects, (Object*)mesh_info3, MeshInfoType);
-
     Vec3 l_position = {0, -10, -4};
     Vec3 l_color = {1, 0, 1};
     PointLight* light = point_light_create(l_position, l_color, 100);
@@ -391,7 +371,6 @@ Scene* create_scene_with_binary_tree(RenderOptions* options) {
         array[i] = rand_range(0, 10000);
     }
     BinaryNode* tree = binary_tree_build(array, ARRAY_SIZE);
-    // binary_tree_traversal(tree);
     binary_tree_pprint(tree);
 
     Scene* scene = scene_create(options, NULL);
@@ -480,7 +459,6 @@ Scene* create_scene_with_bvh(RenderOptions* options) {
     Ray ray;
     BVHitInfo bv_hit;
     find_ray_from_triangle(origin, &triangles[0], &ray);
-    // bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
     printf("hit_info: %i\n", bv_hit.has_hit);
 
     Scene* scene = scene_create(options, NULL);
@@ -489,11 +467,6 @@ Scene* create_scene_with_bvh(RenderOptions* options) {
 
 Scene* create_scene_with_bvh_from_obj(RenderOptions* options) {
     Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/armadillo.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type2.obj");
-    // Mesh* mesh = load_wavefront_obj_model("./assets/cube_type3.obj");
 
     int n_size = mesh->vertex_count / 3;
     BVTriangle* triangles = malloc(sizeof(BVTriangle) * n_size);
@@ -506,19 +479,6 @@ Scene* create_scene_with_bvh_from_obj(RenderOptions* options) {
 
     Primatives* primatives = bvh_prepare_data(triangles, n_size);
     BVHNode* bvh_tree = bvh_build_tree(primatives);
-    // bvh_pprint(bvh_tree);
-    // // bvh_traverse_tree(bvh_tree);
-
-    // Vec3 origin = {0, 0, 2};
-    // Ray ray;
-    // BVHitInfo bv_hit;
-    // for (int n = 0; n < mesh->vertex_count / 3; n++) {
-    //     find_ray_from_triangle(origin, &triangles[n], &ray);
-    //     // vec3_debug_print(ray.direction);
-    //     bvh_raycast(bvh_tree, primatives, &ray, &bv_hit);
-    //     printf("hit_info: %i, %i\n", bv_hit.has_hit, bv_hit.index);
-    // }
-
     Scene* scene = scene_create(options, NULL);
     return scene;
 }

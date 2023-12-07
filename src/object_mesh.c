@@ -24,7 +24,6 @@ MeshInfo *object_mesh_create(Mesh *mesh, Material *material, Vec3 offset) {
     object_mesh->bvh = bvh;
     object_mesh->primatives = primatives;
     object_mesh->offset = offset;
-    // bvh_pprint(bvh);
     return object_mesh;
 }
 
@@ -136,7 +135,6 @@ BoundingSphere *bounding_sphere_create(Vec3 max_bounds, Vec3 min_bounds, Vec3 ce
     float radius = max(max(max_bounds.x - center.x, max_bounds.y - center.y), max_bounds.z - center.z) * 2;
     printf("radius: %f\n", radius);
     BoundingSphere *bs = malloc(sizeof(BoundingSphere));
-    // TODO remove color and material
     Vec3 color = {0, 0, 0};
     Material material = {0, 0, 0, false, color};
     Sphere *sphere = sphere_create(center, radius, &material);

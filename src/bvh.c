@@ -82,9 +82,6 @@ static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float
     int nlo = lo;
     for (int i = lo; i < hi; i++) {
         float point = vec3_index_value(&primatives->array[i].centroid, axis);
-        // if (depth >= BVH_MAX_DEPTH) {
-        //     printf("\t(%f <= %f)\n", point, pivot);
-        // }
         if (point <= pivot) {
             bvh_swap_primatives(primatives, lo, i);
             nlo += 1;
@@ -199,9 +196,6 @@ void bvh_pprint(BVHNode *root) {
         } else if (!is_left) {
             printf("r:");
         }
-        // printf("box(max=(%f,%f,%f), min=(%f,%f,%f)),", node->aabb->max.x, node->aabb->max.y,
-        // node->aabb->max.z,
-        //        node->aabb->min.x, node->aabb->min.y, node->aabb->min.z);
         if (node->is_leaf == true) {
             printf("=>(d=%i", node->data);
             printf("%.*s,\n", is_left ? 1 : parens, ")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))");

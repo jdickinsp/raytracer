@@ -90,10 +90,6 @@ Vec3 ray_normal_at(Ray *ray, float t) { return vec3_add(ray->origin, vec3_mul(ra
 Vec3 sphere_normal_at(Sphere *s, Vec3 p) { return vec3_mul(vec3_sub(p, s->position), 1.f / s->radius); }
 
 Vec2 sphere_uv_texture_coord(Vec3 p) {
-    // float theta = acos(-p.y);
-    // float phi = atan2(-p.z, p.x) + M_PI;
-    // float u = phi / (2 * M_PI);
-    // float v = theta / M_PI;
     float u = (1.0f + atan2(p.z, p.x) / M_PI) * 0.5f;
     float v = acosf(p.y) / M_PI;
     Vec2 uv = {u, v};
@@ -160,7 +156,6 @@ float triangle_intersection(Triangle *t, Ray *ray) {
         return -1;
     }
     Vec3 Q = vec3_add(ray->origin, vec3_mul(ray->direction, ti));
-    // printf("Q: (%f,%f,%f)\n", Q.x, Q.y, Q.z);
     Vec3 edge0 = vec3_sub(t->b, t->a);
     Vec3 vp0 = vec3_sub(Q, t->a);
     Vec3 C0 = cross_product(edge0, vp0);
@@ -247,8 +242,6 @@ Triangle *triangle_create_with_normals(Vec3 a, Vec3 b, Vec3 c, Material *materia
     triangle->normal3 = normal3;
     triangle->normal = triangle_normal_at(triangle);
     triangle->d = -dot_product(triangle->normal, c);
-    printf("normal:%f,%f,%f\n", triangle->normal.x, triangle->normal.y, triangle->normal.z);
-    // printf("d:%f\n", triangle->d);
     return triangle;
 }
 
