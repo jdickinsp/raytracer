@@ -96,7 +96,7 @@ typedef struct {
     Mesh *mesh;
     BoundingSphere *bounding_sphere;
     BVHNode *bvh;
-    Primatives *primatives;
+    Primitives *primitives;
     Material *material;
     Vec3 offset;
 } MeshInfo;

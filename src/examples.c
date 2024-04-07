@@ -206,10 +206,10 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
     ObjectList* objects = object_list_create();
     ObjectList* lights = object_list_create();
 
-    Mesh* mesh = load_wavefront_obj_model("./assets/cube.obj");
-    Material* material = material_create(0.22, 0.3, 0.02, true, (Vec3){1, 0, 0}, 0);
+    Mesh* mesh = load_wavefront_obj_model("./assets/suzanne.obj");
+    Material* material = material_create(0.22, 0.3, 0.02, false, (Vec3){1, 0, 0}, 0);
     material->checkerboard = true;
-    material->scale = 0.001f;
+    material->scale = 0.002f;
     material->texture = texture_load("./assets/2k_mars.jpg");
     Vec3 offset = (Vec3){1.5, 0, 3};
     MeshInfo* mesh_info = object_mesh_create(mesh, material, offset);
@@ -230,12 +230,12 @@ Scene* create_scene_with_obj_to_mesh(RenderOptions* options) {
 
     Vec3 l_position = {0, -10, -4};
     Vec3 l_color = {1, 0, 1};
-    PointLight* light = point_light_create(l_position, l_color, 100);
+    PointLight* light = point_light_create(l_position, l_color, 150);
     object_list_add(lights, (Object*)light, PointLightType);
 
     Vec3 l_position2 = {0, -10, 4};
     Vec3 l_color2 = {1, 1, 0};
-    PointLight* light2 = point_light_create(l_position2, l_color2, 100);
+    PointLight* light2 = point_light_create(l_position2, l_color2, 150);
     object_list_add(lights, (Object*)light2, PointLightType);
 
     Material* p_material = material_create(0.7, 0.3, 0.6, false, (Vec3){1, 1, 1}, 0);
@@ -329,22 +329,22 @@ Scene* create_scene_with_texture(RenderOptions* options) {
 
     Vec3 l_position = {0, 4, 2};
     Vec3 l_color = {1, 1, 1};
-    PointLight* light = point_light_create(l_position, l_color, 20);
+    PointLight* light = point_light_create(l_position, l_color, 100);
     object_list_add(lights, (Object*)light, PointLightType);
 
-    Material* s_material = material_create(0.5, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    Material* s_material = material_create(0.5, 0.3, 0.2, false, (Vec3){1, 0, 0}, 0);
     s_material->texture = texture_load("./assets/2k_neptune.jpg");
     Vec3 s_center = {.x = 0, .y = -.1, .z = -1};
     Sphere* sphere = sphere_create(s_center, 0.9, s_material);
     object_list_add(objects, (Object*)sphere, SphereType);
 
-    Material* s_material2 = material_create(0.6, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    Material* s_material2 = material_create(0.6, 0.3, 0.2, false, (Vec3){1, 0, 0}, 0);
     s_material2->texture = texture_load("./assets/2k_mars.jpg");
     Vec3 s_center2 = {.x = -1.5, .y = -.1, .z = -4};
     Sphere* sphere2 = sphere_create(s_center2, 0.8, s_material2);
     object_list_add(objects, (Object*)sphere2, SphereType);
 
-    Material* s_material3 = material_create(0.5, 0.3, 0.2, true, (Vec3){1, 0, 0}, 0);
+    Material* s_material3 = material_create(0.5, 0.3, 0.2, false, (Vec3){1, 0, 0}, 0);
     s_material3->texture = texture_load("./assets/2k_mercury.jpg");
     Vec3 s_center3 = {.x = 3.0, .y = -.1, .z = -3};
     Sphere* sphere3 = sphere_create(s_center3, 0.8, s_material3);
@@ -450,8 +450,8 @@ Scene* create_scene_with_bvh(RenderOptions* options) {
         vec3_debug_print(triangles[i].v3);
     }
 
-    Primatives* primatives = bvh_prepare_data(triangles, 12);
-    BVHNode* bvh_tree = bvh_build_tree(primatives);
+    Primitives* primitives = bvh_prepare_data(triangles, 12);
+    BVHNode* bvh_tree = bvh_build_tree(primitives);
     bvh_pprint(bvh_tree);
     bvh_traverse_tree(bvh_tree);
 
@@ -466,7 +466,8 @@ Scene* create_scene_with_bvh(RenderOptions* options) {
 }
 
 Scene* create_scene_with_bvh_from_obj(RenderOptions* options) {
-    Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    // Mesh* mesh = load_wavefront_obj_model("./assets/12273_Lion_v1_l3.obj");
+    Mesh* mesh = load_wavefront_obj_model("./assets/cube4.obj");
 
     int n_size = mesh->vertex_count / 3;
     BVTriangle* triangles = malloc(sizeof(BVTriangle) * n_size);
@@ -477,8 +478,8 @@ Scene* create_scene_with_bvh_from_obj(RenderOptions* options) {
         triangles[n] = (BVTriangle){mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]};
     }
 
-    Primatives* primatives = bvh_prepare_data(triangles, n_size);
-    BVHNode* bvh_tree = bvh_build_tree(primatives);
+    Primitives* primitives = bvh_prepare_data(triangles, n_size);
+    BVHNode* bvh_tree = bvh_build_tree(primitives);
     Scene* scene = scene_create(options, NULL);
     return scene;
 }

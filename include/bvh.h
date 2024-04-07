@@ -34,30 +34,29 @@ typedef struct {
     AABoundingBox aabb;
     Vec3 centroid;
     int tri_index;
-} PrimativeInfo;
+} PrimitiveInfo;
 
 typedef struct {
-    PrimativeInfo *array;
+    PrimitiveInfo *array;
     BVTriangle *triangles;
     size_t size;
-} Primatives;
+} Primitives;
 
-static int argmax(const float *array, size_t size);
+static size_t argmax(const float *array, size_t size);
 static void calculate_bounding_box(const BVTriangle *triangle, AABoundingBox *box);
 static void calculate_centroid(const BVTriangle *t, Vec3 *centroid);
 static void calculate_centroid_from_box(const AABoundingBox *box, Vec3 *centroid);
-static void calculate_bounding_box_range(const Primatives *primatives, int lo, int hi, AABoundingBox *box_range);
-static void calculate_centroid_range(const Primatives *primatives, int lo, int hi, Vec3 *centroid_range,
+static void calculate_bounding_box_range(const Primitives *primatives, size_t lo, size_t hi, AABoundingBox *box_range);
+static void calculate_centroid_range(const Primitives *primatives, size_t lo, size_t hi, Vec3 *centroid_range,
                                      Vec3 *centroid_min);
-static void bvh_swap_primatives(Primatives *primatives, int a, int b);
-static int bvh_partition(Primatives *primatives, int lo, int hi, int axis, float pivot, bool swap, int depth);
-Primatives *bvh_prepare_data(const BVTriangle *triangles, size_t size);
-BVHNode *bvh_build_child(const Primatives *primatives, int lo, int hi, int depth);
-BVHNode *bvh_build_tree(Primatives *primatives);
+static size_t bvh_partition(Primitives *primatives, size_t lo, size_t hi, int axis, float pivots);
+Primitives *bvh_prepare_data(const BVTriangle *triangles, size_t size);
+BVHNode *bvh_build_child(const Primitives *primatives, size_t lo, size_t hi, int depth);
+BVHNode *bvh_build_tree(Primitives *primatives);
 void bvh_pprint(BVHNode *node);
 void bvh_traverse_tree(BVHNode *node);
 void find_ray_from_triangle(const Vec3 origin, const BVTriangle *triangle, Ray *ray);
 float inv_ray_direction(float v);
-bool bounding_box_intersection(const AABoundingBox *box, Ray *ray, float *t);
+bool bounding_box_intersection(const AABoundingBox *box, const Ray *ray, float *t);
 
 #endif

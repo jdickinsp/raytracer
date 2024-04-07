@@ -19,10 +19,10 @@ MeshInfo *object_mesh_create(Mesh *mesh, Material *material, Vec3 offset) {
         int k = n * 3 + 2;
         triangles[n] = (BVTriangle){mesh->vertices[i], mesh->vertices[j], mesh->vertices[k]};
     }
-    Primatives *primatives = bvh_prepare_data(triangles, n_size);
-    BVHNode *bvh = bvh_build_tree(primatives);
+    Primitives *primitives = bvh_prepare_data(triangles, n_size);
+    BVHNode *bvh = bvh_build_tree(primitives);
     object_mesh->bvh = bvh;
-    object_mesh->primatives = primatives;
+    object_mesh->primitives = primitives;
     object_mesh->offset = offset;
     return object_mesh;
 }
@@ -83,7 +83,7 @@ void bvh_raycast(MeshInfo *mesh_info, Ray *ray, BVHitInfo *bv_hit) {
     float t = 0.f;
     int s = 0;
     BVHNode *root = mesh_info->bvh;
-    Primatives *primatives = mesh_info->primatives;
+    Primitives *primitives = mesh_info->primitives;
     BVHNode **stack[BVH_MAX_STACK_SIZE];
     stack[++s] = &root;
     BVHNode *current;
@@ -92,7 +92,7 @@ void bvh_raycast(MeshInfo *mesh_info, Ray *ray, BVHitInfo *bv_hit) {
         if (!bounding_box_intersection(current->aabb, ray, &t)) continue;
         if (current->is_leaf == true) {
             int tri_index = current->data;
-            BVTriangle triangle = primatives->triangles[tri_index];
+            BVTriangle triangle = primitives->triangles[tri_index];
             float hit_dist =
                 mesh_triangle_intersection(ray, triangle.v1, triangle.v2, triangle.v3, &bv_hit->barycentric);
             if (hit_dist > 0 && t <= tmin) {
